@@ -7,15 +7,20 @@
 import "oaidl.idl";
 import "ocidl.idl";
 
-enum geosGeomTypeId {
-	geosPoint,
-	geosLineString,
-	geosLinearRing,
-	geosPolygon,
-	geosMultiPoint,
-	geosMultiLineString,
-	geosMultiPolygon,
-	geosGeometryCollection,
+enum GEOSGeomTypes {
+	GEOS_POINT,
+	GEOS_LINESTRING,
+	GEOS_LINEARRING,
+	GEOS_POLYGON,
+	GEOS_MULTIPOINT,
+	GEOS_MULTILINESTRING,
+	GEOS_MULTIPOLYGON,
+	GEOS_GEOMETRYCOLLECTION,
+};
+
+enum GEOSByteOrders {
+	GEOS_WKB_XDR = 0, /* Big Endian */
+	GEOS_WKB_NDR = 1 /* Little Endian */
 };
 
 [
@@ -70,21 +75,21 @@ interface IAPI : IDispatch{
 	[id(40)] HRESULT Relate([in] long hGeom1, [in] long hGeom2, [out,retval] BSTR* pstrResult);
 	[id(41)] HRESULT Polygonize([in] VARIANT vGeoms, [out,retval] long* phGeom);
 	[id(42)] HRESULT LineMerge([in] long hGeom, [out,retval] long* phGeom);
-	[id(43)] HRESULT RelatePattern([in] long hGeom1, [in] long hGeom2, [in] BSTR strPattern, [out,retval] short* pnResult);
-	[id(44)] HRESULT Disjoint([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
-	[id(45)] HRESULT Touches([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
-	[id(46)] HRESULT Intersects([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
-	[id(47)] HRESULT Crosses([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
-	[id(48)] HRESULT Within([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
-	[id(49)] HRESULT Contains([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
-	[id(50)] HRESULT Overlaps([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
-	[id(51)] HRESULT Equals([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
-	[id(52)] HRESULT isEmpty([in] long hGeom, [out,retval] short* pnResult);
-	[id(53)] HRESULT isValid([in] long hGeom, [out,retval] short* pnResult);
-	[id(54)] HRESULT isSimple([in] long hGeom, [out,retval] short* pnResult);
-	[id(55)] HRESULT isRing([in] long hGeom, [out,retval] short* pnResult);
-	[id(56)] HRESULT HasZ([in] long hGeom, [out,retval] short* pnResult);
-	[id(57)] HRESULT GeomTypeId([in] long hGeom, [out,retval] enum geosGeomTypeId* peTypeId);
+	[id(43)] HRESULT RelatePattern([in] long hGeom1, [in] long hGeom2, [in] BSTR strPattern, [out,retval] unsigned char* pbyResult);
+	[id(44)] HRESULT Disjoint([in] long hGeom1, [in] long hGeom2, [out,retval] unsigned char* pbyResult);
+	[id(45)] HRESULT Touches([in] long hGeom1, [in] long hGeom2, [out,retval] unsigned char* pbyResult);
+	[id(46)] HRESULT Intersects([in] long hGeom1, [in] long hGeom2, [out,retval] unsigned char* pbyResult);
+	[id(47)] HRESULT Crosses([in] long hGeom1, [in] long hGeom2, [out,retval] unsigned char* pbyResult);
+	[id(48)] HRESULT Within([in] long hGeom1, [in] long hGeom2, [out,retval] unsigned char* pbyResult);
+	[id(49)] HRESULT Contains([in] long hGeom1, [in] long hGeom2, [out,retval] unsigned char* pbyResult);
+	[id(50)] HRESULT Overlaps([in] long hGeom1, [in] long hGeom2, [out,retval] unsigned char* pbyResult);
+	[id(51)] HRESULT Equals([in] long hGeom1, [in] long hGeom2, [out,retval] unsigned char* pbyResult);
+	[id(52)] HRESULT isEmpty([in] long hGeom, [out,retval] unsigned char* pbyResult);
+	[id(53)] HRESULT isValid([in] long hGeom, [out,retval] unsigned char* pbyResult);
+	[id(54)] HRESULT isSimple([in] long hGeom, [out,retval] unsigned char* pbyResult);
+	[id(55)] HRESULT isRing([in] long hGeom, [out,retval] unsigned char* pbyResult);
+	[id(56)] HRESULT HasZ([in] long hGeom, [out,retval] unsigned char* pbyResult);
+	[id(57)] HRESULT GeomTypeId([in] long hGeom, [out,retval] enum GEOSGeomTypes* peTypes); // 2.2.x(TypeID) -> 3.0.0rcx(Types)
 	[id(58)] HRESULT GetSRID([in] long hGeom, [out,retval] long* pnSRID);
 	[id(59)] HRESULT SetSRID([in] long hGeom, [in] int nSRID);
 	[id(60)] HRESULT GetNumGeometries([in] long hGeom, [out,retval] long* pnNumGeoms);
@@ -99,6 +104,16 @@ interface IAPI : IDispatch{
 	[id(68)] HRESULT GeomType([in] long hGeom, [out,retval] BSTR* pstrType);
 	[id(69)] HRESULT Area([in] long hGeom, [out] double* pdArea, [out,retval] long* pnResult);
 	[id(70)] HRESULT Length([in] long hGeom, [out] double* pdLength, [out,retval] long* pnResult);
+	// 3.0.0rc1
+	[id(71)] HRESULT getWKBOutputDims([out,retval] long* pnResult);
+	[id(72)] HRESULT getWKBByteOrder([out,retval] enum GEOSByteOrders* peResult);
+	[id(73)] HRESULT setWKBByteOrder([in] enum GEOSByteOrders eByteOrder, [out,retval] enum GEOSByteOrders* peResult);
+	[id(74)] HRESULT GeomFromHEX_buf([in] VARIANT vHex, [out,retval] long* phGeom);
+	[id(75)] HRESULT GeomToHEX_buf([in] long hGeom, [out,retval] VARIANT* pvHex);
+	[id(76)] HRESULT Simplify([in] long hGeom, [in] double dTolerance, [out,retval] long* phGeom);
+	[id(77)] HRESULT TopologyPreserveSimplify([in] long hGeom, [in] double dTolerance, [out,retval] long* phGeom);
+	[id(78)] HRESULT EqualsExact([in] long hGeom1, [in] long hGeom2, [in] double dTolerance, [out,retval] unsigned char* pbyResult);
+	[id(79)] HRESULT Normalize([in] long hGeom, [out,retval] long* pnResult);
 };
 [
 	uuid(D07BED60-96BC-4C7D-AE4F-114104675ABA),
@@ -119,6 +134,7 @@ library Geos
 		[id(1)] HRESULT onNotice([in] BSTR strNotice);
 		[id(2)] HRESULT onError([in] BSTR strError);
 	};
+
 	[
 		uuid(1BA3C695-871A-4FAD-8754-066681C23818),
 		helpstring("API Class")

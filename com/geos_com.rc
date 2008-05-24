@@ -1,69 +1,15 @@
-// Microsoft Visual C++ generated resource script.
-//
-#include "resource.h"
+#include <winver.h>
 
-#define APSTUDIO_READONLY_SYMBOLS
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 2 resource.
-//
-#include "winres.h"
-
-/////////////////////////////////////////////////////////////////////////////
-#undef APSTUDIO_READONLY_SYMBOLS
-
-/////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
-#endif //_WIN32
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE 
-BEGIN
-    "#include ""winres.h""\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "1 TYPELIB ""geos_com.tlb""\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Version
-//
+1 TypeLib geos_com.tlb
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,2,2,0
- PRODUCTVERSION 2,2,2,0
- FILEFLAGSMASK 0x1fL
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
+ FILEVERSION 3,0,0,0
+ PRODUCTVERSION 3,0,0,0
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
  FILEFLAGS 0x0L
-#endif
- FILEOS 0x4L
- FILETYPE 0x2L
- FILESUBTYPE 0x0L
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_DLL
+ FILESUBTYPE VFT2_UNKNOWN
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
@@ -72,12 +18,12 @@ BEGIN
             VALUE "Comments", "GEOS COM Wrapper"
             VALUE "CompanyName", "geosanak@gmail.com"
             VALUE "FileDescription", "GEOS COM Module"
-            VALUE "FileVersion", "2.2.2.0"
+            VALUE "FileVersion", "3.0.0.0"
             VALUE "InternalName", "GEOS COM"
-            VALUE "LegalCopyright", "geosanak@gmail.com  All rights reserved."
+            VALUE "LegalCopyright", "geosanak@gmail.com All rights reserved."
             VALUE "OriginalFilename", "geos_com.dll"
             VALUE "ProductName", "GEOS COM Module"
-            VALUE "ProductVersion", "2.2.2.0"
+            VALUE "ProductVersion", "3.0.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -85,38 +31,3 @@ BEGIN
         VALUE "Translation", 0x409, 0
     END
 END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// REGISTRY
-//
-
-IDR_GEOS_COM            REGISTRY                "geos_com.rgs"
-IDR_API                 REGISTRY                "API.rgs"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// String Table
-//
-
-STRINGTABLE 
-BEGIN
-    IDS_PROJNAME            "geos_com"
-END
-
-#endif    // English (U.S.) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-
-#ifndef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 3 resource.
-//
-1 TYPELIB "geos_com.tlb"
-
-/////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
-

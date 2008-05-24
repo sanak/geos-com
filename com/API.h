@@ -1,61 +1,82 @@
 // API.h : Declaration of the CAPI
 
 #pragma once
-#include "resource.h"       // main symbols
 
+#include "stdafx.h"
 #include "geos_com.h"
-#include "_IAPIEvents_CP.h"
-#include <geos_c.h>
 
-// CAPI
-
-class ATL_NO_VTABLE CAPI : 
-	public CComObjectRootEx<CComSingleThreadModel>,
-	public CComCoClass<CAPI, &CLSID_API>,
-	public ISupportErrorInfo,
-	public IConnectionPointContainerImpl<CAPI>,
-	public CProxy_IAPIEvents<CAPI>, 
-	public IDispatchImpl<IAPI, &IID_IAPI, &LIBID_Geos, /*wMajor =*/ 1, /*wMinor =*/ 0>
+class CAPIClassFactory : public IClassFactory
 {
 public:
+	// IUnknown
+	STDMETHOD(QueryInterface)(REFIID riid, void **ppv);
+	STDMETHOD_(ULONG, AddRef)(void);
+	STDMETHOD_(ULONG, Release)(void);
+	// IClassFactory
+	STDMETHOD(CreateInstance)(IUnknown *pUnkOuter, REFIID riid, void **ppv);
+	STDMETHOD(LockServer)(BOOL bLock);
+};
+
+// CAPI
+class CAPI : public IAPI,
+	public ISupportErrorInfo,
+	public _IAPIEvents,
+	public IConnectionPointContainer,
+	public IProvideClassInfo2
+{
+	LONG m_cRef;
+	ITypeInfo *m_pTypeInfo;
+	_IAPIEvents *m_pAPIEvents;
+public:
+	class XCPAPIEvents : public IConnectionPoint
+	{
+	public:
+		CAPI *This(void);
+		// IUnknown
+		STDMETHOD(QueryInterface)(REFIID riid, void **ppv);
+		STDMETHOD_(ULONG, AddRef)(void);
+		STDMETHOD_(ULONG, Release)(void);
+		// IConnectionPoint
+		STDMETHOD(GetConnectionInterface)(IID *piid);
+		STDMETHOD(GetConnectionPointContainer)(IConnectionPointContainer **ppcps);
+		STDMETHOD(Advise)(IUnknown *pUnk, DWORD *pdwCookie);
+		STDMETHOD(Unadvise)(DWORD dwCookie);
+		STDMETHOD(EnumConnections)(IEnumConnections **ppEnum);
+	} m_xcpAPIEvents;
+	friend class XCPAPIEvents;
+public:
 	static CAPI* sm_pThis;
-	CAPI()
-	{
-	}
-
-DECLARE_REGISTRY_RESOURCEID(IDR_API)
-
-
-BEGIN_COM_MAP(CAPI)
-	COM_INTERFACE_ENTRY(IAPI)
-	COM_INTERFACE_ENTRY(IDispatch)
-	COM_INTERFACE_ENTRY(ISupportErrorInfo)
-	COM_INTERFACE_ENTRY(IConnectionPointContainer)
-END_COM_MAP()
-
-BEGIN_CONNECTION_POINT_MAP(CAPI)
-	CONNECTION_POINT_ENTRY(__uuidof(_IAPIEvents))
-END_CONNECTION_POINT_MAP()
-// ISupportsErrorInfo
-	STDMETHOD(InterfaceSupportsErrorInfo)(REFIID riid);
-
-	DECLARE_PROTECT_FINAL_CONSTRUCT()
-
-	HRESULT FinalConstruct()
-	{
-		sm_pThis = this;
-		return S_OK;
-	}
+	CAPI(void);
+	virtual ~CAPI(void);
+	HRESULT FinalConstruct();
 	
-	void FinalRelease() 
-	{
-	}
-
 private:
 	static void notice(const char *fmt, ...);
 	static void error(const char *fmt, ...);
+	// _IAPIEvents
+	HRESULT Fire_onNotice(BSTR strNotice);
+	HRESULT Fire_onError(BSTR strError);
 
 public:
+	// IUnknown
+	STDMETHOD(QueryInterface)(REFIID riid, void **ppv);
+	STDMETHOD_(ULONG, AddRef)(void);
+	STDMETHOD_(ULONG, Release)(void);
+	// IDispatch
+	STDMETHOD(GetTypeInfoCount)(UINT *pit);
+	STDMETHOD(GetTypeInfo)(UINT it, LCID lcid, ITypeInfo **ppti);
+	STDMETHOD(GetIDsOfNames)(REFIID riid, LPOLESTR *pNames, UINT cNames, LCID lcid, DISPID *pdispids);
+	STDMETHOD(Invoke)(DISPID id, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pd, VARIANT *pVarResult, EXCEPINFO *pe, UINT *pu);
+	// ISupportErrorInfo
+	STDMETHOD(InterfaceSupportsErrorInfo)(REFIID riid);
+	// IConnectionPointContainer
+	STDMETHOD(EnumConnectionPoints)(IEnumConnectionPoints **ppEnum);
+	STDMETHOD(FindConnectionPoint)(REFIID riid, IConnectionPoint **ppcp);
+	// IProvideClassInfo
+	STDMETHOD(GetClassInfo)(ITypeInfo **ppti);
+	// IProvideClassInfo2
+	STDMETHOD(GetGUID)(DWORD dwgKind, GUID *pguid);
+	// IAPI
 	STDMETHOD(init)(void);
 	STDMETHOD(finish)(void);
 	STDMETHOD(version)(BSTR *pstrVersion);
@@ -96,21 +117,21 @@ public:
 	STDMETHOD(Relate)(long hGeom1, long hGeom2, BSTR* pstrResult);
 	STDMETHOD(Polygonize)(VARIANT vGeoms, long* phGeom);
 	STDMETHOD(LineMerge)(long hGeom, long* phGeom);
-	STDMETHOD(RelatePattern)(long hGeom1, long hGeom2, BSTR strPattern, short* pnResult);
-	STDMETHOD(Disjoint)(long hGeom1, long hGeom2, short* pnResult);
-	STDMETHOD(Touches)(long hGeom1, long hGeom2, short* pnResult);
-	STDMETHOD(Intersects)(long hGeom1, long hGeom2, short* pnResult);
-	STDMETHOD(Crosses)(long hGeom1, long hGeom2, short* pnResult);
-	STDMETHOD(Within)(long hGeom1, long hGeom2, short* pnResult);
-	STDMETHOD(Contains)(long hGeom1, long hGeom2, short* pnResult);
-	STDMETHOD(Overlaps)(long hGeom1, long hGeom2, short* pnResult);
-	STDMETHOD(Equals)(long hGeom1, long hGeom2, short* pnResult);
-	STDMETHOD(isEmpty)(long hGeom, short* pnResult);
-	STDMETHOD(isValid)(long hGeom, short* pnResult);
-	STDMETHOD(isSimple)(long hGeom, short* pnResult);
-	STDMETHOD(isRing)(long hGeom, short* pnResult);
-	STDMETHOD(HasZ)(long hGeom, short* pnResult);
-	STDMETHOD(GeomTypeId)(long hGeom, enum geosGeomTypeId* peTypeId);
+	STDMETHOD(RelatePattern)(long hGeom1, long hGeom2, BSTR strPattern, unsigned char* pbyResult);
+	STDMETHOD(Disjoint)(long hGeom1, long hGeom2, unsigned char* pbyResult);
+	STDMETHOD(Touches)(long hGeom1, long hGeom2, unsigned char* pbyResult);
+	STDMETHOD(Intersects)(long hGeom1, long hGeom2, unsigned char* pbyResult);
+	STDMETHOD(Crosses)(long hGeom1, long hGeom2, unsigned char* pbyResult);
+	STDMETHOD(Within)(long hGeom1, long hGeom2, unsigned char* pbyResult);
+	STDMETHOD(Contains)(long hGeom1, long hGeom2, unsigned char* pbyResult);
+	STDMETHOD(Overlaps)(long hGeom1, long hGeom2, unsigned char* pbyResult);
+	STDMETHOD(Equals)(long hGeom1, long hGeom2, unsigned char* pbyResult);
+	STDMETHOD(isEmpty)(long hGeom, unsigned char* pbyResult);
+	STDMETHOD(isValid)(long hGeom, unsigned char* pbyResult);
+	STDMETHOD(isSimple)(long hGeom, unsigned char* pbyResult);
+	STDMETHOD(isRing)(long hGeom, unsigned char* pbyResult);
+	STDMETHOD(HasZ)(long hGeom, unsigned char* pbyResult);
+	STDMETHOD(GeomTypeId)(long hGeom, enum GEOSGeomTypes* peTypes);
 	STDMETHOD(GetSRID)(long hGeom, long* pnSRID);
 	STDMETHOD(SetSRID)(long hGeom, int nSRID);
 	STDMETHOD(GetNumGeometries)(long hGeom, long* pnNumGeoms);
@@ -126,7 +147,13 @@ public:
 	STDMETHOD(GeomType)(long hGeom, BSTR* pstrType);
 	STDMETHOD(Area)(long hGeom, double* pdArea, long* pnResult);
 	STDMETHOD(Length)(long hGeom, double* pdLength, long* pnResult);
+	STDMETHOD(getWKBOutputDims)(long* pnResult);
+	STDMETHOD(getWKBByteOrder)(GEOSByteOrders* peResult);
+	STDMETHOD(setWKBByteOrder)(GEOSByteOrders eByteOrder, GEOSByteOrders* peResult);
+	STDMETHOD(GeomFromHEX_buf)(VARIANT vHex, long* phGeom);
+	STDMETHOD(GeomToHEX_buf)(long hGeom, VARIANT* pvHex);
+	STDMETHOD(Simplify)(long hGeom, double dTolerance, long* phGeom);
+	STDMETHOD(TopologyPreserveSimplify)(long hGeom, double dTolerance, long* phGeom);
+	STDMETHOD(EqualsExact)(long hGeom1, long hGeom2, double dTolerance, unsigned char* pbyResult);
+	STDMETHOD(Normalize)(long hGeom, long* pnResult);
 };
-#if _MSC_VER > 1200
-OBJECT_ENTRY_AUTO(__uuidof(API), CAPI)
-#endif // _MSC_VER

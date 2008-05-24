@@ -1,14 +1,167 @@
 // API.cpp : Implementation of CAPI
 
-#include "stdafx.h"
 #include "API.h"
-#include ".\api.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+namespace geos {
+	#include <geos_c.h>
+};
 
+STDMETHODIMP CAPIClassFactory::QueryInterface(REFIID riid, void **ppv)
+{
+	if (riid == IID_IUnknown || riid == IID_IClassFactory)
+		*ppv = static_cast<IClassFactory*>(this);
+	else
+		return (*ppv = 0), E_NOINTERFACE;
+
+	reinterpret_cast<IUnknown*>(*ppv)->AddRef();
+	return S_OK;
+}
+
+STDMETHODIMP_(ULONG) CAPIClassFactory::AddRef(void)
+{
+	LockModule();
+	return 2;
+}
+
+STDMETHODIMP_(ULONG) CAPIClassFactory::Release(void) {
+	UnlockModule();
+	return 1;
+}
+
+STDMETHODIMP CAPIClassFactory::CreateInstance(IUnknown *pUnkOuter, REFIID riid, void **ppv)
+{
+	*ppv = 0;
+	if (pUnkOuter != 0)
+		return CLASS_E_NOAGGREGATION;
+
+	CAPI *p = new CAPI();
+	if (p == 0)
+		return E_OUTOFMEMORY;
+
+	HRESULT hr = p->FinalConstruct();
+
+	p->AddRef();
+	hr = p->QueryInterface(riid, ppv);
+	p->Release();
+	return hr;
+}
+
+STDMETHODIMP CAPIClassFactory::LockServer(BOOL bLock)
+{
+	if (bLock)
+		LockModule();
+	else
+		UnlockModule();
+	return S_OK;
+}
+
+// CAPI
 #define MAX_NOTICE	1024
 #define MAX_ERROR	1024
-// CAPI
+
 CAPI* CAPI::sm_pThis = NULL;
+
+CAPI::CAPI(void)
+: m_cRef(0), m_pAPIEvents(NULL)
+{
+	ITypeLib *ptl = 0;
+	HRESULT hr = LoadRegTypeLib(LIBID_Geos, 1, 0, 0, &ptl);
+	hr = ptl->GetTypeInfoOfGuid(IID_IAPI, &m_pTypeInfo);
+	ptl->Release();
+}
+
+CAPI::~CAPI(void)
+{
+	m_pTypeInfo->Release();
+}
+
+HRESULT CAPI::FinalConstruct()
+{
+	sm_pThis = this;
+	return S_OK;
+}
+
+
+HRESULT CAPI::Fire_onNotice(BSTR strNotice)
+{
+	HRESULT hr = S_OK;
+	if (m_pAPIEvents)
+	{
+		IDispatch *pdispAPIEvents = static_cast<IDispatch*>(m_pAPIEvents);
+		if (pdispAPIEvents)
+		{
+			_variant_t avarParams[1];
+			avarParams[0].bstrVal = strNotice;	avarParams[0].vt = VT_BSTR;
+			_variant_t varResult;
+
+			DISPPARAMS params = { avarParams, NULL, 1, 0 };
+			hr = pdispAPIEvents->Invoke(1, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, &varResult, NULL, NULL);
+		}
+	}
+	return hr;
+}
+
+HRESULT CAPI::Fire_onError(BSTR strError)
+{
+	HRESULT hr = S_OK;
+
+	if (m_pAPIEvents)
+	{
+		IDispatch *pdispAPIEvents = static_cast<IDispatch*>(m_pAPIEvents);
+		if (pdispAPIEvents)
+		{
+			_variant_t avarParams[1];
+			avarParams[0].bstrVal = strError;	avarParams[0].vt = VT_BSTR;
+			_variant_t varResult;
+
+			DISPPARAMS params = { avarParams, NULL, 1, 0 };
+			hr = pdispAPIEvents->Invoke(2, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, &varResult, NULL, NULL);
+		}
+	}
+	return hr;
+}
+
+STDMETHODIMP CAPI::QueryInterface(REFIID riid, void **ppv)
+{
+	if (riid == IID_IUnknown || riid == IID_IAPI)
+		*ppv = static_cast<IAPI*>(this);
+	else if (riid == IID_IDispatch)
+		*ppv = static_cast<IAPI*>(this);
+	else if (riid == IID_ISupportErrorInfo)
+		*ppv = static_cast<ISupportErrorInfo*>(this);
+	else if (riid == DIID__IAPIEvents)
+		*ppv = static_cast<_IAPIEvents*>(this);
+	else if (riid == IID_IConnectionPointContainer)
+		*ppv = static_cast<IConnectionPointContainer*>(this);
+	else if (riid == IID_IProvideClassInfo)
+		*ppv = static_cast<IProvideClassInfo*>(this);
+	else if (riid == IID_IProvideClassInfo2)
+		*ppv = static_cast<IProvideClassInfo2*>(this);
+	else
+		return (*ppv = 0), E_NOINTERFACE;
+
+	reinterpret_cast<IUnknown*>(*ppv)->AddRef();
+	return S_OK;
+}
+
+STDMETHODIMP_(ULONG) CAPI::AddRef(void)
+{
+	if (m_cRef == 0)
+		LockModule();
+	return InterlockedIncrement(&m_cRef);
+}
+
+STDMETHODIMP_(ULONG) CAPI::Release(void) {
+	LONG res = InterlockedDecrement(&m_cRef);
+	if (res == 0) {
+		delete this;
+		UnlockModule();
+	}
+	return res;
+}
+
 STDMETHODIMP CAPI::InterfaceSupportsErrorInfo(REFIID riid)
 {
 	static const IID* arr[] = 
@@ -24,68 +177,192 @@ STDMETHODIMP CAPI::InterfaceSupportsErrorInfo(REFIID riid)
 	return S_FALSE;
 }
 
+CAPI* CAPI::XCPAPIEvents::This(void)
+{
+	return (CAPI*)((BYTE*)this - offsetof(CAPI, m_xcpAPIEvents));
+}
+
+// IUnknown
+STDMETHODIMP CAPI::XCPAPIEvents::QueryInterface(REFIID riid, void **ppv)
+{
+	if (riid == IID_IUnknown || riid == IID_IConnectionPoint)
+		*ppv = static_cast<IConnectionPoint*>(this);
+	else
+		return (*ppv = 0), E_NOINTERFACE;
+	((IUnknown*)*ppv)->AddRef();
+	return S_OK;
+}
+
+STDMETHODIMP_(ULONG) CAPI::XCPAPIEvents::AddRef(void)
+{
+	return This()->AddRef();
+}
+
+STDMETHODIMP_(ULONG) CAPI::XCPAPIEvents::Release(void)
+{
+	return This()->Release();
+}
+
+// IConnectionPoint
+STDMETHODIMP CAPI::XCPAPIEvents::GetConnectionInterface(IID *piid)
+{
+	*piid = DIID__IAPIEvents;
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::XCPAPIEvents::GetConnectionPointContainer(IConnectionPointContainer **ppcpc)
+{
+	((IUnknown*)(*ppcpc = This()))->AddRef();
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::XCPAPIEvents::Advise(IUnknown *pUnk, DWORD *pdwCookie)
+{
+	*pdwCookie = 0;
+	if (This()->m_pAPIEvents)
+		return CONNECT_E_ADVISELIMIT;
+
+	HRESULT hr = pUnk->QueryInterface(DIID__IAPIEvents, (void**)&(This()->m_pAPIEvents));
+	if (hr == E_NOINTERFACE)
+		hr = CONNECT_E_NOCONNECTION;
+	if (SUCCEEDED(hr))
+		*pdwCookie = static_cast<DWORD>(PtrToUlong(This()->m_pAPIEvents));
+	return hr;
+}
+
+STDMETHODIMP CAPI::XCPAPIEvents::Unadvise(DWORD dwCookie)
+{
+	if (static_cast<DWORD>(PtrToUlong(This()->m_pAPIEvents)) != dwCookie)
+		return CONNECT_E_NOCONNECTION;
+	This()->m_pAPIEvents->Release();
+	This()->m_pAPIEvents = 0;
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::XCPAPIEvents::EnumConnections(IEnumConnections **ppEnum)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHODIMP CAPI::EnumConnectionPoints(IEnumConnectionPoints **ppEnum)
+{
+	return S_FALSE; // TODO:
+}
+
+STDMETHODIMP CAPI::FindConnectionPoint(REFIID riid, IConnectionPoint **ppcp)
+{
+	if (riid == DIID__IAPIEvents)
+		*ppcp = &m_xcpAPIEvents;
+	else
+		return (*ppcp = 0), CONNECT_E_NOCONNECTION;
+
+	((IUnknown*)*ppcp)->AddRef();
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::GetClassInfo(ITypeInfo **ppti)
+{
+	ITypeLib *ptl = 0;
+	HRESULT hr = LoadRegTypeLib(LIBID_Geos, 1, 0, 0, &ptl);
+	if (SUCCEEDED(hr)) {
+		hr = ptl->GetTypeInfoOfGuid(CLSID_API, ppti);
+		ptl->Release();
+	}
+	return hr;
+}
+
+STDMETHODIMP CAPI::GetGUID(DWORD dwKind, GUID *pguid)
+{
+	if (dwKind != GUIDKIND_DEFAULT_SOURCE_DISP_IID || !pguid)
+		return E_INVALIDARG;
+	*pguid = DIID__IAPIEvents;
+	return S_OK;
+}
+
+
 void CAPI::notice(const char *fmt, ...)
 {
-	TCHAR szNotice[MAX_NOTICE];
+	char szNotice[MAX_NOTICE];
 	va_list ap;
 	va_start(ap, fmt);
-	_vstprintf(szNotice, fmt, ap);
+	vsprintf(szNotice, fmt, ap);
 	va_end(ap);
-	CComBSTR sbstrNotice = szNotice;
-	sm_pThis->Fire_onNotice(sbstrNotice);
+	_bstr_t bstrNotice = szNotice;
+	sm_pThis->Fire_onNotice(bstrNotice);
 }
 
 void CAPI::error(const char *fmt, ...)
 {
-	TCHAR szError[MAX_ERROR];
+	char szError[MAX_ERROR];
 	va_list ap;
 	va_start(ap, fmt);
-	_vstprintf(szError, fmt, ap);
+	vsprintf(szError, fmt, ap);
 	va_end(ap);
-	CComBSTR sbstrError = szError;
-	sm_pThis->Fire_onError(sbstrError);
+	_bstr_t bstrError = szError;
+	sm_pThis->Fire_onError(bstrError);
+}
+
+STDMETHODIMP CAPI::GetTypeInfoCount(UINT *pit)
+{
+	*pit = 1;
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::GetTypeInfo(UINT it, LCID lcid, ITypeInfo **ppti)
+{
+	(*ppti = m_pTypeInfo)->AddRef();
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::GetIDsOfNames(REFIID riid, LPOLESTR *pNames, UINT cNames, LCID lcid, DISPID *pdispids)
+{
+	return m_pTypeInfo->GetIDsOfNames(pNames, cNames, pdispids);
+}
+
+STDMETHODIMP CAPI::Invoke(DISPID id, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pd, VARIANT *pVarResult, EXCEPINFO *pe, UINT *pu)
+{
+	void *pvThis = static_cast<IAPI*>(this);
+	return m_pTypeInfo->Invoke(pvThis, id, wFlags, pd, pVarResult, pe, pu);
 }
 
 STDMETHODIMP CAPI::init(void)
 {
-	initGEOS(notice, error);
+	geos::initGEOS(notice, error);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::finish(void)
 {
-	finishGEOS();
+	geos::finishGEOS();
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::version(BSTR *pstrVersion)
 {
-	CComBSTR sbstrBuf;
-	sbstrBuf = GEOSversion();
-	return sbstrBuf.CopyTo(pstrVersion);
+	_bstr_t bstrVersion = geos::GEOSversion();
+	*pstrVersion = bstrVersion.copy();
+	return S_OK;
 }
-
 
 STDMETHODIMP CAPI::GeomFromWKT(BSTR strBuf, long *phGeom)
 {
-	USES_CONVERSION;
-	*phGeom = PtrToLong(GEOSGeomFromWKT(OLE2T(strBuf)));
+	_bstr_t bstrBuf = strBuf;
+	*phGeom = PtrToLong(geos::GEOSGeomFromWKT((char*)bstrBuf));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GeomToWKT(long hGeom, BSTR *pstrBuf)
 {
-	USES_CONVERSION;
-	char* pszBuf = GEOSGeomToWKT(static_cast<const GEOSGeom>(LongToPtr(hGeom)));
-	CComBSTR sbstrBuf;
-	sbstrBuf = T2OLE(pszBuf);
+	char* pszBuf = geos::GEOSGeomToWKT(static_cast<const geos::GEOSGeom>(LongToPtr(hGeom)));
+	_bstr_t bstrBuf = pszBuf;
 //	free(pszBuf);
-	return sbstrBuf.CopyTo(pstrBuf);
+	*pstrBuf = bstrBuf.copy();
+	return S_OK;
 }
 
 STDMETHODIMP CAPI::setWKBOutputDims(long nNewDims, long *pnOldDims)
 {
-	*pnOldDims = GEOS_setWKBOutputDims(nNewDims);
+	*pnOldDims = geos::GEOS_setWKBOutputDims(nNewDims);
 	return S_OK;
 }
 
@@ -100,7 +377,7 @@ STDMETHODIMP CAPI::GeomFromWKB_buf(VARIANT vBuf, long *phGeom)
 
 	size_t size = psa->rgsabound->cElements;
 
-	*phGeom = PtrToLong(GEOSGeomFromWKB_buf(pbyData, size));
+	*phGeom = PtrToLong(geos::GEOSGeomFromWKB_buf(pbyData, size));
 	::SafeArrayUnaccessData(psa);
 	return S_OK;
 }
@@ -108,7 +385,7 @@ STDMETHODIMP CAPI::GeomFromWKB_buf(VARIANT vBuf, long *phGeom)
 STDMETHODIMP CAPI::GeomToWKB_buf(long hGeom, VARIANT *pvBuf)
 {
 	size_t size;
-	BYTE* pbyBuf = GEOSGeomToWKB_buf(static_cast<GEOSGeom>(LongToPtr(hGeom)), &size);
+	BYTE* pbyBuf = geos::GEOSGeomToWKB_buf(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), &size);
 
 	::VariantInit(pvBuf);
 	pvBuf->vt = VT_ARRAY | VT_BSTR;
@@ -129,75 +406,74 @@ STDMETHODIMP CAPI::GeomToWKB_buf(long hGeom, VARIANT *pvBuf)
 
 STDMETHODIMP CAPI::CoordSeq_create(long nSize, long nDims, long *phCoordSeq)
 {
-	*phCoordSeq = PtrToLong(GEOSCoordSeq_create(nSize, nDims));
+	*phCoordSeq = PtrToLong(geos::GEOSCoordSeq_create(nSize, nDims));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_clone(long hCoordSeq, long *phCoordSeq)
 {
-	*phCoordSeq = PtrToLong(GEOSCoordSeq_clone(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq))));
+	*phCoordSeq = PtrToLong(geos::GEOSCoordSeq_clone(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_destroy(long hCoordSeq)
 {
-	GEOSCoordSeq_destroy(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)));
+	geos::GEOSCoordSeq_destroy(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_setX(long hCoordSeq, long nIndex, double dVal, long *pnResult)
 {
-	*pnResult = GEOSCoordSeq_setX(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, dVal);
+	*pnResult = geos::GEOSCoordSeq_setX(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, dVal);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_setY(long hCoordSeq, long nIndex, double dVal, long *pnResult)
 {
-	*pnResult = GEOSCoordSeq_setY(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, dVal);
+	*pnResult = geos::GEOSCoordSeq_setY(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, dVal);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_setZ(long hCoordSeq, long nIndex, double dVal, long *pnResult)
 {
-	*pnResult = GEOSCoordSeq_setZ(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, dVal);
+	*pnResult = geos::GEOSCoordSeq_setZ(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, dVal);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_setOrdinate(long hCoordSeq, long nIndex, long nDims, double dVal, long *pnResult)
 {
-	*pnResult = GEOSCoordSeq_setOrdinate(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, nDims, dVal);
+	*pnResult = geos::GEOSCoordSeq_setOrdinate(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, nDims, dVal);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_getX(long hCoordSeq, long nIndex, double *pdVal, long *pnResult)
 {
-	*pnResult = GEOSCoordSeq_getX(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, pdVal);
+	*pnResult = geos::GEOSCoordSeq_getX(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, pdVal);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_getY(long hCoordSeq, long nIndex, double *pdVal, long *pnResult)
 {
-	*pnResult = GEOSCoordSeq_getY(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, pdVal);
+	*pnResult = geos::GEOSCoordSeq_getY(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, pdVal);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_getZ(long hCoordSeq, long nIndex, double *pdVal, long *pnResult)
 {
-	*pnResult = GEOSCoordSeq_getZ(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, pdVal);
+	*pnResult = geos::GEOSCoordSeq_getZ(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, pdVal);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::CoordSeq_getOrdinate(long hCoordSeq, long nIndex, long nDims, double *pdVal, long *pnResult)
 {
-	// ToDo...
-//	*pnResult = GEOSCoordSeq_getOrdinate(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, nDims, pdVal);
+	*pnResult = geos::GEOSCoordSeq_getOrdinate(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), nIndex, nDims, pdVal);
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP CAPI::CoordSeq_getSize(long hCoordSeq, long *pnSize, long *pnResult)
 {
 	unsigned int nSize;
-	*pnResult = GEOSCoordSeq_getSize(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), &nSize);
+	*pnResult = geos::GEOSCoordSeq_getSize(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), &nSize);
 	*pnSize = nSize;
 	return S_OK;
 }
@@ -205,26 +481,26 @@ STDMETHODIMP CAPI::CoordSeq_getSize(long hCoordSeq, long *pnSize, long *pnResult
 STDMETHODIMP CAPI::CoordSeq_getDimensions(long hCoordSeq, long *pnDims, long *pnResult)
 {
 	unsigned int nDims;
-	*pnResult = GEOSCoordSeq_getDimensions(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq)), &nDims);
+	*pnResult = geos::GEOSCoordSeq_getDimensions(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq)), &nDims);
 	*pnDims = nDims;
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Geom_createPoint(long hCoordSeq, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSGeom_createPoint(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq))));
+	*phGeom = PtrToLong(geos::GEOSGeom_createPoint(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Geom_createLinearRing(long hCoordSeq, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSGeom_createLinearRing(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq))));
+	*phGeom = PtrToLong(geos::GEOSGeom_createLinearRing(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Geom_createLineString(long hCoordSeq, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSGeom_createLineString(static_cast<GEOSCoordSeq>(LongToPtr(hCoordSeq))));
+	*phGeom = PtrToLong(geos::GEOSGeom_createLineString(static_cast<geos::GEOSCoordSeq>(LongToPtr(hCoordSeq))));
 	return S_OK;
 }
 
@@ -240,7 +516,7 @@ STDMETHODIMP CAPI::Geom_createPolygon(long hShell, VARIANT vHoles, long *phGeom)
 		nSize = psa->rgsabound->cElements;
 	}
 
-	*phGeom = PtrToLong(GEOSGeom_createPolygon(static_cast<GEOSGeom>(LongToPtr(hShell)), reinterpret_cast<GEOSGeom*>(pnHoles), nSize));
+	*phGeom = PtrToLong(geos::GEOSGeom_createPolygon(static_cast<geos::GEOSGeom>(LongToPtr(hShell)), reinterpret_cast<geos::GEOSGeom*>(pnHoles), nSize));
 
 	if (psa)
 		::SafeArrayUnaccessData(psa);
@@ -256,7 +532,7 @@ STDMETHODIMP CAPI::Geom_createCollection(long nType, VARIANT vGeoms, long *phGeo
 	long* pnGeoms;
 	::SafeArrayAccessData(psa, (void**)&pnGeoms);
 
-	*phGeom = PtrToLong(GEOSGeom_createCollection(nType, reinterpret_cast<GEOSGeom*>(pnGeoms), psa->rgsabound->cElements));
+	*phGeom = PtrToLong(geos::GEOSGeom_createCollection(nType, reinterpret_cast<geos::GEOSGeom*>(pnGeoms), psa->rgsabound->cElements));
 
 	::SafeArrayUnaccessData(psa);
 	return S_OK;
@@ -264,79 +540,78 @@ STDMETHODIMP CAPI::Geom_createCollection(long nType, VARIANT vGeoms, long *phGeo
 
 STDMETHODIMP CAPI::Geom_clone(long hGeom, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSGeom_clone(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*phGeom = PtrToLong(geos::GEOSGeom_clone(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Geom_destroy(long hGeom)
 {
-	GEOSGeom_destroy(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	geos::GEOSGeom_destroy(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
 
 STDMETHODIMP CAPI::Intersection(long hGeom1, long hGeom2, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSIntersection(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2))));
+	*phGeom = PtrToLong(geos::GEOSIntersection(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Buffer(long hGeom, double dWidth, long nQuadSegs, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSBuffer(static_cast<GEOSGeom>(LongToPtr(hGeom)), dWidth, nQuadSegs));
+	*phGeom = PtrToLong(geos::GEOSBuffer(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), dWidth, nQuadSegs));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::ConvexHull(long hGeom, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSConvexHull(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*phGeom = PtrToLong(geos::GEOSConvexHull(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Difference(long hGeom1, long hGeom2, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSDifference(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2))));
+	*phGeom = PtrToLong(geos::GEOSDifference(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::SymDifference(long hGeom1, long hGeom2, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSSymDifference(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2))));
+	*phGeom = PtrToLong(geos::GEOSSymDifference(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Boundary(long hGeom, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSBoundary(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*phGeom = PtrToLong(geos::GEOSBoundary(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Union(long hGeom1, long hGeom2, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSUnion(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2))));
+	*phGeom = PtrToLong(geos::GEOSUnion(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::PointOnSurface(long hGeom, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSPointOnSurface(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*phGeom = PtrToLong(geos::GEOSPointOnSurface(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GetCentroid(long hGeom, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSGetCentroid(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*phGeom = PtrToLong(geos::GEOSGetCentroid(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Relate(long hGeom1, long hGeom2, BSTR *pstrResult)
 {
-	USES_CONVERSION;
-	char* pszResult = GEOSRelate(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)));
-	CComBSTR sbstrResult;
-	sbstrResult = pszResult;
+	char* pszResult = geos::GEOSRelate(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)));
+	_bstr_t bstrResult = pszResult;
 //	free(pszResult);
-	return sbstrResult.CopyTo(pstrResult);
+	*pstrResult = bstrResult.copy();
+	return S_OK;
 }
 
 STDMETHODIMP CAPI::Polygonize(VARIANT vGeoms, long *phGeom)
@@ -348,7 +623,7 @@ STDMETHODIMP CAPI::Polygonize(VARIANT vGeoms, long *phGeom)
 	long* pnGeoms;
 	::SafeArrayAccessData(psa, (void**)&pnGeoms);
 
-	*phGeom = PtrToLong(GEOSPolygonize(reinterpret_cast<GEOSGeom*>(pnGeoms), psa->rgsabound->cElements));
+	*phGeom = PtrToLong(geos::GEOSPolygonize(reinterpret_cast<geos::GEOSGeom*>(pnGeoms), psa->rgsabound->cElements));
 
 	::SafeArrayUnaccessData(psa);
 	return S_OK;
@@ -356,188 +631,268 @@ STDMETHODIMP CAPI::Polygonize(VARIANT vGeoms, long *phGeom)
 
 STDMETHODIMP CAPI::LineMerge(long hGeom, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSLineMerge(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*phGeom = PtrToLong(geos::GEOSLineMerge(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::RelatePattern(long hGeom1, long hGeom2, BSTR strPattern, short *pnResult)
+STDMETHODIMP CAPI::RelatePattern(long hGeom1, long hGeom2, BSTR strPattern, unsigned char *pbyResult)
 {
-	USES_CONVERSION;
-	*pnResult = GEOSRelatePattern(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)), OLE2T(strPattern));
+	_bstr_t bstrPattern = strPattern;
+	*pbyResult = geos::GEOSRelatePattern(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)), (char*)bstrPattern);
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::Disjoint(long hGeom1, long hGeom2, short *pnResult)
+STDMETHODIMP CAPI::Disjoint(long hGeom1, long hGeom2, unsigned char *pbyResult)
 {
-	*pnResult = GEOSDisjoint(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)));
+	*pbyResult = geos::GEOSDisjoint(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::Touches(long hGeom1, long hGeom2, short *pnResult)
+STDMETHODIMP CAPI::Touches(long hGeom1, long hGeom2, unsigned char *pbyResult)
 {
-	*pnResult = GEOSTouches(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)));
+	*pbyResult = geos::GEOSTouches(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::Intersects(long hGeom1, long hGeom2, short *pnResult)
+STDMETHODIMP CAPI::Intersects(long hGeom1, long hGeom2, unsigned char *pbyResult)
 {
-	*pnResult = GEOSIntersects(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)));
+	*pbyResult = geos::GEOSIntersects(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::Crosses(long hGeom1, long hGeom2, short *pnResult)
+STDMETHODIMP CAPI::Crosses(long hGeom1, long hGeom2, unsigned char *pbyResult)
 {
-	*pnResult = GEOSCrosses(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)));
+	*pbyResult = geos::GEOSCrosses(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::Within(long hGeom1, long hGeom2, short *pnResult)
+STDMETHODIMP CAPI::Within(long hGeom1, long hGeom2, unsigned char *pbyResult)
 {
-	*pnResult = GEOSWithin(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)));
+	*pbyResult = geos::GEOSWithin(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::Contains(long hGeom1, long hGeom2, short *pnResult)
+STDMETHODIMP CAPI::Contains(long hGeom1, long hGeom2, unsigned char *pbyResult)
 {
-	*pnResult = GEOSContains(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)));
+	*pbyResult = geos::GEOSContains(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::Overlaps(long hGeom1, long hGeom2, short *pnResult)
+STDMETHODIMP CAPI::Overlaps(long hGeom1, long hGeom2, unsigned char *pbyResult)
 {
-	*pnResult = GEOSOverlaps(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)));
+	*pbyResult = geos::GEOSOverlaps(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::Equals(long hGeom1, long hGeom2, short *pnResult)
+STDMETHODIMP CAPI::Equals(long hGeom1, long hGeom2, unsigned char *pbyResult)
 {
-	*pnResult = GEOSEquals(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)));
+	*pbyResult = geos::GEOSEquals(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::isEmpty(long hGeom, short *pnResult)
+STDMETHODIMP CAPI::isEmpty(long hGeom, unsigned char *pbyResult)
 {
-	*pnResult = GEOSisEmpty(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pbyResult = geos::GEOSisEmpty(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::isValid(long hGeom, short *pnResult)
+STDMETHODIMP CAPI::isValid(long hGeom, unsigned char *pbyResult)
 {
-	*pnResult = GEOSisValid(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pbyResult = geos::GEOSisValid(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::isSimple(long hGeom, short *pnResult)
+STDMETHODIMP CAPI::isSimple(long hGeom, unsigned char *pbyResult)
 {
-	*pnResult = GEOSisSimple(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pbyResult = geos::GEOSisSimple(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::isRing(long hGeom, short *pnResult)
+STDMETHODIMP CAPI::isRing(long hGeom, unsigned char *pbyResult)
 {
-	*pnResult = GEOSisRing(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pbyResult = geos::GEOSisRing(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::HasZ(long hGeom, short *pnResult)
+STDMETHODIMP CAPI::HasZ(long hGeom, unsigned char *pbyResult)
 {
-	*pnResult = GEOSHasZ(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pbyResult = geos::GEOSHasZ(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
-STDMETHODIMP CAPI::GeomTypeId(long hGeom, enum geosGeomTypeId *peTypeId)
+STDMETHODIMP CAPI::GeomTypeId(long hGeom, GEOSGeomTypes *peTypes)
 {
-	*peTypeId = static_cast<geosGeomTypeId>(GEOSGeomTypeId(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*peTypes = static_cast<GEOSGeomTypes>(geos::GEOSGeomTypeId(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GetSRID(long hGeom, long *pnSRID)
 {
-	*pnSRID = GEOSGetSRID(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pnSRID = geos::GEOSGetSRID(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::SetSRID(long hGeom, int nSRID)
 {
-	GEOSSetSRID(static_cast<GEOSGeom>(LongToPtr(hGeom)), nSRID);
+	geos::GEOSSetSRID(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), nSRID);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GetNumGeometries(long hGeom, long *pnNumGeoms)
 {
-	*pnNumGeoms = GEOSGetNumGeometries(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pnNumGeoms = geos::GEOSGetNumGeometries(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GetGeometryN(long hGeom, long nIndex, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSGetGeometryN(static_cast<GEOSGeom>(LongToPtr(hGeom)), nIndex));
+	*phGeom = PtrToLong(geos::GEOSGetGeometryN(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), nIndex));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GetNumInteriorRings(long hGeom, long *pnResult)
 {
-	*pnResult = GEOSGetNumInteriorRings(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pnResult = geos::GEOSGetNumInteriorRings(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GetInteriorRingN(long hGeom, long nIndex, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSGetInteriorRingN(static_cast<GEOSGeom>(LongToPtr(hGeom)), nIndex));
+	*phGeom = PtrToLong(geos::GEOSGetInteriorRingN(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), nIndex));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GetExteriorRing(long hGeom, long *phGeom)
 {
-	*phGeom = PtrToLong(GEOSGetExteriorRing(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*phGeom = PtrToLong(geos::GEOSGetExteriorRing(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GetNumCoordinates(long hGeom, long *pnNumCoords)
 {
-	*pnNumCoords = GEOSGetNumCoordinates(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pnNumCoords = geos::GEOSGetNumCoordinates(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Geom_getDimensions(long hGeom, long *pnDims)
 {
-	*pnDims = GEOSGeom_getDimensions(static_cast<GEOSGeom>(LongToPtr(hGeom)));
+	*pnDims = geos::GEOSGeom_getDimensions(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Geom_getCoordSeq(long hGeom, long *phCoordSeq)
 {
-	*phCoordSeq = PtrToLong(GEOSGeom_getCoordSeq(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*phCoordSeq = PtrToLong(geos::GEOSGeom_getCoordSeq(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Distance(long hGeom1, long hGeom2, double *pdDistance, long *pnResult)
 {
-	*pnResult = GEOSDistance(static_cast<GEOSGeom>(LongToPtr(hGeom1)), static_cast<GEOSGeom>(LongToPtr(hGeom2)), pdDistance);
+	*pnResult = geos::GEOSDistance(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)), pdDistance);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Envelope(long hGeom, long* phGeom)
 {
-	*phGeom = PtrToLong(GEOSEnvelope(static_cast<GEOSGeom>(LongToPtr(hGeom))));
+	*phGeom = PtrToLong(geos::GEOSEnvelope(static_cast<geos::GEOSGeom>(LongToPtr(hGeom))));
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::GeomType(long hGeom, BSTR* pstrType)
 {
-	CComBSTR sbstrType;
-	sbstrType = GEOSGeomType(static_cast<GEOSGeom>(LongToPtr(hGeom)));
-	return sbstrType.CopyTo(pstrType);
+	_bstr_t bstrType;
+	bstrType = geos::GEOSGeomType(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
+	*pstrType = bstrType.copy();
+	return S_OK;
 }
 
 STDMETHODIMP CAPI::Area(long hGeom, double* pdArea, long* pnResult)
 {
-	*pnResult = GEOSArea(static_cast<GEOSGeom>(LongToPtr(hGeom)), pdArea);
+	*pnResult = geos::GEOSArea(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), pdArea);
 	return S_OK;
 }
 
 STDMETHODIMP CAPI::Length(long hGeom, double* pdLength, long* pnResult)
 {
-	*pnResult = GEOSLength(static_cast<GEOSGeom>(LongToPtr(hGeom)), pdLength);
+	*pnResult = geos::GEOSLength(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), pdLength);
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::getWKBOutputDims(long* pnResult)
+{
+	*pnResult = geos::GEOS_getWKBOutputDims();
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::getWKBByteOrder(GEOSByteOrders* peResult)
+{
+	*peResult = static_cast<GEOSByteOrders>(geos::GEOS_getWKBByteOrder());
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::setWKBByteOrder(GEOSByteOrders eByteOrder, GEOSByteOrders* peResult)
+{
+	*peResult = static_cast<GEOSByteOrders>(geos::GEOS_setWKBByteOrder(static_cast<int>(eByteOrder)));
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::GeomFromHEX_buf(VARIANT vHex, long* phGeom)
+{
+	if (!(vHex.vt & VT_ARRAY) || !(vHex.vt & VT_UI1))
+		return E_INVALIDARG;
+
+	SAFEARRAY* psa = vHex.parray;
+	unsigned char* pszHex;
+	::SafeArrayAccessData(psa, (void**)&pszHex);
+
+	*phGeom = PtrToLong(geos::GEOSGeomFromHEX_buf(const_cast<const unsigned char*>(pszHex), psa->rgsabound->cElements));
+
+	::SafeArrayUnaccessData(psa);
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::GeomToHEX_buf(long hGeom, VARIANT *pvHex)
+{
+	size_t size;
+	BYTE* pbyBuf = geos::GEOSGeomToHEX_buf(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), &size);
+
+	::VariantInit(pvHex);
+	pvHex->vt = VT_ARRAY | VT_UI1;
+	SAFEARRAY* psa;
+	ULONG nSize = static_cast<ULONG>(size);
+	SAFEARRAYBOUND bounds = {nSize, 0};
+	psa = ::SafeArrayCreate(VT_UI1, 1, &bounds);
+	BYTE* pbyData;
+	::SafeArrayAccessData(psa, (void**)&pbyData);
+	for (size_t i = 0; i < size; i++)
+	{
+		pbyData[i] = pbyBuf[i];
+	}
+	::SafeArrayUnaccessData(psa);
+	pvHex->parray = psa;
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::Simplify(long hGeom, double dTolerance, long *phGeom)
+{
+	*phGeom = PtrToLong(geos::GEOSSimplify(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), dTolerance));
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::TopologyPreserveSimplify(long hGeom, double dTolerance, long *phGeom)
+{
+	*phGeom = PtrToLong(geos::GEOSTopologyPreserveSimplify(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)), dTolerance));
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::EqualsExact(long hGeom1, long hGeom2, double dTolerance, unsigned char *pbyResult)
+{
+	*pbyResult = geos::GEOSEqualsExact(static_cast<geos::GEOSGeom>(LongToPtr(hGeom1)), static_cast<geos::GEOSGeom>(LongToPtr(hGeom2)), dTolerance);
+	return S_OK;
+}
+
+STDMETHODIMP CAPI::Normalize(long hGeom, long *pnResult)
+{
+	*pnResult = geos::GEOSNormalize(static_cast<geos::GEOSGeom>(LongToPtr(hGeom)));
 	return S_OK;
 }

@@ -1,14 +1,6 @@
-// stdafx.cpp : source file that includes just the standard includes
-// geos_com.pch will be the pre-compiled header
-// stdafx.obj will contain the pre-compiled type information
-
 #include "stdafx.h"
 
-#if _MSC_VER <= 1200
-#ifdef _ATL_STATIC_REGISTRY
-#include <statreg.h>
-#include <statreg.cpp>
-#endif
+LONG g_cLocks = 0;
 
-#include <atlimpl.cpp>
-#endif // _MSC_VER
+void LockModule(void) { InterlockedIncrement(&g_cLocks); }
+void UnlockModule(void) { InterlockedDecrement(&g_cLocks); }
