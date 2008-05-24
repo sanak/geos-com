@@ -1,1 +1,0 @@
-regsvr32 /s /u .\bin\geos_com.dll
