@@ -1,0 +1,37 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geos_com", "geos_com.vcproj", "{563A0A50-3D58-4C96-8865-583F96A6DC8E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geos_c", "geos_c.vcproj", "{29066C61-0B47-44CA-8AEF-FCE59ED2D24A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geos_comPS", "geos_comPS.vcproj", "{6528C8A8-4125-4E49-A89E-060E262D69AB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{563A0A50-3D58-4C96-8865-583F96A6DC8E}.Debug.ActiveCfg = Debug|Win32
+		{563A0A50-3D58-4C96-8865-583F96A6DC8E}.Debug.Build.0 = Debug|Win32
+		{563A0A50-3D58-4C96-8865-583F96A6DC8E}.Release.ActiveCfg = Release|Win32
+		{563A0A50-3D58-4C96-8865-583F96A6DC8E}.Release.Build.0 = Release|Win32
+		{29066C61-0B47-44CA-8AEF-FCE59ED2D24A}.Debug.ActiveCfg = Debug|Win32
+		{29066C61-0B47-44CA-8AEF-FCE59ED2D24A}.Debug.Build.0 = Debug|Win32
+		{29066C61-0B47-44CA-8AEF-FCE59ED2D24A}.Release.ActiveCfg = Release|Win32
+		{29066C61-0B47-44CA-8AEF-FCE59ED2D24A}.Release.Build.0 = Release|Win32
+		{6528C8A8-4125-4E49-A89E-060E262D69AB}.Debug.ActiveCfg = Debug|Win32
+		{6528C8A8-4125-4E49-A89E-060E262D69AB}.Debug.Build.0 = Debug|Win32
+		{6528C8A8-4125-4E49-A89E-060E262D69AB}.Release.ActiveCfg = Release|Win32
+		{6528C8A8-4125-4E49-A89E-060E262D69AB}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

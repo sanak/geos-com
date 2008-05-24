@@ -1,0 +1,131 @@
+// geos_com.idl : IDL source for geos_com.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (geos_com.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+enum geosGeomTypeId {
+	geosPoint,
+	geosLineString,
+	geosLinearRing,
+	geosPolygon,
+	geosMultiPoint,
+	geosMultiLineString,
+	geosMultiPolygon,
+	geosGeometryCollection,
+};
+
+[
+	object,
+	uuid(0462E6F3-96ED-4725-B0B0-9622EAB3465E),
+	dual,
+	nonextensible,
+	helpstring("IAPI Interface"),
+	pointer_default(unique)
+]
+interface IAPI : IDispatch{
+	// 2.2.0
+	[id(1)] HRESULT init(void);
+	[id(2)] HRESULT finish(void);
+	[id(3)] HRESULT version([out,retval] BSTR* pstrVersion);
+	[id(4)] HRESULT GeomFromWKT([in] BSTR strBuf, [out,retval] long* phGeom);
+	[id(5)] HRESULT GeomToWKT([in] long hGeom, [out,retval] BSTR* pstrBuf);
+	[id(6)] HRESULT setWKBOutputDims([in] long nNewDims, [out,retval] long* pnOldDims);
+	[id(7)] HRESULT GeomFromWKB_buf([in] VARIANT vBuf, [out,retval] long* phGeom);
+	[id(8)] HRESULT GeomToWKB_buf([in] long hGeom, [out,retval] VARIANT* pvBuf);
+	[id(9)] HRESULT CoordSeq_create([in] long nSize, [in] long nDims, [out,retval] long* phCoordSeq);
+	[id(10)] HRESULT CoordSeq_clone([in] long hCoordSeq, [out,retval] long* phCoordSeq);
+	[id(11)] HRESULT CoordSeq_destroy([in] long hCoordSeq);
+	[id(12)] HRESULT CoordSeq_setX([in] long hCoordSeq, [in] long nIndex, [in] double dVal, [out,retval] long* pnResult);
+	[id(13)] HRESULT CoordSeq_setY([in] long hCoordSeq, [in] long nIndex, [in] double dVal, [out,retval] long* pnResult);
+	[id(14)] HRESULT CoordSeq_setZ([in] long hCoordSeq, [in] long nIndex, [in] double dVal, [out,retval] long* pnResult);
+	[id(15)] HRESULT CoordSeq_setOrdinate([in] long hCoordSeq, [in] long nIndex, [in] long nDims, [in] double dVal, [out,retval] long* pnResult);
+	[id(16)] HRESULT CoordSeq_getX([in] long hCoordSeq, [in] long nIndex, [out] double* pdVal, [out,retval] long* pnResult);
+	[id(17)] HRESULT CoordSeq_getY([in] long hCoordSeq, [in] long nIndex, [out] double* pdVal, [out,retval] long* pnResult);
+	[id(18)] HRESULT CoordSeq_getZ([in] long hCoordSeq, [in] long nIndex, [out] double* pdVal, [out,retval] long* pnResult);
+	[id(19)] HRESULT CoordSeq_getOrdinate([in] long hCoordSeq, [in] long nIndex, [in] long nDims, [out] double* pdVal, [out,retval] long* pnResult);
+	[id(20)] HRESULT CoordSeq_getSize([in] long hCoordSeq, [out] long* pnSize, [out,retval] long* pnResult);
+	[id(21)] HRESULT CoordSeq_getDimensions([in] long hCoordSeq, [out] long* pnDims, [out,retval] long* pnResult);
+	[id(22)] HRESULT Geom_createPoint([in] long hCoordSeq, [out,retval] long* phGeom);
+	[id(23)] HRESULT Geom_createLinearRing([in] long hCoordSeq, [out,retval] long* phGeom);
+	[id(24)] HRESULT Geom_createLineString([in] long hCoordSeq, [out,retval] long* phGeom);
+	[id(25)] HRESULT Geom_createPolygon([in] long hShell, [in] VARIANT vHoles, [out,retval] long* phGeom);
+	[id(26)] HRESULT Geom_createCollection([in] long nType, [in] VARIANT vGeoms, [out,retval] long* phGeom);
+	[id(27)] HRESULT Geom_clone([in] long hGeom, [out,retval] long* phGeom);
+	[id(28)] HRESULT Geom_getCoordSeq([in] long hGeom, [out,retval] long* phCoordSeq);
+	[id(29)] HRESULT Geom_getDimensions([in] long hGeom, [out,retval] long* pnDims);
+	[id(30)] HRESULT Geom_destroy([in] long hGeom);
+	[id(31)] HRESULT Intersection([in] long hGeom1, [in] long hGeom2, [out,retval] long* phGeom);
+	[id(32)] HRESULT Buffer([in] long hGeom, [in] double dWidth, [in] long nQuadSegs, [out,retval] long* phGeom);
+	[id(33)] HRESULT ConvexHull([in] long hGeom, [out,retval] long* phGeom);
+	[id(34)] HRESULT Difference([in] long hGeom1, [in] long hGeom2, [out,retval] long* phGeom);
+	[id(35)] HRESULT SymDifference([in] long hGeom1, [in] long hGeom2, [out,retval] long* phGeom);
+	[id(36)] HRESULT Boundary([in] long hGeom, [out,retval] long* phGeom);
+	[id(37)] HRESULT Union([in] long hGeom1, [in] long hGeom2, [out,retval] long* phGeom);
+	[id(38)] HRESULT PointOnSurface([in] long hGeom, [out,retval] long* phGeom);
+	[id(39)] HRESULT GetCentroid([in] long hGeom, [out,retval] long* phGeom);
+	[id(40)] HRESULT Relate([in] long hGeom1, [in] long hGeom2, [out,retval] BSTR* pstrResult);
+	[id(41)] HRESULT Polygonize([in] VARIANT vGeoms, [out,retval] long* phGeom);
+	[id(42)] HRESULT LineMerge([in] long hGeom, [out,retval] long* phGeom);
+	[id(43)] HRESULT RelatePattern([in] long hGeom1, [in] long hGeom2, [in] BSTR strPattern, [out,retval] short* pnResult);
+	[id(44)] HRESULT Disjoint([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
+	[id(45)] HRESULT Touches([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
+	[id(46)] HRESULT Intersects([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
+	[id(47)] HRESULT Crosses([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
+	[id(48)] HRESULT Within([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
+	[id(49)] HRESULT Contains([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
+	[id(50)] HRESULT Overlaps([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
+	[id(51)] HRESULT Equals([in] long hGeom1, [in] long hGeom2, [out,retval] short* pnResult);
+	[id(52)] HRESULT isEmpty([in] long hGeom, [out,retval] short* pnResult);
+	[id(53)] HRESULT isValid([in] long hGeom, [out,retval] short* pnResult);
+	[id(54)] HRESULT isSimple([in] long hGeom, [out,retval] short* pnResult);
+	[id(55)] HRESULT isRing([in] long hGeom, [out,retval] short* pnResult);
+	[id(56)] HRESULT HasZ([in] long hGeom, [out,retval] short* pnResult);
+	[id(57)] HRESULT GeomTypeId([in] long hGeom, [out,retval] enum geosGeomTypeId* peTypeId);
+	[id(58)] HRESULT GetSRID([in] long hGeom, [out,retval] long* pnSRID);
+	[id(59)] HRESULT SetSRID([in] long hGeom, [in] int nSRID);
+	[id(60)] HRESULT GetNumGeometries([in] long hGeom, [out,retval] long* pnNumGeoms);
+	[id(61)] HRESULT GetGeometryN([in] long hGeom, [in] long nIndex, [out,retval] long* phGeom);
+	[id(62)] HRESULT GetNumInteriorRings([in] long hGeom, [out,retval] long* pnResult);
+	[id(63)] HRESULT GetInteriorRingN([in] long hGeom, [in] long nIndex, [out,retval] long* phGeom);
+	[id(64)] HRESULT GetExteriorRing([in] long hGeom, [out,retval] long* phGeom);
+	[id(65)] HRESULT GetNumCoordinates([in] long hGeom, [out,retval] long* pnNumCoords);
+	[id(66)] HRESULT Distance([in] long hGeom1, [in] long hGeom2, [out] double* pdDistance, [out,retval] long* pnResult);
+	// 2.2.2
+	[id(67)] HRESULT Envelope([in] long hGeom, [out,retval] long* phGeom);
+	[id(68)] HRESULT GeomType([in] long hGeom, [out,retval] BSTR* pstrType);
+	[id(69)] HRESULT Area([in] long hGeom, [out] double* pdArea, [out,retval] long* pnResult);
+	[id(70)] HRESULT Length([in] long hGeom, [out] double* pdLength, [out,retval] long* pnResult);
+};
+[
+	uuid(D07BED60-96BC-4C7D-AE4F-114104675ABA),
+	version(1.0),
+	helpstring("geos_com 1.0 Type Library")
+]
+library Geos
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(F03879D8-8A7B-4F95-B38D-76915A371EF0),
+		helpstring("_IAPIEvents Interface")
+	]
+	dispinterface _IAPIEvents
+	{
+		properties:
+		methods:
+		[id(1)] HRESULT onNotice([in] BSTR strNotice);
+		[id(2)] HRESULT onError([in] BSTR strError);
+	};
+	[
+		uuid(1BA3C695-871A-4FAD-8754-066681C23818),
+		helpstring("API Class")
+	]
+	coclass API
+	{
+		[default] interface IAPI;
+		[default, source] dispinterface _IAPIEvents;
+	};
+};

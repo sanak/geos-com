@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'geos_com'
+		'geos_com.DLL'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

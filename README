@@ -1,0 +1,18 @@
+GEOS COM Wrapper - Geometry Engine Open Source Com Wrapper
+
+                                                  Since: 24-May-2006
+                                                    Version: 2.2.2.0
+
+INSTALL/UNINSTALL
+  Execute "install.bat" for installation, or execute "uninstall.bat"
+  for uninstallation.
+
+LICENSE
+  This is free software; you can redistribute and/or modify it under
+  the terms of the GNU Lesser General Public License as published
+  by the Free Software Foundation.
+  See the COPYING file for more information.
+
+CONTACT
+  HomePage: http://sourceforge.jp/projects/geos-com
+  E-mail:   geosanak@gmail.com

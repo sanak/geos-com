@@ -1,0 +1,27 @@
+HKCR
+{
+	Geos.API.1 = s 'API Class'
+	{
+		CLSID = s '{1BA3C695-871A-4FAD-8754-066681C23818}'
+	}
+	Geos.API = s 'API Class'
+	{
+		CLSID = s '{1BA3C695-871A-4FAD-8754-066681C23818}'
+		CurVer = s 'Geos.API.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1BA3C695-871A-4FAD-8754-066681C23818} = s 'API Class'
+		{
+			ProgID = s 'Geos.API.1'
+			VersionIndependentProgID = s 'Geos.API'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			val AppID = s '%APPID%'
+			'TypeLib' = s '{D07BED60-96BC-4C7D-AE4F-114104675ABA}'
+		}
+	}
+}
