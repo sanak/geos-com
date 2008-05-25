@@ -448,7 +448,7 @@ Private Sub cmdExecOperation_Click()
     Dim dVal As Double
     Dim nVal As Long
     Dim strVal As String
-    Dim eTypeId As geosGeomTypeId
+    Dim eType As GEOSGeomTypes
 
     Select Case cmbOperation.List(cmbOperation.ListIndex)
         Case "Intersection"
@@ -530,8 +530,8 @@ Private Sub cmdExecOperation_Click()
             nResult = m_oGeos.HasZ(hGeom1)
             writeResult STR_RESULT, nResult
         Case "GeomTypeId"
-            eTypeId = m_oGeos.GeomTypeId(hGeom1)
-            writeResult STR_RESULT, eTypeId
+            eType = m_oGeos.GeomTypeId(hGeom1)
+            writeResult STR_RESULT, eType
         Case "GetSRID"
             nResult = m_oGeos.GetSRID(hGeom1)
             writeResult STR_RESULT, nResult
@@ -825,7 +825,7 @@ On Error GoTo EXCEPTION ' for avoid overflow error
     Dim i As Long
     Dim j As Long
     Select Case m_oGeos.GeomTypeId(hGeom)
-        Case geosPoint
+        Case GEOS_POINT
             nCoords = m_oGeos.GetNumCoordinates(hGeom)
             hCoordSeq = m_oGeos.Geom_getCoordSeq(hGeom)
             If nCoords > 0 Then
@@ -842,7 +842,7 @@ On Error GoTo EXCEPTION ' for avoid overflow error
                             CStr(CLng(dY)) + " " + _
                             "e"
             End If
-        Case geosLineString
+        Case GEOS_LINESTRING
             nCoords = m_oGeos.GetNumCoordinates(hGeom)
             hCoordSeq = m_oGeos.Geom_getCoordSeq(hGeom)
             If nCoords > 0 Then
@@ -856,7 +856,7 @@ On Error GoTo EXCEPTION ' for avoid overflow error
                 Next i
                 strPath = strPath + "e"
             End If
-        Case geosLinearRing
+        Case GEOS_LINEARRING
             nCoords = m_oGeos.GetNumCoordinates(hGeom)
             hCoordSeq = m_oGeos.Geom_getCoordSeq(hGeom)
             If nCoords > 0 Then
@@ -870,7 +870,7 @@ On Error GoTo EXCEPTION ' for avoid overflow error
                 Next i
                 strPath = strPath + "e"
             End If
-        Case geosPolygon
+        Case GEOS_POLYGON
             hShell = m_oGeos.GetExteriorRing(hGeom)
             nCoords = m_oGeos.GetNumCoordinates(hShell)
             hCoordSeq = m_oGeos.Geom_getCoordSeq(hShell)
@@ -902,7 +902,7 @@ On Error GoTo EXCEPTION ' for avoid overflow error
                     strPath = strPath + "e"
                 End If
             Next j
-        Case geosMultiPoint, geosMultiLineString, geosMultiPolygon, geosGeometryCollection
+        Case GEOS_MULTIPOINT, GEOS_MULTILINESTRING, GEOS_MULTIPOLYGON, GEOS_GEOMETRYCOLLECTION
             nElems = m_oGeos.GetNumGeometries(hGeom)
             If nElems > 0 Then
                 For i = 0 To nElems - 1
