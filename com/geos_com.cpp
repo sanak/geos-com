@@ -1,7 +1,19 @@
-// geos_com.cpp : Implementation of DLL Exports.
+/*****************************************************************************
+ *
+ * FileName: geos_com.cpp
+ * Project:  GEOS COM Wrapper - http://sourceforge.jp/projects/geos-com
+ * Purpose:  Implementation of DLL Exports.
+ * Author:   geosanak, geosanak@gmail.com
+ *
+ * Copyright (C) 2006-2008 geosanak
+ *
+ * This is free software; you can redistribute and/or modify it under
+ * the terms of the GNU Lesser General Public Licence as published
+ * by the Free Software Foundation. 
+ * See the COPYING file for more information.
+ *
+ *****************************************************************************/
 
-#include <objbase.h>
-#include <olectl.h>
 #include "stdafx.h"
 #include "geos_com.h"
 #include "geos_com_i.c"
@@ -10,14 +22,14 @@
 static CAPIClassFactory s_APIClassFactory;
 HMODULE g_hModule = NULL;
 
-const char *g_RegTable[][3] = {
+const TCHAR *g_RegTable[][3] = {
 	// API
-	{ "CLSID\\{1BA3C695-871A-4FAD-8754-066681C23818}", 0, "API Class" },
-	{ "CLSID\\{1BA3C695-871A-4FAD-8754-066681C23818}\\InprocServer32", 0, (const char*)-1 },
-	{ "CLSID\\{1BA3C695-871A-4FAD-8754-066681C23818}\\ProgID", 0, "Geos.API.1" },
-	{ "CLSID\\{1BA3C695-871A-4FAD-8754-066681C23818}\\TypeLib", 0, "{D07BED60-96BC-4C7D-AE4F-114104675ABA}" },
-	{ "Geos.API.1", 0, "API Class" },
-	{ "Geos.API.1\\CLSID", 0, "{1BA3C695-871A-4FAD-8754-066681C23818}" },
+	{ _T("CLSID\\{1BA3C695-871A-4FAD-8754-066681C23818}"), 0, _T("API Class") },
+	{ _T("CLSID\\{1BA3C695-871A-4FAD-8754-066681C23818}\\InprocServer32"), 0, (const TCHAR*)-1 },
+	{ _T("CLSID\\{1BA3C695-871A-4FAD-8754-066681C23818}\\ProgID"), 0, _T("Geos.API.1") },
+	{ _T("CLSID\\{1BA3C695-871A-4FAD-8754-066681C23818}\\TypeLib"), 0, _T("{D07BED60-96BC-4C7D-AE4F-114104675ABA}") },
+	{ _T("Geos.API.1"), 0, _T("API Class") },
+	{ _T("Geos.API.1\\CLSID"), 0, _T("{1BA3C695-871A-4FAD-8754-066681C23818}") },
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -64,19 +76,19 @@ STDAPI DllRegisterServer(void)
     // registers object, typelib and all interfaces in typelib
     HRESULT hr = S_OK;
 	// get server file name
-	char szFileName[MAX_PATH];
+	TCHAR szFileName[MAX_PATH];
 	GetModuleFileName(g_hModule, szFileName, MAX_PATH);
 	int nEntries = sizeof(g_RegTable) / sizeof(*g_RegTable);
 	for (int i = 0; SUCCEEDED(hr) && i < nEntries; i++) {
-		const char *pszKeyName = g_RegTable[i][0];
-		const char *pszValueName = g_RegTable[i][1];
-		const char *pszValue = g_RegTable[i][2];
-		if (pszValue == (const char*)-1)
+		const TCHAR *pszKeyName = g_RegTable[i][0];
+		const TCHAR *pszValueName = g_RegTable[i][1];
+		const TCHAR *pszValue = g_RegTable[i][2];
+		if (pszValue == (const TCHAR*)-1)
 			pszValue = szFileName;
 		HKEY hKey;
 		long err = RegCreateKey(HKEY_CLASSES_ROOT, pszKeyName, &hKey);
 		if (err == ERROR_SUCCESS) {
-			err = RegSetValueEx(hKey, pszValueName, 0, REG_SZ, (const BYTE*)pszValue, (DWORD)(strlen(pszValue) + 1));
+			err = RegSetValueEx(hKey, pszValueName, 0, REG_SZ, (const BYTE*)pszValue, (DWORD)(_tcslen(pszValue) + 1));
 			RegCloseKey(hKey);
 		}
 		if (err != ERROR_SUCCESS) {
@@ -106,7 +118,7 @@ STDAPI DllUnregisterServer(void)
     HRESULT hr = S_OK;
 	int nEntries = sizeof(g_RegTable) / sizeof(*g_RegTable);
 	for (int i = nEntries - 1; i >= 0; i--) {
-		const char *pszKeyName = g_RegTable[i][0];
+		const TCHAR *pszKeyName = g_RegTable[i][0];
 		long err = RegDeleteKey(HKEY_CLASSES_ROOT, pszKeyName);
 		if (err != ERROR_SUCCESS)
 			hr = S_FALSE;

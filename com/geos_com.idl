@@ -1,5 +1,18 @@
-// geos_com.idl : IDL source for geos_com.dll
-//
+/*****************************************************************************
+ *
+ * FileName: geos_com.idl
+ * Project:  GEOS COM Wrapper - http://sourceforge.jp/projects/geos-com
+ * Purpose:  IDL source for geos_com.dll
+ * Author:   geosanak, geosanak@gmail.com
+ *
+ * Copyright (C) 2006-2008 geosanak
+ *
+ * This is free software; you can redistribute and/or modify it under
+ * the terms of the GNU Lesser General Public Licence as published
+ * by the Free Software Foundation. 
+ * See the COPYING file for more information.
+ *
+ *****************************************************************************/
 
 // This file will be processed by the MIDL tool to
 // produce the type library (geos_com.tlb) and marshalling code.
@@ -114,6 +127,7 @@ interface IAPI : IDispatch{
 	[id(77)] HRESULT TopologyPreserveSimplify([in] long hGeom, [in] double dTolerance, [out,retval] long* phGeom);
 	[id(78)] HRESULT EqualsExact([in] long hGeom1, [in] long hGeom2, [in] double dTolerance, [out,retval] unsigned char* pbyResult);
 	[id(79)] HRESULT Normalize([in] long hGeom, [out,retval] long* pnResult);
+	// No support Reader and Writer APIs. (Please use GeomFromWKT(B/B_buf) methods)
 };
 [
 	uuid(D07BED60-96BC-4C7D-AE4F-114104675ABA),

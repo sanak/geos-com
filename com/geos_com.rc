@@ -16,11 +16,11 @@ BEGIN
         BLOCK "04090000"
         BEGIN
             VALUE "Comments", "GEOS COM Wrapper"
-            VALUE "CompanyName", "geosanak@gmail.com"
+            VALUE "CompanyName", "geosanak"
             VALUE "FileDescription", "GEOS COM Module"
             VALUE "FileVersion", "3.0.0.0"
             VALUE "InternalName", "GEOS COM"
-            VALUE "LegalCopyright", "geosanak@gmail.com All rights reserved."
+            VALUE "LegalCopyright", "geosanak All rights reserved."
             VALUE "OriginalFilename", "geos_com.dll"
             VALUE "ProductName", "GEOS COM Module"
             VALUE "ProductVersion", "3.0.0.0"

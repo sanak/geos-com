@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
@@ -12,22 +12,24 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			UseOfATL="1"
+			UseOfATL="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\geos\source\capi"
+				AdditionalIncludeDirectories="..\..\..\capi;..\..\..\source\headers;.\"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				RuntimeTypeInfo="FALSE"
-				UsePrecompiledHeader="3"
+				RuntimeLibrary="3"
+				TreatWChar_tAsBuiltInType="TRUE"
+				ForceConformanceInForLoopScope="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
@@ -36,11 +38,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="geos_c.lib"
-				OutputFile="../bin/geos_com.dll"
+				AdditionalDependencies="$(OutDir)\geosd_c_i.lib comsuppwd.lib"
+				OutputFile="$(OutDir)\geosd_com.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="Debug"
-				ModuleDefinitionFile=".\geos_com.def"
+				ModuleDefinitionFile="..\..\..\com\geos_com.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="$(OutDir)/geos_com.lib"
@@ -48,6 +50,7 @@
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
+				AdditionalIncludeDirectories=""
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -68,7 +71,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				AdditionalIncludeDirectories="$(IntDir);..\..\..\com"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -82,19 +85,21 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			UseOfATL="1"
+			UseOfATL="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
+			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\geos\source\capi"
+				AdditionalIncludeDirectories="..\..\..\capi;..\..\..\source\headers;.\"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL"
-				RuntimeLibrary="0"
-				RuntimeTypeInfo="FALSE"
-				UsePrecompiledHeader="3"
+				RuntimeLibrary="2"
+				TreatWChar_tAsBuiltInType="TRUE"
+				ForceConformanceInForLoopScope="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -103,11 +108,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
-				AdditionalDependencies="geos_c.lib"
-				OutputFile="../bin/geos_com.dll"
+				AdditionalDependencies="$(OutDir)\geos_c_i.lib comsuppw.lib"
+				OutputFile="$(OutDir)\geos_com.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="Release"
-				ModuleDefinitionFile=".\geos_com.def"
+				ModuleDefinitionFile="..\..\..\com\geos_com.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -158,31 +163,22 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\API.cpp">
+				RelativePath="..\..\..\com\API.cpp">
 			</File>
 			<File
-				RelativePath=".\geos_com.cpp">
+				RelativePath="..\..\..\com\geos_com.cpp">
 			</File>
 			<File
-				RelativePath=".\geos_com.def">
+				RelativePath="..\..\..\com\geos_com.def">
 			</File>
 			<File
-				RelativePath=".\geos_com.idl">
+				RelativePath="..\..\..\com\geos_com.idl">
 			</File>
 			<File
-				RelativePath=".\stdafx.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
+				RelativePath="..\..\..\com\geos_com.rc">
+			</File>
+			<File
+				RelativePath="..\..\..\com\stdafx.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -190,57 +186,12 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\_IAPIEvents_CP.h">
+				RelativePath="..\..\..\com\API.h">
 			</File>
 			<File
-				RelativePath=".\API.h">
-			</File>
-			<File
-				RelativePath="..\..\geos\source\capi\geos_c.h">
-			</File>
-			<File
-				RelativePath=".\Resource.h">
-			</File>
-			<File
-				RelativePath=".\stdafx.h">
+				RelativePath="..\..\..\com\stdafx.h">
 			</File>
 		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
-			<File
-				RelativePath=".\API.rgs">
-			</File>
-			<File
-				RelativePath=".\geos_com.rc">
-			</File>
-			<File
-				RelativePath=".\geos_com.rgs">
-			</File>
-		</Filter>
-		<Filter
-			Name="Generated Files"
-			SourceControlFiles="FALSE">
-			<File
-				RelativePath=".\geos_com_i.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"/>
-				</FileConfiguration>
-			</File>
-		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

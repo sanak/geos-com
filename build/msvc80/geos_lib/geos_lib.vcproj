@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="4"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -2691,22 +2691,6 @@
 					>
 				</File>
 			</Filter>
-		</Filter>
-		<Filter
-			Name="capi"
-			>
-			<File
-				RelativePath="..\..\..\capi\geos_c.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\capi\geos_c.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\capi\geos_c.h.in"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>
