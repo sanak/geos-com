@@ -88,7 +88,7 @@ STDAPI DllRegisterServer(void)
 		HKEY hKey;
 		long err = RegCreateKey(HKEY_CLASSES_ROOT, pszKeyName, &hKey);
 		if (err == ERROR_SUCCESS) {
-			err = RegSetValueEx(hKey, pszValueName, 0, REG_SZ, (const BYTE*)pszValue, (DWORD)(_tcslen(pszValue) + 1));
+			err = RegSetValueEx(hKey, pszValueName, 0, REG_SZ, (const BYTE*)pszValue, (DWORD)(_tcslen(pszValue) * sizeof(TCHAR) + 1));
 			RegCloseKey(hKey);
 		}
 		if (err != ERROR_SUCCESS) {
