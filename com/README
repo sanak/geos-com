@@ -1,6 +1,6 @@
 GEOS COM Wrapper - Geometry Engine Open Source Com Wrapper
 -------------------------------------------------------------------------------
-                                                          2008.10.27 ver3.0.0.0
+                                                          2008.10.27 ver3.0.0.1
 
 GEOS COM Wrapper is GEOS(Geometry Engine Open Source - http://trac.osgeo.org/geos/) 
 COM Wrapper. It enables OLE Automation (VBScript .etc) access to GEOS CAPI.

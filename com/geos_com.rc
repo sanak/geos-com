@@ -3,8 +3,8 @@
 1 TypeLib geos_com.tlb
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,0,0,0
- PRODUCTVERSION 3,0,0,0
+ FILEVERSION 3,0,0,1
+ PRODUCTVERSION 3,0,0,1
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
  FILEFLAGS 0x0L
  FILEOS VOS__WINDOWS32
@@ -18,12 +18,12 @@ BEGIN
             VALUE "Comments", "GEOS COM Wrapper"
             VALUE "CompanyName", "geosanak"
             VALUE "FileDescription", "GEOS COM Module"
-            VALUE "FileVersion", "3.0.0.0"
+            VALUE "FileVersion", "3.0.0.1"
             VALUE "InternalName", "GEOS COM"
             VALUE "LegalCopyright", "geosanak All rights reserved."
             VALUE "OriginalFilename", "geos_com.dll"
             VALUE "ProductName", "GEOS COM Module"
-            VALUE "ProductVersion", "3.0.0.0"
+            VALUE "ProductVersion", "3.0.0.1"
         END
     END
     BLOCK "VarFileInfo"
