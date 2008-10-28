@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="geos_com"
 	ProjectGUID="{563A0A50-3D58-4C96-8865-583F96A6DC8E}"
+	RootNamespace="geos_com"
 	Keyword="AtlProj"
 	>
 	<Platforms>
@@ -43,7 +44,7 @@
 				MkTypLibCompatible="false"
 				TargetEnvironment="1"
 				GenerateStublessProxies="true"
-				TypeLibraryName="$(IntDir)/geos_com.tlb"
+				TypeLibraryName="../../../swig/com/geos.tlb"
 				HeaderFileName="geos_com.h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="geos_com_i.c"
@@ -70,7 +71,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir);..\..\..\com"
+				AdditionalIncludeDirectories="$(IntDir);..\..\..\swig\com"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -78,11 +79,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="$(OutDir)\geosd_c_i.lib comsuppwd.lib"
+				AdditionalDependencies="$(OutDir)\geosd_c_i.lib"
 				OutputFile="$(OutDir)\geosd_com.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="Debug"
-				ModuleDefinitionFile="..\..\..\com\geos_com.def"
+				ModuleDefinitionFile="..\..\..\swig\com\geos.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(OutDir)/geos_com.lib"
@@ -124,6 +125,7 @@
 			UseOfATL="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -143,7 +145,7 @@
 				MkTypLibCompatible="false"
 				TargetEnvironment="1"
 				GenerateStublessProxies="true"
-				TypeLibraryName="$(IntDir)/geos_com.tlb"
+				TypeLibraryName="../../../swig/com/geos.tlb"
 				HeaderFileName="geos_com.h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="geos_com_i.c"
@@ -175,11 +177,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="$(OutDir)\geos_c_i.lib comsuppw.lib"
+				AdditionalDependencies="$(OutDir)\geos_c_i.lib"
 				OutputFile="$(OutDir)\geos_com.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="Release"
-				ModuleDefinitionFile="..\..\..\com\geos_com.def"
+				ModuleDefinitionFile="..\..\..\swig\com\geos.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -224,27 +226,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\com\API.cpp"
+				RelativePath="..\..\..\swig\com\geos.def"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\com\geos_com.cpp"
+				RelativePath="..\..\..\swig\com\geos.idl"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\com\geos_com.def"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\com\geos_com.idl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\com\geos_com.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\com\stdafx.cpp"
+				RelativePath="..\..\..\swig\com\geos_wrap.cxx"
 				>
 			</File>
 		</Filter>
@@ -253,15 +243,30 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 			<File
-				RelativePath="..\..\..\com\API.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\com\stdafx.h"
+				RelativePath="..\..\..\swig\com\geos.rc"
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\..\swig\com\geos.i"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine=""
+					Outputs=""
+				/>
+			</FileConfiguration>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

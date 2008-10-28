@@ -551,8 +551,24 @@ void * SWIGSTDCALL SWIG_wrap_opaque(void *arg, int cMemOwn, GUID *iid) {
 #define  SWIG_MemoryError    	   -12 
 #define  SWIG_NullReferenceError   -13
 
+// <-- add #geosanak 2008.10.29
+#define SWIG_as_voidptr(a) const_cast< void * >(static_cast< const void * >(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),reinterpret_cast< void** >(a)) 
 
+#define SWIGTYPE_p_GeosCoordinateSequence SWIG_wrapCoordinateSequence
+#define SWIGTYPE_p_GeosGeometry SWIG_wrapGeometry
+#define SWIGTYPE_p_GeosGeometryCollection SWIG_wrapGeometryCollection
+#define SWIGTYPE_p_GeosLineString SWIG_wrapLineString
+#define SWIGTYPE_p_GeosLinearRing SWIG_wrapLinearRing
+#define SWIGTYPE_p_GeosMultiLineString SWIG_wrapMultiLineString
+#define SWIGTYPE_p_GeosMultiLinearRing SWIG_wrapMultiLinearRing
+#define SWIGTYPE_p_GeosMultiPoint SWIG_wrapMultiPoint
+#define SWIGTYPE_p_GeosMultiPolygon SWIG_wrapMultiPolygon
+#define SWIGTYPE_p_GeosPoint SWIG_wrapPoint
+#define SWIGTYPE_p_GeosPolygon SWIG_wrapPolygon
 
+#define SWIG_NewPointerObj(ptr, fnc, flags) ((!ptr) ? NULL : (SWIGIUnknown *) fnc(ptr, flags))
+// add #geosanak 2008.10.29 -->
 
 #include <stdio.h>
 
@@ -1030,7 +1046,7 @@ SWIGINTERN void delete_GeosMultiPolygon(GeosMultiPolygon *self){
 GeosGeometry *createPoint(GeosCoordinateSequence *s)
 {
     GEOSCoordSeq coords = (GEOSCoordSeq) s;
-    GEOSGeom geom = GEOSGeom_createPoint(coords);
+    GEOSGeom geom = GEOSGeom_createPoint(GEOSCoordSeq_clone(coords)); // TODO:
 
     if(geom == NULL)
         throw std::runtime_error(message);
@@ -1041,7 +1057,7 @@ GeosGeometry *createPoint(GeosCoordinateSequence *s)
 GeosGeometry *createLineString(GeosCoordinateSequence *s)
 {
     GEOSCoordSeq coords = (GEOSCoordSeq) s;
-    GEOSGeom geom = GEOSGeom_createLineString(coords);
+    GEOSGeom geom = GEOSGeom_createLineString(GEOSCoordSeq_clone(coords)); // TODO:
 
     if(geom == NULL)
         throw std::runtime_error(message);
@@ -1052,7 +1068,7 @@ GeosGeometry *createLineString(GeosCoordinateSequence *s)
 GeosGeometry *createLinearRing(GeosCoordinateSequence *s)
 {
     GEOSCoordSeq coords = (GEOSCoordSeq) s;
-    GEOSGeom geom = GEOSGeom_createLinearRing(coords);
+    GEOSGeom geom = GEOSGeom_createLinearRing(GEOSCoordSeq_clone(coords)); // TODO:
 
     if(geom == NULL)
         throw std::runtime_error(message);
@@ -1064,7 +1080,7 @@ GeosGeometry *createPolygon(GeosLinearRing *shell, GeosLinearRing **holes, size_
 {
     GEOSGeom shellGeom = (GEOSGeom) shell;
     GEOSGeom* holeGeoms = (GEOSGeom*) holes;
-    GEOSGeom geom = GEOSGeom_createPolygon(shellGeom, holeGeoms, nholes);
+    GEOSGeom geom = GEOSGeom_createPolygon(shellGeom, holeGeoms, nholes); // TODO:
 
     if(geom == NULL)
         throw std::runtime_error(message);
@@ -4735,16 +4751,6 @@ HRESULT SWIGSTDCALL _wrap_Geometry_distance(SWIGIUnknown * jarg1, SWIGIUnknown *
 }
 
 
-extern GUID IID_IGeometryStatic;
-
-extern SWIG_funcptr _wrapGeometryStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_GeometryStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapGeometryStatic_vtable, &IID_IGeometryStatic);
-
-  return S_OK;
-}
-
 HRESULT SWIGSTDCALL _wrap_delete_Point(SWIGIUnknown * jarg1) {
   HRESULT hres ;
   GeosPoint *arg1 = (GeosPoint *) 0 ;
@@ -4831,16 +4837,6 @@ HRESULT SWIGSTDCALL _wrap_Point_getCoordSeq(SWIGIUnknown * jarg1, SWIGIUnknown *
   return S_OK;
 }
 
-
-extern GUID IID_IPointStatic;
-
-extern SWIG_funcptr _wrapPointStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_PointStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapPointStatic_vtable, &IID_IPointStatic);
-
-  return S_OK;
-}
 
 HRESULT SWIGSTDCALL _wrap_delete_LineString(SWIGIUnknown * jarg1) {
   HRESULT hres ;
@@ -4929,16 +4925,6 @@ HRESULT SWIGSTDCALL _wrap_LineString_getCoordSeq(SWIGIUnknown * jarg1, SWIGIUnkn
 }
 
 
-extern GUID IID_ILineStringStatic;
-
-extern SWIG_funcptr _wrapLineStringStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_LineStringStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapLineStringStatic_vtable, &IID_ILineStringStatic);
-
-  return S_OK;
-}
-
 HRESULT SWIGSTDCALL _wrap_delete_LinearRing(SWIGIUnknown * jarg1) {
   HRESULT hres ;
   GeosLinearRing *arg1 = (GeosLinearRing *) 0 ;
@@ -5025,16 +5011,6 @@ HRESULT SWIGSTDCALL _wrap_LinearRing_getCoordSeq(SWIGIUnknown * jarg1, SWIGIUnkn
   return S_OK;
 }
 
-
-extern GUID IID_ILinearRingStatic;
-
-extern SWIG_funcptr _wrapLinearRingStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_LinearRingStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapLinearRingStatic_vtable, &IID_ILinearRingStatic);
-
-  return S_OK;
-}
 
 HRESULT SWIGSTDCALL _wrap_delete_Polygon(SWIGIUnknown * jarg1) {
   HRESULT hres ;
@@ -5283,16 +5259,6 @@ HRESULT SWIGSTDCALL _wrap_Polygon_getInteriorRingN(SWIGIUnknown * jarg1, unsigne
 }
 
 
-extern GUID IID_IPolygonStatic;
-
-extern SWIG_funcptr _wrapPolygonStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_PolygonStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapPolygonStatic_vtable, &IID_IPolygonStatic);
-
-  return S_OK;
-}
-
 HRESULT SWIGSTDCALL _wrap_delete_GeometryCollection(SWIGIUnknown * jarg1) {
   HRESULT hres ;
   GeosGeometryCollection *arg1 = (GeosGeometryCollection *) 0 ;
@@ -5416,16 +5382,6 @@ HRESULT SWIGSTDCALL _wrap_GeometryCollection_getGeometryN(SWIGIUnknown * jarg1, 
 }
 
 
-extern GUID IID_IGeometryCollectionStatic;
-
-extern SWIG_funcptr _wrapGeometryCollectionStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_GeometryCollectionStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapGeometryCollectionStatic_vtable, &IID_IGeometryCollectionStatic);
-
-  return S_OK;
-}
-
 HRESULT SWIGSTDCALL _wrap_delete_MultiPoint(SWIGIUnknown * jarg1) {
   HRESULT hres ;
   GeosMultiPoint *arg1 = (GeosMultiPoint *) 0 ;
@@ -5465,16 +5421,6 @@ HRESULT SWIGSTDCALL _wrap_delete_MultiPoint(SWIGIUnknown * jarg1) {
   return S_OK;
 }
 
-
-extern GUID IID_IMultiPointStatic;
-
-extern SWIG_funcptr _wrapMultiPointStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_MultiPointStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapMultiPointStatic_vtable, &IID_IMultiPointStatic);
-
-  return S_OK;
-}
 
 HRESULT SWIGSTDCALL _wrap_delete_MultiLineString(SWIGIUnknown * jarg1) {
   HRESULT hres ;
@@ -5516,16 +5462,6 @@ HRESULT SWIGSTDCALL _wrap_delete_MultiLineString(SWIGIUnknown * jarg1) {
 }
 
 
-extern GUID IID_IMultiLineStringStatic;
-
-extern SWIG_funcptr _wrapMultiLineStringStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_MultiLineStringStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapMultiLineStringStatic_vtable, &IID_IMultiLineStringStatic);
-
-  return S_OK;
-}
-
 HRESULT SWIGSTDCALL _wrap_delete_MultiLinearRing(SWIGIUnknown * jarg1) {
   HRESULT hres ;
   GeosMultiLinearRing *arg1 = (GeosMultiLinearRing *) 0 ;
@@ -5566,16 +5502,6 @@ HRESULT SWIGSTDCALL _wrap_delete_MultiLinearRing(SWIGIUnknown * jarg1) {
 }
 
 
-extern GUID IID_IMultiLinearRingStatic;
-
-extern SWIG_funcptr _wrapMultiLinearRingStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_MultiLinearRingStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapMultiLinearRingStatic_vtable, &IID_IMultiLinearRingStatic);
-
-  return S_OK;
-}
-
 HRESULT SWIGSTDCALL _wrap_delete_MultiPolygon(SWIGIUnknown * jarg1) {
   HRESULT hres ;
   GeosMultiPolygon *arg1 = (GeosMultiPolygon *) 0 ;
@@ -5615,16 +5541,6 @@ HRESULT SWIGSTDCALL _wrap_delete_MultiPolygon(SWIGIUnknown * jarg1) {
   return S_OK;
 }
 
-
-extern GUID IID_IMultiPolygonStatic;
-
-extern SWIG_funcptr _wrapMultiPolygonStatic_vtable[];
-
-HRESULT SWIGSTDCALL _wrap_MultiPolygonStatic(void *SWIG_ignored, SWIGIUnknown **SWIG_result) {
-  *SWIG_result = (SWIGIUnknown *) _wrap_new_staticclass(_wrapMultiPolygonStatic_vtable, &IID_IMultiPolygonStatic);
-
-  return S_OK;
-}
 
 HRESULT SWIGSTDCALL _wrap_createPoint(void *SWIG_ignored, SWIGIUnknown * jarg1, SWIGIUnknown **SWIG_result_ptr) {
   SWIGIUnknown * jresult ;
@@ -6363,6 +6279,7 @@ HRESULT SWIGSTDCALL _wrap_delete_WkbReader(SWIGIUnknown * jarg1) {
 
 
 HRESULT SWIGSTDCALL _wrap_WkbReader_read(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, SWIGIUnknown **SWIG_result_ptr) {
+#if 0
   SWIGIUnknown * jresult ;
   HRESULT hres ;
   GeosWkbReader *arg1 = (GeosWkbReader *) 0 ;
@@ -6451,11 +6368,13 @@ HRESULT SWIGSTDCALL _wrap_WkbReader_read(SWIGIUnknown * jarg1, SWIGIUnknown * ja
       break;
     }
   }
+#endif
   return S_OK;
 }
 
 
 HRESULT SWIGSTDCALL _wrap_WkbReader_readHEX(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, SWIGIUnknown **SWIG_result_ptr) {
+#if 0
   SWIGIUnknown * jresult ;
   HRESULT hres ;
   GeosWkbReader *arg1 = (GeosWkbReader *) 0 ;
@@ -6544,6 +6463,7 @@ HRESULT SWIGSTDCALL _wrap_WkbReader_readHEX(SWIGIUnknown * jarg1, SWIGIUnknown *
       break;
     }
   }
+#endif
   return S_OK;
 }
 
@@ -6880,6 +6800,7 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_setIncludeSRID(SWIGIUnknown * jarg1, VARIANT
 
 
 HRESULT SWIGSTDCALL _wrap_WkbWriter_write(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, SWIGIUnknown **SWIG_result_ptr) {
+#if 0
   SWIGIUnknown * jresult ;
   HRESULT hres ;
   GeosWkbWriter *arg1 = (GeosWkbWriter *) 0 ;
@@ -6955,11 +6876,13 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_write(SWIGIUnknown * jarg1, SWIGIUnknown * j
     /* %typemap(freearg) size_t *size */
     std::free(result);
   }
+#endif
   return S_OK;
 }
 
 
 HRESULT SWIGSTDCALL _wrap_WkbWriter_writeHEX(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, SWIGIUnknown **SWIG_result_ptr) {
+#if 0
   SWIGIUnknown * jresult ;
   HRESULT hres ;
   GeosWkbWriter *arg1 = (GeosWkbWriter *) 0 ;
@@ -7035,6 +6958,7 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_writeHEX(SWIGIUnknown * jarg1, SWIGIUnknown 
     /* %typemap(freearg) size_t *size */
     std::free(result);
   }
+#endif
   return S_OK;
 }
 
@@ -7090,16 +7014,6 @@ SWIG_funcptr _wrapgeos_vtable[] = {
   (SWIG_funcptr) _wrap_GEOS_WKB_NDR_get,
   (SWIG_funcptr) _wrap_version,
   (SWIG_funcptr) _wrap_CoordinateSequenceStatic,
-  (SWIG_funcptr) _wrap_GeometryStatic,
-  (SWIG_funcptr) _wrap_PointStatic,
-  (SWIG_funcptr) _wrap_LineStringStatic,
-  (SWIG_funcptr) _wrap_LinearRingStatic,
-  (SWIG_funcptr) _wrap_PolygonStatic,
-  (SWIG_funcptr) _wrap_GeometryCollectionStatic,
-  (SWIG_funcptr) _wrap_MultiPointStatic,
-  (SWIG_funcptr) _wrap_MultiLineStringStatic,
-  (SWIG_funcptr) _wrap_MultiLinearRingStatic,
-  (SWIG_funcptr) _wrap_MultiPolygonStatic,
   (SWIG_funcptr) _wrap_createPoint,
   (SWIG_funcptr) _wrap_createLineString,
   (SWIG_funcptr) _wrap_createLinearRing,
@@ -7213,11 +7127,7 @@ SWIG_funcptr _wrapCoordinateSequencevtable[] = {
 };
 
 void SWIG_delete_CoordinateSequence(GeosCoordinateSequence *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosCoordinateSequence(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapCoordinateSequence(void *arg, int cMemOwn) {
@@ -7388,11 +7298,7 @@ SWIG_funcptr _wrapGeometryvtable[] = {
 };
 
 void SWIG_delete_Geometry(GeosGeometry *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosGeometry(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapGeometry(void *arg, int cMemOwn) {
@@ -7415,20 +7321,6 @@ void * SWIGSTDCALL SWIG_wrapGeometry(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_IGeometry, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_IGeometryStatic = { 0x33208dd2, 0x6d2a, 0x5626, { 0x88, 0xaa, 0x83, 0xb9, 0x6c, 0x1d, 0x5a, 0x14}};
-
-extern SWIG_funcptr _wrapGeometryStatic_vtable[];
-
-SWIG_funcptr _wrapGeometryStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_IPoint = { 0x9172157d, 0xc90f, 0x5565, { 0xad, 0xd0, 0xd5, 0x09, 0xc5, 0xa6, 0x05, 0x49}};
 
@@ -7535,7 +7427,7 @@ SWIG_funcptr _wrapPointvtable[] = {
   (SWIG_funcptr) _wrap_Geometry_difference,
   (SWIG_funcptr) _wrap_Geometry_symDifference,
   (SWIG_funcptr) _wrap_Geometry_boundary,
-  (SWIG_funcptr) _wrap_Geometry_union,
+  (SWIG_funcptr) _wrap_Geometry_Union,
   (SWIG_funcptr) _wrap_Geometry_pointOnSurface,
   (SWIG_funcptr) _wrap_Geometry_getCentroid,
   (SWIG_funcptr) _wrap_Geometry_getEnvelope,
@@ -7565,11 +7457,7 @@ SWIG_funcptr _wrapPointvtable[] = {
 };
 
 void SWIG_delete_Point(GeosPoint *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosPoint(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapPoint(void *arg, int cMemOwn) {
@@ -7592,20 +7480,6 @@ void * SWIGSTDCALL SWIG_wrapPoint(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_IPoint, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_IPointStatic = { 0x121bc6eb, 0x67e7, 0x5c45, { 0x8d, 0xaa, 0x82, 0x0b, 0xb2, 0xe6, 0xf9, 0x94}};
-
-extern SWIG_funcptr _wrapPointStatic_vtable[];
-
-SWIG_funcptr _wrapPointStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_ILineString = { 0x98752de3, 0x4684, 0x5906, { 0x84, 0x88, 0x2b, 0x9d, 0xfb, 0x0c, 0x91, 0xdd}};
 
@@ -7742,11 +7616,7 @@ SWIG_funcptr _wrapLineStringvtable[] = {
 };
 
 void SWIG_delete_LineString(GeosLineString *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosLineString(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapLineString(void *arg, int cMemOwn) {
@@ -7769,20 +7639,6 @@ void * SWIGSTDCALL SWIG_wrapLineString(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_ILineString, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_ILineStringStatic = { 0x206e0727, 0x27d4, 0x5123, { 0x89, 0xa4, 0x3c, 0xe5, 0xf6, 0x88, 0x95, 0x6b}};
-
-extern SWIG_funcptr _wrapLineStringStatic_vtable[];
-
-SWIG_funcptr _wrapLineStringStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_ILinearRing = { 0xb64cf891, 0xa616, 0x57ac, { 0xa2, 0x5c, 0xe9, 0xea, 0x10, 0xc1, 0xe2, 0x7c}};
 
@@ -7919,11 +7775,7 @@ SWIG_funcptr _wrapLinearRingvtable[] = {
 };
 
 void SWIG_delete_LinearRing(GeosLinearRing *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosLinearRing(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapLinearRing(void *arg, int cMemOwn) {
@@ -7946,20 +7798,6 @@ void * SWIGSTDCALL SWIG_wrapLinearRing(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_ILinearRing, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_ILinearRingStatic = { 0xa53f7a5a, 0x7b9b, 0x5f12, { 0x8b, 0xbc, 0xc9, 0x07, 0xac, 0xa4, 0x08, 0xf1}};
-
-extern SWIG_funcptr _wrapLinearRingStatic_vtable[];
-
-SWIG_funcptr _wrapLinearRingStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_IPolygon = { 0xd21be932, 0x9692, 0x5899, { 0xb3, 0x4c, 0x23, 0x59, 0x94, 0x42, 0xa2, 0x9b}};
 
@@ -8098,11 +7936,7 @@ SWIG_funcptr _wrapPolygonvtable[] = {
 };
 
 void SWIG_delete_Polygon(GeosPolygon *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosPolygon(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapPolygon(void *arg, int cMemOwn) {
@@ -8125,20 +7959,6 @@ void * SWIGSTDCALL SWIG_wrapPolygon(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_IPolygon, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_IPolygonStatic = { 0x326798ca, 0xdb05, 0x55a9, { 0xae, 0xc1, 0x32, 0x94, 0xe5, 0x7d, 0xd3, 0x33}};
-
-extern SWIG_funcptr _wrapPolygonStatic_vtable[];
-
-SWIG_funcptr _wrapPolygonStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_IGeometryCollection = { 0x89b326e7, 0xd823, 0x5a4e, { 0x92, 0x01, 0x46, 0xd8, 0xc4, 0x82, 0x81, 0x81}};
 
@@ -8275,11 +8095,7 @@ SWIG_funcptr _wrapGeometryCollectionvtable[] = {
 };
 
 void SWIG_delete_GeometryCollection(GeosGeometryCollection *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosGeometryCollection(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapGeometryCollection(void *arg, int cMemOwn) {
@@ -8302,20 +8118,6 @@ void * SWIGSTDCALL SWIG_wrapGeometryCollection(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_IGeometryCollection, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_IGeometryCollectionStatic = { 0xb00b7f91, 0x432f, 0x520d, { 0x9b, 0x2f, 0xd5, 0x92, 0xe3, 0x06, 0x4e, 0x5a}};
-
-extern SWIG_funcptr _wrapGeometryCollectionStatic_vtable[];
-
-SWIG_funcptr _wrapGeometryCollectionStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_IMultiPoint = { 0xa73af551, 0xcb91, 0x5877, { 0x80, 0x27, 0xc9, 0x12, 0x6d, 0xd5, 0x11, 0x9f}};
 
@@ -8454,11 +8256,7 @@ SWIG_funcptr _wrapMultiPointvtable[] = {
 };
 
 void SWIG_delete_MultiPoint(GeosMultiPoint *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosMultiPoint(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapMultiPoint(void *arg, int cMemOwn) {
@@ -8481,20 +8279,6 @@ void * SWIGSTDCALL SWIG_wrapMultiPoint(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_IMultiPoint, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_IMultiPointStatic = { 0xbffd5c28, 0x0dbf, 0x51fa, { 0xa8, 0x01, 0x0f, 0xa9, 0x1f, 0xe0, 0xb6, 0xd9}};
-
-extern SWIG_funcptr _wrapMultiPointStatic_vtable[];
-
-SWIG_funcptr _wrapMultiPointStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_IMultiLineString = { 0x9473df4e, 0x61ce, 0x5b5b, { 0xa5, 0xf0, 0x0f, 0x54, 0x43, 0x24, 0x73, 0xbf}};
 
@@ -8633,11 +8417,7 @@ SWIG_funcptr _wrapMultiLineStringvtable[] = {
 };
 
 void SWIG_delete_MultiLineString(GeosMultiLineString *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosMultiLineString(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapMultiLineString(void *arg, int cMemOwn) {
@@ -8660,20 +8440,6 @@ void * SWIGSTDCALL SWIG_wrapMultiLineString(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_IMultiLineString, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_IMultiLineStringStatic = { 0x9547f561, 0x449d, 0x59f7, { 0x9b, 0x8f, 0xec, 0xd8, 0x5e, 0xcf, 0x87, 0xe4}};
-
-extern SWIG_funcptr _wrapMultiLineStringStatic_vtable[];
-
-SWIG_funcptr _wrapMultiLineStringStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_IMultiLinearRing = { 0x066c9e59, 0x826c, 0x5868, { 0x8a, 0x06, 0x40, 0x56, 0x4b, 0xda, 0xea, 0xe1}};
 
@@ -8812,11 +8578,7 @@ SWIG_funcptr _wrapMultiLinearRingvtable[] = {
 };
 
 void SWIG_delete_MultiLinearRing(GeosMultiLinearRing *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosMultiLinearRing(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapMultiLinearRing(void *arg, int cMemOwn) {
@@ -8839,20 +8601,6 @@ void * SWIGSTDCALL SWIG_wrapMultiLinearRing(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_IMultiLinearRing, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_IMultiLinearRingStatic = { 0x896c00b8, 0x789d, 0x551b, { 0xa1, 0xf8, 0x01, 0xf6, 0xa8, 0xe3, 0xc6, 0xba}};
-
-extern SWIG_funcptr _wrapMultiLinearRingStatic_vtable[];
-
-SWIG_funcptr _wrapMultiLinearRingStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_IMultiPolygon = { 0xa30c8553, 0xa922, 0x5421, { 0x92, 0x60, 0xea, 0xe8, 0x74, 0xa7, 0x45, 0xf4}};
 
@@ -8991,11 +8739,7 @@ SWIG_funcptr _wrapMultiPolygonvtable[] = {
 };
 
 void SWIG_delete_MultiPolygon(GeosMultiPolygon *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosMultiPolygon(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapMultiPolygon(void *arg, int cMemOwn) {
@@ -9018,20 +8762,6 @@ void * SWIGSTDCALL SWIG_wrapMultiPolygon(void *arg, int cMemOwn) {
   ((HRESULT (SWIGSTDCALL *)(ITypeLib *, GUID *, ITypeInfo **)) (((SWIGIUnknown *) SWIG_typelib)->vtable[6]))(SWIG_typelib, &IID_IMultiPolygon, &res->typeInfo);
   return (void *) res;
 }
-
-GUID IID_IMultiPolygonStatic = { 0xaa3a8c99, 0x6469, 0x55e7, { 0xbc, 0xdf, 0xa4, 0x50, 0xc8, 0x27, 0x9b, 0x9c}};
-
-extern SWIG_funcptr _wrapMultiPolygonStatic_vtable[];
-
-SWIG_funcptr _wrapMultiPolygonStatic_vtable[] = {
-  (SWIG_funcptr) _wrap_staticclass_QueryInterface,
-  (SWIG_funcptr) SWIGAddRef1,
-  (SWIG_funcptr) SWIGRelease1,
-  (SWIG_funcptr) SWIGGetTypeInfoCount,
-  (SWIG_funcptr) SWIGGetTypeInfo,
-  (SWIG_funcptr) SWIGGetIDsOfNames,
-  (SWIG_funcptr) SWIGInvoke
-};
 
 GUID IID_IWktReader = { 0xb9456944, 0x09f2, 0x5e98, { 0xaa, 0xe6, 0xeb, 0x4e, 0x90, 0xbc, 0x48, 0xbd}};
 
@@ -9125,22 +8855,8 @@ SWIG_funcptr _wrapWktReadervtable[] = {
   (SWIG_funcptr) _wrap_WktReader_read
 };
 
-GeosWktReader* SWIGSTDCALL SWIG_new_WktReader() {
-#ifdef __cplusplus
-  return (GeosWktReader *) SWIG_wrapWktReader((void *) new GeosWktReader(), 1);
-#else
-  return (GeosWktReader *) SWIG_wrapWktReader((void *) malloc(sizeof(GeosWktReader)), 1);
-#endif
-}
-
-GUID CLSID_WktReader = { 0xe9fcaef5, 0x3177, 0x5cb4, { 0xb7, 0x2e, 0xe4, 0x8a, 0xfe, 0xb8, 0xcc, 0x81}};
-
 void SWIG_delete_WktReader(GeosWktReader *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosWktReader(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapWktReader(void *arg, int cMemOwn) {
@@ -9271,22 +8987,8 @@ SWIG_funcptr _wrapWktWritervtable[] = {
   (SWIG_funcptr) _wrap_WktWriter_write
 };
 
-GeosWktWriter* SWIGSTDCALL SWIG_new_WktWriter() {
-#ifdef __cplusplus
-  return (GeosWktWriter *) SWIG_wrapWktWriter((void *) new GeosWktWriter(), 1);
-#else
-  return (GeosWktWriter *) SWIG_wrapWktWriter((void *) malloc(sizeof(GeosWktWriter)), 1);
-#endif
-}
-
-GUID CLSID_WktWriter = { 0x833ba07f, 0xf888, 0x5a1f, { 0x9b, 0x1d, 0x78, 0xce, 0x4d, 0x0d, 0xe8, 0x33}};
-
 void SWIG_delete_WktWriter(GeosWktWriter *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosWktWriter(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapWktWriter(void *arg, int cMemOwn) {
@@ -9418,22 +9120,8 @@ SWIG_funcptr _wrapWkbReadervtable[] = {
   (SWIG_funcptr) _wrap_WkbReader_readHEX
 };
 
-GeosWkbReader* SWIGSTDCALL SWIG_new_WkbReader() {
-#ifdef __cplusplus
-  return (GeosWkbReader *) SWIG_wrapWkbReader((void *) new GeosWkbReader(), 1);
-#else
-  return (GeosWkbReader *) SWIG_wrapWkbReader((void *) malloc(sizeof(GeosWkbReader)), 1);
-#endif
-}
-
-GUID CLSID_WkbReader = { 0x829b9c9b, 0x63d7, 0x580e, { 0x88, 0x3d, 0x31, 0x6e, 0xc4, 0x64, 0x25, 0x51}};
-
 void SWIG_delete_WkbReader(GeosWkbReader *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosWkbReader(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapWkbReader(void *arg, int cMemOwn) {
@@ -9571,22 +9259,8 @@ SWIG_funcptr _wrapWkbWritervtable[] = {
   (SWIG_funcptr) _wrap_WkbWriter_writeHEX
 };
 
-GeosWkbWriter* SWIGSTDCALL SWIG_new_WkbWriter() {
-#ifdef __cplusplus
-  return (GeosWkbWriter *) SWIG_wrapWkbWriter((void *) new GeosWkbWriter(), 1);
-#else
-  return (GeosWkbWriter *) SWIG_wrapWkbWriter((void *) malloc(sizeof(GeosWkbWriter)), 1);
-#endif
-}
-
-GUID CLSID_WkbWriter = { 0xba9fbe3c, 0xf9b2, 0x5d7b, { 0xbe, 0x06, 0x44, 0x51, 0x06, 0x69, 0xa6, 0xb0}};
-
 void SWIG_delete_WkbWriter(GeosWkbWriter *arg) {
-#ifdef __cplusplus
-  delete arg;
-#else
-  free(arg);
-#endif
+  delete_GeosWkbWriter(arg);
 }
 
 void * SWIGSTDCALL SWIG_wrapWkbWriter(void *arg, int cMemOwn) {
@@ -9629,10 +9303,6 @@ static TCHAR * SWIG_tlb_guid_string = _T("{28d0d0e2-75e0-5b3f-9621-bc0ccd3dad79}
 
 static SWIGClassDescription_t SWIGClassDescription[] = {
   { (SWIG_funcptr) _wrap_new_geos, &CLSID_geos, _T("{37091295-e126-5e8f-b293-eab4783b6033}"), _T("geos.geos"), 0 },
-  { (SWIG_funcptr) SWIG_new_WktReader, &CLSID_WktReader, _T("{e9fcaef5-3177-5cb4-b72e-e48afeb8cc81}"), _T("geos.WktReader"), 1 },
-  { (SWIG_funcptr) SWIG_new_WktWriter, &CLSID_WktWriter, _T("{833ba07f-f888-5a1f-9b1d-78ce4d0de833}"), _T("geos.WktWriter"), 1 },
-  { (SWIG_funcptr) SWIG_new_WkbReader, &CLSID_WkbReader, _T("{829b9c9b-63d7-580e-883d-316ec4642551}"), _T("geos.WkbReader"), 1 },
-  { (SWIG_funcptr) SWIG_new_WkbWriter, &CLSID_WkbWriter, _T("{ba9fbe3c-f9b2-5d7b-be06-44510669a6b0}"), _T("geos.WkbWriter"), 1 },
   { NULL, NULL, NULL, NULL } /* guard element */
 };
 
