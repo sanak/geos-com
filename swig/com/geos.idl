@@ -37,8 +37,8 @@ library geosTLB {
   interface IWkbReaderStatic;
   interface IWkbWriter;
   interface IWkbWriterStatic;
-  interface ISWIGTYPE_p_unsigned_char;
-  interface ISWIGTYPE_p_p_GeosLinearRing;
+//  interface ISWIGTYPE_p_unsigned_char;
+//  interface ISWIGTYPE_p_p_GeosLinearRing;
 
   [
     object,
@@ -95,7 +95,8 @@ library geosTLB {
     HRESULT createPoint(ICoordinateSequence * arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
     HRESULT createLineString(ICoordinateSequence * arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
     HRESULT createLinearRing(ICoordinateSequence * arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
-    HRESULT createPolygon(ILinearRing * arg0, ISWIGTYPE_p_p_GeosLinearRing * arg1, long arg2, [ retval, out ] IGeometry **SWIG_result_ptr);
+//    HRESULT createPolygon(ILinearRing * arg0, ISWIGTYPE_p_p_GeosLinearRing * arg1, long arg2, [ retval, out ] IGeometry **SWIG_result_ptr);
+    HRESULT createPolygon(ILinearRing * arg0, VARIANT arg1, [ retval, out ] IGeometry **SWIG_result_ptr);
     [ propget]
     HRESULT WktReader([ retval, out ] IWktReaderStatic **SWIG_result);
     [ propget]
@@ -327,8 +328,10 @@ library geosTLB {
     dual
   ]
   interface IWkbReader : IDispatch {
-    HRESULT read(ISWIGTYPE_p_unsigned_char * arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
-    HRESULT readHEX(ISWIGTYPE_p_unsigned_char * arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
+//    HRESULT read(ISWIGTYPE_p_unsigned_char * arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
+//    HRESULT readHEX(ISWIGTYPE_p_unsigned_char * arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
+    HRESULT read(VARIANT arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
+    HRESULT readHEX(VARIANT arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
   };
 
   [
@@ -354,8 +357,10 @@ library geosTLB {
     HRESULT setByteOrder(int arg0);
     HRESULT getIncludeSRID([ retval, out ] VARIANT_BOOL*SWIG_result_ptr);
     HRESULT setIncludeSRID(VARIANT_BOOL arg0);
-    HRESULT write(IGeometry * arg0, [ retval, out ] ISWIGTYPE_p_unsigned_char **SWIG_result_ptr);
-    HRESULT writeHEX(IGeometry * arg0, [ retval, out ] ISWIGTYPE_p_unsigned_char **SWIG_result_ptr);
+//    HRESULT write(IGeometry * arg0, [ retval, out ] ISWIGTYPE_p_unsigned_char **SWIG_result_ptr);
+//    HRESULT writeHEX(IGeometry * arg0, [ retval, out ] ISWIGTYPE_p_unsigned_char **SWIG_result_ptr);
+    HRESULT write(IGeometry * arg0, [ retval, out ] VARIANT *SWIG_result_ptr);
+    HRESULT writeHEX(IGeometry * arg0, [ retval, out ] VARIANT *SWIG_result_ptr);
   };
 
   [
@@ -368,20 +373,20 @@ library geosTLB {
     HRESULT new_WkbWriter([ retval, out ] IWkbWriter **SWIG_result_ptr);
   };
 
-  [
-    object,
-    local,
-    uuid(0211390a-7a8f-5e7d-acaa-1106f0f1084e)
-  ]
-  interface ISWIGTYPE_p_unsigned_char : IUnknown {
-  };
-
-  [
-    object,
-    local,
-    uuid(bbf7519b-84a5-536c-a939-9d7b75ce6e9f)
-  ]
-  interface ISWIGTYPE_p_p_GeosLinearRing : IUnknown {
-  };
+//  [
+//    object,
+//    local,
+//    uuid(0211390a-7a8f-5e7d-acaa-1106f0f1084e)
+//  ]
+//  interface ISWIGTYPE_p_unsigned_char : IUnknown {
+//  };
+//
+//  [
+//    object,
+//    local,
+//    uuid(bbf7519b-84a5-536c-a939-9d7b75ce6e9f)
+//  ]
+//  interface ISWIGTYPE_p_p_GeosLinearRing : IUnknown {
+//  };
 
 };

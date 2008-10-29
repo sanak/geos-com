@@ -1079,8 +1079,17 @@ GeosGeometry *createLinearRing(GeosCoordinateSequence *s)
 GeosGeometry *createPolygon(GeosLinearRing *shell, GeosLinearRing **holes, size_t nholes)
 {
     GEOSGeom shellGeom = (GEOSGeom) shell;
-    GEOSGeom* holeGeoms = (GEOSGeom*) holes;
-    GEOSGeom geom = GEOSGeom_createPolygon(shellGeom, holeGeoms, nholes); // TODO:
+    GEOSGeom* holeGeoms = new GEOSGeom[nholes];
+    if(holeGeoms == NULL)
+        throw std::runtime_error("TODO:");
+
+    for (size_t i = 0; i < nholes; i++) {
+        holeGeoms[i] = GEOSGeom_clone((GEOSGeom)holes[i]);
+    }
+    GEOSGeom geom = GEOSGeom_createPolygon(GEOSGeom_clone(shellGeom), holeGeoms, nholes); // TODO:
+
+    if(holeGeoms)
+        delete holeGeoms;
 
     if(geom == NULL)
         throw std::runtime_error(message);
@@ -1207,17 +1216,17 @@ void * SWIGSTDCALL SWIG_wrapWktReader(void *arg, int cMemOwn);
 void * SWIGSTDCALL SWIG_wrapWktWriter(void *arg, int cMemOwn);
 void * SWIGSTDCALL SWIG_wrapWkbReader(void *arg, int cMemOwn);
 void * SWIGSTDCALL SWIG_wrapWkbWriter(void *arg, int cMemOwn);
-GUID IID_ISWIGTYPE_p_unsigned_char = { 0x0211390a, 0x7a8f, 0x5e7d, { 0xac, 0xaa, 0x11, 0x06, 0xf0, 0xf1, 0x08, 0x4e}};
-
-void * SWIGSTDCALL SWIG_wrapSWIGTYPE_p_unsigned_char(void *ptr, int cMemOwn) {
-  return SWIG_wrap_opaque(ptr, cMemOwn, &IID_ISWIGTYPE_p_unsigned_char);
-};
-
-GUID IID_ISWIGTYPE_p_p_GeosLinearRing = { 0xbbf7519b, 0x84a5, 0x536c, { 0xa9, 0x39, 0x9d, 0x7b, 0x75, 0xce, 0x6e, 0x9f}};
-
-void * SWIGSTDCALL SWIG_wrapSWIGTYPE_p_p_GeosLinearRing(void *ptr, int cMemOwn) {
-  return SWIG_wrap_opaque(ptr, cMemOwn, &IID_ISWIGTYPE_p_p_GeosLinearRing);
-};
+//GUID IID_ISWIGTYPE_p_unsigned_char = { 0x0211390a, 0x7a8f, 0x5e7d, { 0xac, 0xaa, 0x11, 0x06, 0xf0, 0xf1, 0x08, 0x4e}};
+//
+//void * SWIGSTDCALL SWIG_wrapSWIGTYPE_p_unsigned_char(void *ptr, int cMemOwn) {
+//  return SWIG_wrap_opaque(ptr, cMemOwn, &IID_ISWIGTYPE_p_unsigned_char);
+//};
+//
+//GUID IID_ISWIGTYPE_p_p_GeosLinearRing = { 0xbbf7519b, 0x84a5, 0x536c, { 0xa9, 0x39, 0x9d, 0x7b, 0x75, 0xce, 0x6e, 0x9f}};
+//
+//void * SWIGSTDCALL SWIG_wrapSWIGTYPE_p_p_GeosLinearRing(void *ptr, int cMemOwn) {
+//  return SWIG_wrap_opaque(ptr, cMemOwn, &IID_ISWIGTYPE_p_p_GeosLinearRing);
+//};
 
 
 HRESULT SWIGSTDCALL _wrap_GEOS_VERSION_MAJOR_get(void *SWIG_ignored, int*SWIG_result_ptr) {
@@ -5785,17 +5794,16 @@ HRESULT SWIGSTDCALL _wrap_createLinearRing(void *SWIG_ignored, SWIGIUnknown * ja
 }
 
 
-HRESULT SWIGSTDCALL _wrap_createPolygon(void *SWIG_ignored, SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, unsigned long jarg3, SWIGIUnknown **SWIG_result_ptr) {
+//HRESULT SWIGSTDCALL _wrap_createPolygon(void *SWIG_ignored, SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, unsigned long jarg3, SWIGIUnknown **SWIG_result_ptr) {
+HRESULT SWIGSTDCALL _wrap_createPolygon(void *SWIG_ignored, SWIGIUnknown * jarg1, VARIANT jarg2, SWIGIUnknown **SWIG_result_ptr) {
   SWIGIUnknown * jresult ;
   HRESULT hres ;
   GeosLinearRing *arg1 = (GeosLinearRing *) 0 ;
   GeosLinearRing **arg2 = (GeosLinearRing **) 0 ;
-  size_t arg3 ;
   GeosGeometry *result = 0 ;
   
   {
     arg2 = NULL;
-    arg3 = 0;
   }
   
   if (jarg1) {
@@ -5817,38 +5825,56 @@ HRESULT SWIGSTDCALL _wrap_createPolygon(void *SWIG_ignored, SWIGIUnknown * jarg1
     }
   }
   
-  
-  if (jarg2) {
-    SWIGIUnknown *wrapper;
-    
-    /* Call to QueryInterface */
-    HRESULT hr = ((HRESULT (SWIGSTDCALL *)(SWIGIUnknown *, GUID *, void **))
-      jarg2->vtable[0])(jarg2, &IID_ISWIGWrappedObject, (void **) &wrapper); 
-    
-    if (hr != S_OK) {
-      /* Argument was not wrapped by SWIG - directors will be needed */
-    } else {
-      /* GetCPtr */
-      void *c_ptr = ((void * (SWIGSTDCALL *)(SWIGIUnknown *)) (wrapper->vtable[3]))(wrapper);
-      arg2 = *(GeosLinearRing ***) &c_ptr;
-      
-      /* Release */
-      ((long (SWIGSTDCALL *)(SWIGIUnknown *)) (wrapper->vtable[2]))(wrapper);
-    }
+  VARIANT* pvars = NULL;
+  ULONG nSize = 0;
+  SAFEARRAY* psa = NULL;
+  if ((jarg2.vt & VT_ARRAY) && (jarg2.vt & VT_VARIANT)) {
+    psa = jarg2.parray;
+	::SafeArrayAccessData(psa, (void**)&pvars);
+	nSize = psa->rgsabound->cElements;
+
+	arg2 = (GeosLinearRing**)malloc(sizeof(void*) * nSize);
+	for (int i = 0; i < nSize; i++) {
+      if (pvars[i].vt == VT_DISPATCH) {
+        SWIGIUnknown *wrapper;
+   
+        /* Call to QueryInterface */
+        HRESULT hr = pvars[i].pdispVal->QueryInterface(IID_ISWIGWrappedObject, (void **) &wrapper);
+        if (hr != S_OK) {
+          /* Argument was not wrapped by SWIG - directors will be needed */
+        } else {
+          /* GetCPtr */
+          void *c_ptr = ((void * (SWIGSTDCALL *)(SWIGIUnknown *)) (wrapper->vtable[3]))(wrapper);
+          arg2[i] = *(GeosLinearRing **) &c_ptr;
+        
+          /* Release */
+          ((long (SWIGSTDCALL *)(SWIGIUnknown *)) (wrapper->vtable[2]))(wrapper);
+        }
+      }
+	}
   }
   
-  arg3 = (size_t)jarg3; 
+  try
   {
-    try
-    {
-      result = (GeosGeometry *)createPolygon(arg1,arg2,arg3);
+    result = (GeosGeometry *)createPolygon(arg1,arg2,nSize);
+    if (psa) {
+      ::SafeArrayUnaccessData(psa);
     }
-    catch (const std::exception& e)
-    {
-      {
-        return E_ABORT; 
-      };
+    if (arg2) {
+      free(arg2);
     }
+  }
+  catch (const std::exception& e)
+  {
+    {
+      if (psa) {
+        ::SafeArrayUnaccessData(psa);
+      }
+      if (arg2) {
+        free(arg2);
+      }
+      return E_ABORT; 
+    };
   }
   {
     /* %typemap(out) GeosGeometry */
