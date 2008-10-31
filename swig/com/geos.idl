@@ -331,7 +331,7 @@ library geosTLB {
 //    HRESULT read(ISWIGTYPE_p_unsigned_char * arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
 //    HRESULT readHEX(ISWIGTYPE_p_unsigned_char * arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
     HRESULT read(VARIANT arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
-    HRESULT readHEX(VARIANT arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
+    HRESULT readHEX(BSTR arg0, [ retval, out ] IGeometry **SWIG_result_ptr);
   };
 
   [
@@ -360,7 +360,7 @@ library geosTLB {
 //    HRESULT write(IGeometry * arg0, [ retval, out ] ISWIGTYPE_p_unsigned_char **SWIG_result_ptr);
 //    HRESULT writeHEX(IGeometry * arg0, [ retval, out ] ISWIGTYPE_p_unsigned_char **SWIG_result_ptr);
     HRESULT write(IGeometry * arg0, [ retval, out ] VARIANT *SWIG_result_ptr);
-    HRESULT writeHEX(IGeometry * arg0, [ retval, out ] VARIANT *SWIG_result_ptr);
+    HRESULT writeHEX(IGeometry * arg0, [ retval, out ] BSTR *SWIG_result_ptr);
   };
 
   [

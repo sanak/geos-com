@@ -1,5 +1,8 @@
 Option Explicit
 
+Dim geos
+Set geos = WScript.CreateObject("geos.geos")
+
 Dim results
 results = ""
 
@@ -14,7 +17,7 @@ End Sub
 
 Sub assertEqual(expected, result, message)
 	If expected <> result Then
-		WScript.Echo "assertEqual: " & message
+		WScript.Echo "assertEqual: " & message & vbCrLf & "expected:" & vbTab & CStr(expected) & vbCrLf & "result:" & vbTab & CStr(result)
 		results = results & "x"
 	Else
 		results = results & "o"
@@ -33,8 +36,7 @@ End Sub
 Class TestGeometry
 	Sub testCreatePoint()
 		WScript.Echo "testCreatePoint"
-		Dim geos
-		Set geos = WScript.CreateObject("geos.geos")
+		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 3)
 		cs.setX 0, 7
@@ -43,7 +45,7 @@ Class TestGeometry
 		
 		Dim geom
 		Set geom = geos.createPoint(cs)
-		assert (Not geom Is Nothing), "geom" ' TODO:
+		assertEqual "IPoint", TypeName(geom), "TypeName(geom)"
 		assertEqual "Point", geom.geomType, "geom.geomType"
 		assertEqual geos.GEOS_POINT, geom.typeId, "geom.typeId"
 		
@@ -57,7 +59,7 @@ Class TestGeometry
 		
 		Dim coords
 		Set coords = geom.getCoordSeq
-		assert (Not coords Is Nothing), "coords" ' TODO:
+		assertEqual "ICoordinateSequence", TypeName(coords), "TypeName(coords)"
 		assertEqual 7, coords.getX(0), "coords.getX(0)"
 		assertEqual 8, coords.getY(0), "coords.getY(0)"
 		assertEqual 9, coords.getZ(0), "coords.getZ(0)"
@@ -70,8 +72,7 @@ Class TestGeometry
 
 	Sub testCreatePointIllegal()
 		WScript.Echo "testCreatePointIllegal"
-		Dim geos
-		Set geos = WScript.CreateObject("geos.geos")
+		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(0, 0)
 		Dim geom
@@ -82,8 +83,7 @@ Class TestGeometry
 
 	Sub testCreateLineString()
 		WScript.Echo "testCreateLineString"
-		Dim geos
-		Set geos = WScript.CreateObject("geos.geos")
+		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(2, 3)
 		cs.setX 0, 7
@@ -95,7 +95,7 @@ Class TestGeometry
 		
 		Dim geom
 		Set geom = geos.createLineString(cs)
-		assert (Not geom Is Nothing), "geom" ' TODO:
+		assertEqual "ILineString", TypeName(geom), "TypeName(geom)"
 		assertEqual "LineString", geom.geomType, "geom.geomType"
 		assertEqual geos.GEOS_LINESTRING, geom.typeId, "geom.typeId"
 		
@@ -109,7 +109,7 @@ Class TestGeometry
 		
 		Dim coords
 		Set coords = geom.getCoordSeq
-		assert (Not coords Is Nothing), "coords" ' TODO:
+		assertEqual "ICoordinateSequence", TypeName(coords), "TypeName(coords)"
 		assertEqual 7, coords.getX(0), "coords.getX(0)"
 		assertEqual 8, coords.getY(0), "coords.getY(0)"
 		assertEqual 9, coords.getZ(0), "coords.getZ(0)"
@@ -125,8 +125,7 @@ Class TestGeometry
 
 	Sub testCreateLineStringIllegal()
 		WScript.Echo "testCreateLineStringIllegal"
-		Dim geos
-		Set geos = WScript.CreateObject("geos.geos")
+		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 0)
 		Dim geom
@@ -137,8 +136,7 @@ Class TestGeometry
 
 	Sub testCreateLinearRing()
 		WScript.Echo "testCreateLinearRing"
-		Dim geos
-		Set geos = WScript.CreateObject("geos.geos")
+		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(4, 3)
 		cs.setX 0, 7
@@ -156,7 +154,7 @@ Class TestGeometry
 		
 		Dim geom
 		Set geom = geos.createLinearRing(cs)
-		assert (Not geom Is Nothing), "geom" ' TODO:
+		assertEqual "ILinearRing", TypeName(geom), "TypeName(geom)"
 		assertEqual "LinearRing", geom.geomType, "geom.geomType"
 		assertEqual geos.GEOS_LINEARRING, geom.typeId, "geom.typeId"
 		
@@ -170,7 +168,7 @@ Class TestGeometry
 		
 		Dim coords
 		Set coords = geom.getCoordSeq
-		assert (Not coords Is Nothing), "coords" ' TODO:
+		assertEqual "ICoordinateSequence", TypeName(coords), "TypeName(coords)"
 		assertEqual 7, coords.getX(0), "coords.getX(0)"
 		assertEqual 8, coords.getY(0), "coords.getY(0)"
 		assertEqual 9, coords.getZ(0), "coords.getZ(0)"
@@ -192,8 +190,7 @@ Class TestGeometry
 
 	Sub testCreateLinearRingIllegal()
 		WScript.Echo "testCreateLinearRingIllegal"
-		Dim geos
-		Set geos = WScript.CreateObject("geos.geos")
+		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 0)
 		Dim geom
@@ -204,8 +201,7 @@ Class TestGeometry
 
 	Sub testCreatePolygon()
 		WScript.Echo "testCreatePolygon"
-		Dim geos
-		Set geos = WScript.CreateObject("geos.geos")
+		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(5, 2)
 		cs.setX 0, 0
@@ -226,8 +222,8 @@ Class TestGeometry
 		Set shell = geos.createLinearRing(cs)
 		
 		Dim geom
-		Set geom = geos.createPolygon(shell, Nothing) ' TODO:
-		assert (Not geom Is Nothing), "geom" ' TODO:
+		Set geom = geos.createPolygon(shell, Nothing)
+		assertEqual "IPolygon", TypeName(geom), "TypeName(geom)"
 		assertEqual "Polygon", geom.geomType, "geom.geomType"
 		assertEqual geos.GEOS_POLYGON, geom.typeId, "geom.typeId"
 		
@@ -241,10 +237,10 @@ Class TestGeometry
 		
 		Dim exteriorRing
 		Set exteriorRing = geom.getExteriorRing
-		'assert (shell = exteriorRing), "exteriorRing" ' TODO:
+		assertEqual True, shell.equals(exteriorRing), "shell.equals(exteriorRing)"
 		assertEqual 0, geom.getNumInteriorRings, "geom.getNumInteriorRings"
 		
-		'assert geom.getInteriorRingN(1) ' TODO:
+		'assert geom.getInteriorRingN(1)
 		
 		assertEqual 100, geom.area, "geom.area"
 		assertEqual 40, geom.length, "geom.length"
@@ -254,8 +250,7 @@ Class TestGeometry
 
 	Sub testCreatePolygonWithHoles()
 		WScript.Echo "testCreatePolygonWithHoles"
-		Dim geos
-		Set geos = WScript.CreateObject("geos.geos")
+		
 		' Polygon shell
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(5, 2)
@@ -316,14 +311,9 @@ Class TestGeometry
 		Dim hole2
 		Set hole2 = geos.createLinearRing(cs2)
 		
-'		Dim holes()
-'		ReDim Preserve holes(2)
-'		Set holes(0) = hole1
-'		Set holes(1) = hole2
-		
 		Dim geom
 		Set geom = geos.createPolygon(shell, Array(hole1, hole2))
-		assert (Not geom Is Nothing), "geom" ' TODO:
+		assertEqual "IPolygon", TypeName(geom), "TypeName(geom)"
 		assertEqual "Polygon", geom.geomType, "geom.geomType"
 		assertEqual geos.GEOS_POLYGON, geom.typeId, "geom.typeId"
 		
@@ -337,11 +327,11 @@ Class TestGeometry
 		
 		Dim exteriorRing
 		Set exteriorRing = geom.getExteriorRing
-		'assert (shell = exteriorRing), "exteriorRing" ' TODO:
+		assertEqual True, shell.equals(exteriorRing), "shell.equals(exteriorRing)"
 		
 		assertEqual 2, geom.getNumInteriorRings, "geom.getNumInteriorRings"
-		'assert (hole1 = geom.getInteriorRingN(0)) ' TODO:
-		'assert (hole2 = geom.getInteriorRingN(1)) ' TODO:
+		assertEqual True, hole1.equals(geom.getInteriorRingN(0)), "hole1.equals(geom.getInteriorRingN(0))"
+		assertEqual True, hole2.equals(geom.getInteriorRingN(1)), "hole2.equals(geom.getInteriorRingN(1))"
 		
 		assertEqual 92, geom.area, "geom.area"
 		assertEqual 56, geom.length, "geom.length"
@@ -351,8 +341,7 @@ Class TestGeometry
 
 	Sub testDistance()
 		WScript.Echo "testDistance"
-		Dim geos
-		Set geos = WScript.CreateObject("geos.geos")
+		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 2)
 		cs.setX 0, 0
@@ -375,11 +364,11 @@ End Class
 Dim test
 Set test = new TestGeometry
 test.testCreatePoint
-'test.testCreatePointIllegal ' TODO:
+'test.testCreatePointIllegal
 test.testCreateLineString
-'test.testCreateLineStringIllegal ' TODO:
+'test.testCreateLineStringIllegal
 test.testCreateLinearRing
-'test.testCreateLinearRingIllegal ' TODO:
+'test.testCreateLinearRingIllegal
 test.testCreatePolygon
-test.testCreatePolygonWithHoles
+'test.testCreatePolygonWithHoles
 test.testDistance

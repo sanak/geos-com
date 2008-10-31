@@ -133,6 +133,7 @@ template <typename T> T SwigValueInit() {
 #include <windows.h>
 #include <olectl.h>
 #include <tchar.h>
+#include <comutil.h>
 
 #include <string.h>
 #include <memory.h>
@@ -174,20 +175,30 @@ static int SWIGIsEqual(const GUID *a, const GUID *b) {
   return memcmp(a, b, sizeof(GUID)) == 0;
 }
 
-void SWIG_SetErrorInfo(const wchar_t *msg, const wchar_t *source, const GUID *guid) {
+void SWIG_SetErrorInfo(const char *msg, const char *source, const GUID *guid) {
   SWIGIUnknown *icei;
   IErrorInfo *iei;
-
+  int msglen = MultiByteToWideChar(CP_ACP, 0, msg, -1, 0, 0);
+  wchar_t *wmsg = new wchar_t[msglen + 1];
+  int sourcelen = MultiByteToWideChar(CP_ACP, 0, source, -1, 0, 0);
+  wchar_t *wsource = new wchar_t[sourcelen + 1];
+  MultiByteToWideChar(CP_ACP, 0, msg, -1, wmsg, msglen);
+  MultiByteToWideChar(CP_ACP, 0, source, -1, wsource, sourcelen);
   CreateErrorInfo((ICreateErrorInfo **) &icei);
 
   /* SetGUID */
   ((HRESULT (SWIGSTDCALL *)(SWIGIUnknown *, const GUID *)) icei->vtable[3])(icei, guid);
 
   /* SetSource */
-  ((HRESULT (SWIGSTDCALL *)(SWIGIUnknown *, LPCOLESTR)) icei->vtable[4])(icei, source);
+  ((HRESULT (SWIGSTDCALL *)(SWIGIUnknown *, LPCOLESTR)) icei->vtable[4])(icei, wsource);
 
   /* SetDescription */
-  ((HRESULT (SWIGSTDCALL *)(SWIGIUnknown *, LPCOLESTR)) icei->vtable[5])(icei, msg);
+  ((HRESULT (SWIGSTDCALL *)(SWIGIUnknown *, LPCOLESTR)) icei->vtable[5])(icei, wmsg);
+
+  if (wmsg)
+    delete wmsg;
+  if (wsource)
+    delete wsource;
 
   /* Use QueryInterface to convert ICreateErrorInfo to IErrorInfo */
   ((HRESULT (SWIGSTDCALL *)(SWIGIUnknown *, const GUID *, LPVOID *)) icei->vtable[0])(icei, &IID_IErrorInfo, (void **) &iei);
@@ -536,7 +547,7 @@ void * SWIGSTDCALL SWIG_wrap_opaque(void *arg, int cMemOwn, GUID *iid) {
 }
 
 
-/*  Errors in SWIG */
+/*  Errors in SWIG */ // TODO: error mapping (E_OUTOFMEMORY .etc)
 #define  SWIG_UnknownError    	   -1 
 #define  SWIG_IOError        	   -2 
 #define  SWIG_RuntimeError   	   -3 
@@ -1228,6 +1239,27 @@ void * SWIGSTDCALL SWIG_wrapWkbWriter(void *arg, int cMemOwn);
 //  return SWIG_wrap_opaque(ptr, cMemOwn, &IID_ISWIGTYPE_p_p_GeosLinearRing);
 //};
 
+extern GUID IID_Igeos;
+extern GUID IID_ICoordinateSequenceStatic;
+extern GUID IID_ICoordinateSequence;
+extern GUID IID_IGeometry;
+extern GUID IID_IPoint;
+extern GUID IID_ILineString;
+extern GUID IID_ILinearRing;
+extern GUID IID_IPolygon;
+extern GUID IID_IGeometryCollection;
+extern GUID IID_IMultiPoint;
+extern GUID IID_IMultiLineString;
+extern GUID IID_IMultiLinearRing;
+extern GUID IID_IMultiPolygon;
+extern GUID IID_IWktReaderStatic;
+extern GUID IID_IWktReader;
+extern GUID IID_IWktWriterStatic;
+extern GUID IID_IWktWriter;
+extern GUID IID_IWkbReaderStatic;
+extern GUID IID_IWkbReader;
+extern GUID IID_IWkbWriterStatic;
+extern GUID IID_IWkbWriter;
 
 HRESULT SWIGSTDCALL _wrap_GEOS_VERSION_MAJOR_get(void *SWIG_ignored, int*SWIG_result_ptr) {
   int jresult ;
@@ -1524,6 +1556,7 @@ HRESULT SWIGSTDCALL _wrap_new_CoordinateSequence(void *SWIG_ignored, unsigned lo
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequenceStatic", &IID_ICoordinateSequenceStatic);
         return E_ABORT; 
       };
     }
@@ -1569,6 +1602,7 @@ HRESULT SWIGSTDCALL _wrap_delete_CoordinateSequence(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequenceStatic", &IID_ICoordinateSequenceStatic);
         return E_ABORT; 
       };
     }
@@ -1611,6 +1645,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_clone(SWIGIUnknown * jarg1, SWIGIUn
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -1662,6 +1697,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_setX(SWIGIUnknown * jarg1, unsigned
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -1709,6 +1745,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_setY(SWIGIUnknown * jarg1, unsigned
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -1756,6 +1793,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_setZ(SWIGIUnknown * jarg1, unsigned
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -1805,6 +1843,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_setOrdinate(SWIGIUnknown * jarg1, u
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -1850,6 +1889,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_getX(SWIGIUnknown * jarg1, unsigned
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -1895,6 +1935,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_getY(SWIGIUnknown * jarg1, unsigned
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -1940,6 +1981,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_getZ(SWIGIUnknown * jarg1, unsigned
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -1987,6 +2029,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_getOrdinate(SWIGIUnknown * jarg1, u
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -2030,6 +2073,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_getSize(SWIGIUnknown * jarg1, unsig
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -2073,6 +2117,7 @@ HRESULT SWIGSTDCALL _wrap_CoordinateSequence_getDimensions(SWIGIUnknown * jarg1,
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "CoordinateSequence", &IID_ICoordinateSequence);
         return E_ABORT; 
       };
     }
@@ -2124,6 +2169,7 @@ HRESULT SWIGSTDCALL _wrap_delete_Geometry(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2166,6 +2212,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_clone(SWIGIUnknown * jarg1, SWIGIUnknown **SW
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2247,6 +2294,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_geomType(SWIGIUnknown * jarg1, WCHAR **SWIG_r
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2299,6 +2347,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_typeId(SWIGIUnknown * jarg1, int*SWIG_result_
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2340,6 +2389,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_normalize(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2382,6 +2432,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_getSRID(SWIGIUnknown * jarg1, int*SWIG_result
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2425,6 +2476,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_setSRID(SWIGIUnknown * jarg1, int jarg2) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2467,6 +2519,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_getDimensions(SWIGIUnknown * jarg1, unsigned 
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2510,6 +2563,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_getNumGeometries(SWIGIUnknown * jarg1, unsign
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2574,6 +2628,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_intersection(SWIGIUnknown * jarg1, SWIGIUnkno
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2662,6 +2717,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_buffer(SWIGIUnknown * jarg1, double jarg2, in
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2743,6 +2799,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_convexHull(SWIGIUnknown * jarg1, SWIGIUnknown
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2845,6 +2902,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_difference(SWIGIUnknown * jarg1, SWIGIUnknown
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -2947,6 +3005,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_symDifference(SWIGIUnknown * jarg1, SWIGIUnkn
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3028,6 +3087,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_boundary(SWIGIUnknown * jarg1, SWIGIUnknown *
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3130,6 +3190,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_Union(SWIGIUnknown * jarg1, SWIGIUnknown * ja
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3211,6 +3272,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_pointOnSurface(SWIGIUnknown * jarg1, SWIGIUnk
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3292,6 +3354,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_getCentroid(SWIGIUnknown * jarg1, SWIGIUnknow
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3373,6 +3436,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_getEnvelope(SWIGIUnknown * jarg1, SWIGIUnknow
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3475,6 +3539,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_relate(SWIGIUnknown * jarg1, SWIGIUnknown * j
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3527,6 +3592,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_lineMerge(SWIGIUnknown * jarg1, SWIGIUnknown 
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3610,6 +3676,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_simplify(SWIGIUnknown * jarg1, double jarg2, 
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3693,6 +3760,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_topologyPreserveSimplify(SWIGIUnknown * jarg1
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3803,6 +3871,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_relatePattern(SWIGIUnknown * jarg1, SWIGIUnkn
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3872,6 +3941,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_disjoint(SWIGIUnknown * jarg1, SWIGIUnknown *
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -3936,6 +4006,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_touches(SWIGIUnknown * jarg1, SWIGIUnknown * 
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4000,6 +4071,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_intersects(SWIGIUnknown * jarg1, SWIGIUnknown
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4064,6 +4136,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_crosses(SWIGIUnknown * jarg1, SWIGIUnknown * 
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4128,6 +4201,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_within(SWIGIUnknown * jarg1, SWIGIUnknown * j
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4192,6 +4266,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_contains(SWIGIUnknown * jarg1, SWIGIUnknown *
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4256,6 +4331,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_overlaps(SWIGIUnknown * jarg1, SWIGIUnknown *
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4320,6 +4396,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_equals(SWIGIUnknown * jarg1, SWIGIUnknown * j
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4386,6 +4463,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_equalsExact(SWIGIUnknown * jarg1, SWIGIUnknow
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4429,6 +4507,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_isEmpty(SWIGIUnknown * jarg1, VARIANT_BOOL*SW
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4472,6 +4551,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_isValid(SWIGIUnknown * jarg1, VARIANT_BOOL*SW
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4515,6 +4595,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_isSimple(SWIGIUnknown * jarg1, VARIANT_BOOL*S
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4558,6 +4639,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_isRing(SWIGIUnknown * jarg1, VARIANT_BOOL*SWI
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4601,6 +4683,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_hasZ(SWIGIUnknown * jarg1, VARIANT_BOOL*SWIG_
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4644,6 +4727,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_area(SWIGIUnknown * jarg1, double*SWIG_result
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4687,6 +4771,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_length(SWIGIUnknown * jarg1, double*SWIG_resu
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4751,6 +4836,7 @@ HRESULT SWIGSTDCALL _wrap_Geometry_distance(SWIGIUnknown * jarg1, SWIGIUnknown *
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Geometry", &IID_IGeometry);
         return E_ABORT; 
       };
     }
@@ -4792,6 +4878,7 @@ HRESULT SWIGSTDCALL _wrap_delete_Point(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Point", &IID_IPoint);
         return E_ABORT; 
       };
     }
@@ -4834,6 +4921,7 @@ HRESULT SWIGSTDCALL _wrap_Point_getCoordSeq(SWIGIUnknown * jarg1, SWIGIUnknown *
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Point", &IID_IPoint);
         return E_ABORT; 
       };
     }
@@ -4879,6 +4967,7 @@ HRESULT SWIGSTDCALL _wrap_delete_LineString(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "LineString", &IID_ILineString);
         return E_ABORT; 
       };
     }
@@ -4921,6 +5010,7 @@ HRESULT SWIGSTDCALL _wrap_LineString_getCoordSeq(SWIGIUnknown * jarg1, SWIGIUnkn
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "LineString", &IID_ILineString);
         return E_ABORT; 
       };
     }
@@ -4966,6 +5056,7 @@ HRESULT SWIGSTDCALL _wrap_delete_LinearRing(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "LinearRing", &IID_ILinearRing);
         return E_ABORT; 
       };
     }
@@ -5008,6 +5099,7 @@ HRESULT SWIGSTDCALL _wrap_LinearRing_getCoordSeq(SWIGIUnknown * jarg1, SWIGIUnkn
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "LinearRing", &IID_ILinearRing);
         return E_ABORT; 
       };
     }
@@ -5053,6 +5145,7 @@ HRESULT SWIGSTDCALL _wrap_delete_Polygon(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Polygon", &IID_IPolygon);
         return E_ABORT; 
       };
     }
@@ -5095,6 +5188,7 @@ HRESULT SWIGSTDCALL _wrap_Polygon_getExteriorRing(SWIGIUnknown * jarg1, SWIGIUnk
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Polygon", &IID_IPolygon);
         return E_ABORT; 
       };
     }
@@ -5176,6 +5270,7 @@ HRESULT SWIGSTDCALL _wrap_Polygon_getNumInteriorRings(SWIGIUnknown * jarg1, unsi
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Polygon", &IID_IPolygon);
         return E_ABORT; 
       };
     }
@@ -5221,6 +5316,7 @@ HRESULT SWIGSTDCALL _wrap_Polygon_getInteriorRingN(SWIGIUnknown * jarg1, unsigne
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "Polygon", &IID_IPolygon);
         return E_ABORT; 
       };
     }
@@ -5300,6 +5396,7 @@ HRESULT SWIGSTDCALL _wrap_delete_GeometryCollection(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "GeometryCollection", &IID_IGeometryCollection);
         return E_ABORT; 
       };
     }
@@ -5344,6 +5441,7 @@ HRESULT SWIGSTDCALL _wrap_GeometryCollection_getGeometryN(SWIGIUnknown * jarg1, 
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "GeometryCollection", &IID_IGeometryCollection);
         return E_ABORT; 
       };
     }
@@ -5423,6 +5521,7 @@ HRESULT SWIGSTDCALL _wrap_delete_MultiPoint(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "MultiPoint", &IID_IMultiPoint);
         return E_ABORT; 
       };
     }
@@ -5463,6 +5562,7 @@ HRESULT SWIGSTDCALL _wrap_delete_MultiLineString(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "MultiLineString", &IID_IMultiLineString);
         return E_ABORT; 
       };
     }
@@ -5503,6 +5603,7 @@ HRESULT SWIGSTDCALL _wrap_delete_MultiLinearRing(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "MultiLinearRing", &IID_IMultiLinearRing);
         return E_ABORT; 
       };
     }
@@ -5543,6 +5644,7 @@ HRESULT SWIGSTDCALL _wrap_delete_MultiPolygon(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "MultiPolygon", &IID_IMultiPolygon);
         return E_ABORT; 
       };
     }
@@ -5585,6 +5687,7 @@ HRESULT SWIGSTDCALL _wrap_createPoint(void *SWIG_ignored, SWIGIUnknown * jarg1, 
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "geos", &IID_Igeos);
         return E_ABORT; 
       };
     }
@@ -5666,6 +5769,7 @@ HRESULT SWIGSTDCALL _wrap_createLineString(void *SWIG_ignored, SWIGIUnknown * ja
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "geos", &IID_Igeos);
         return E_ABORT; 
       };
     }
@@ -5747,6 +5851,7 @@ HRESULT SWIGSTDCALL _wrap_createLinearRing(void *SWIG_ignored, SWIGIUnknown * ja
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "geos", &IID_Igeos);
         return E_ABORT; 
       };
     }
@@ -5873,6 +5978,7 @@ HRESULT SWIGSTDCALL _wrap_createPolygon(void *SWIG_ignored, SWIGIUnknown * jarg1
       if (arg2) {
         free(arg2);
       }
+      SWIG_SetErrorInfo(e.what(), "geos", &IID_Igeos);
       return E_ABORT; 
     };
   }
@@ -5932,6 +6038,7 @@ HRESULT SWIGSTDCALL _wrap_new_WktReader(void *SWIG_ignored, SWIGIUnknown **SWIG_
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WktReaderStatic", &IID_IWktReaderStatic);
         return E_ABORT; 
       };
     }
@@ -5977,6 +6084,7 @@ HRESULT SWIGSTDCALL _wrap_delete_WktReader(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WktReader", &IID_IWktReader);
         return E_ABORT; 
       };
     }
@@ -6027,6 +6135,7 @@ HRESULT SWIGSTDCALL _wrap_WktReader_read(SWIGIUnknown * jarg1, WCHAR * jarg2, SW
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WktReader", &IID_IWktReader);
         return E_ABORT; 
       };
     }
@@ -6102,6 +6211,7 @@ HRESULT SWIGSTDCALL _wrap_new_WktWriter(void *SWIG_ignored, SWIGIUnknown **SWIG_
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WktWriterStatic", &IID_IWktWriterStatic);
         return E_ABORT; 
       };
     }
@@ -6147,6 +6257,7 @@ HRESULT SWIGSTDCALL _wrap_delete_WktWriter(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WktWriter", &IID_IWktWriter);
         return E_ABORT; 
       };
     }
@@ -6210,6 +6321,7 @@ HRESULT SWIGSTDCALL _wrap_WktWriter_write(SWIGIUnknown * jarg1, SWIGIUnknown * j
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WktWriter", &IID_IWktWriter);
         return E_ABORT; 
       };
     }
@@ -6251,6 +6363,7 @@ HRESULT SWIGSTDCALL _wrap_new_WkbReader(void *SWIG_ignored, SWIGIUnknown **SWIG_
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbReaderStatic", &IID_IWkbReaderStatic);
         return E_ABORT; 
       };
     }
@@ -6296,6 +6409,7 @@ HRESULT SWIGSTDCALL _wrap_delete_WkbReader(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbReader", &IID_IWkbReader);
         return E_ABORT; 
       };
     }
@@ -6304,8 +6418,7 @@ HRESULT SWIGSTDCALL _wrap_delete_WkbReader(SWIGIUnknown * jarg1) {
 }
 
 
-HRESULT SWIGSTDCALL _wrap_WkbReader_read(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, SWIGIUnknown **SWIG_result_ptr) {
-#if 0
+HRESULT SWIGSTDCALL _wrap_WkbReader_read(SWIGIUnknown * jarg1, VARIANT jarg2, SWIGIUnknown **SWIG_result_ptr) {
   SWIGIUnknown * jresult ;
   HRESULT hres ;
   GeosWkbReader *arg1 = (GeosWkbReader *) 0 ;
@@ -6334,23 +6447,50 @@ HRESULT SWIGSTDCALL _wrap_WkbReader_read(SWIGIUnknown * jarg1, SWIGIUnknown * ja
     }
   }
   
-  {
-    /* %typemap(in) (const unsigned char* wkb, size_t size) (int alloc2 = 0) */
-    if (SWIG_AsCharPtrAndSize(jarg2, (char**)&arg2, &arg3, &alloc2) != SWIG_OK)
-    {
-      return E_ABORT; 
-    };
-    /* Don't want to include last null character! */
-    arg3--;
+  VARIANT* pvars = NULL;
+  ULONG nSize = 0;
+  SAFEARRAY* psa = NULL;
+  if ((jarg2.vt & VT_ARRAY) && (jarg2.vt & VT_VARIANT)) {
+    psa = jarg2.parray;
+	::SafeArrayAccessData(psa, (void**)&pvars);
+	nSize = psa->rgsabound->cElements;
+
+	arg2 = new unsigned char[nSize];
+	for (int i = 0; i < nSize; i++) {
+		switch (pvars[i].vt) {
+			case VT_UI1:
+				arg2[i] = (unsigned char)pvars[i].bVal;
+				break;
+			case VT_I2:
+				arg2[i] = (unsigned char)pvars[i].iVal;
+				break;
+			case VT_I4:
+				arg2[i] = (unsigned char)pvars[i].lVal;
+				break;
+			default:
+				break;
+		}
+	}
+	if (psa) {
+		::SafeArrayUnaccessData(psa);
+	}
   }
+
   {
     try
     {
       result = (GeosGeometry *)GeosWkbReader_read(arg1,(unsigned char const *)arg2,arg3);
+	  if (arg2) {
+		  delete arg2;
+	  }
     }
     catch (const std::exception& e)
     {
       {
+        if (arg2) {
+          delete arg2;
+		}
+        SWIG_SetErrorInfo(e.what(), "WkbReader", &IID_IWkbReader);
         return E_ABORT; 
       };
     }
@@ -6394,13 +6534,11 @@ HRESULT SWIGSTDCALL _wrap_WkbReader_read(SWIGIUnknown * jarg1, SWIGIUnknown * ja
       break;
     }
   }
-#endif
   return S_OK;
 }
 
 
-HRESULT SWIGSTDCALL _wrap_WkbReader_readHEX(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, SWIGIUnknown **SWIG_result_ptr) {
-#if 0
+HRESULT SWIGSTDCALL _wrap_WkbReader_readHEX(SWIGIUnknown * jarg1, BSTR jarg2, SWIGIUnknown **SWIG_result_ptr) {
   SWIGIUnknown * jresult ;
   HRESULT hres ;
   GeosWkbReader *arg1 = (GeosWkbReader *) 0 ;
@@ -6429,15 +6567,9 @@ HRESULT SWIGSTDCALL _wrap_WkbReader_readHEX(SWIGIUnknown * jarg1, SWIGIUnknown *
     }
   }
   
-  {
-    /* %typemap(in) (const unsigned char* wkb, size_t size) (int alloc2 = 0) */
-    if (SWIG_AsCharPtrAndSize(jarg2, (char**)&arg2, &arg3, &alloc2) != SWIG_OK)
-    {
-      return E_ABORT; 
-    };
-    /* Don't want to include last null character! */
-    arg3--;
-  }
+  _bstr_t barg2 = jarg2;
+  arg2 = (unsigned char *)((char*)barg2);
+  arg3 = strlen((const char*)barg2);
   {
     try
     {
@@ -6446,6 +6578,7 @@ HRESULT SWIGSTDCALL _wrap_WkbReader_readHEX(SWIGIUnknown * jarg1, SWIGIUnknown *
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbReader", &IID_IWkbReader);
         return E_ABORT; 
       };
     }
@@ -6489,7 +6622,6 @@ HRESULT SWIGSTDCALL _wrap_WkbReader_readHEX(SWIGIUnknown * jarg1, SWIGIUnknown *
       break;
     }
   }
-#endif
   return S_OK;
 }
 
@@ -6517,6 +6649,7 @@ HRESULT SWIGSTDCALL _wrap_new_WkbWriter(void *SWIG_ignored, SWIGIUnknown **SWIG_
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriterStatic", &IID_IWkbWriterStatic);
         return E_ABORT; 
       };
     }
@@ -6562,6 +6695,7 @@ HRESULT SWIGSTDCALL _wrap_delete_WkbWriter(SWIGIUnknown * jarg1) {
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriter", &IID_IWkbWriter);
         return E_ABORT; 
       };
     }
@@ -6604,6 +6738,7 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_getOutputDimension(SWIGIUnknown * jarg1, int
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriter", &IID_IWkbWriter);
         return E_ABORT; 
       };
     }
@@ -6647,6 +6782,7 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_setOutputDimension(SWIGIUnknown * jarg1, int
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriter", &IID_IWkbWriter);
         return E_ABORT; 
       };
     }
@@ -6689,6 +6825,7 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_getByteOrder(SWIGIUnknown * jarg1, int*SWIG_
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriter", &IID_IWkbWriter);
         return E_ABORT; 
       };
     }
@@ -6732,6 +6869,7 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_setByteOrder(SWIGIUnknown * jarg1, int jarg2
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriter", &IID_IWkbWriter);
         return E_ABORT; 
       };
     }
@@ -6774,6 +6912,7 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_getIncludeSRID(SWIGIUnknown * jarg1, VARIANT
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriter", &IID_IWkbWriter);
         return E_ABORT; 
       };
     }
@@ -6817,6 +6956,7 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_setIncludeSRID(SWIGIUnknown * jarg1, VARIANT
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriter", &IID_IWkbWriter);
         return E_ABORT; 
       };
     }
@@ -6825,8 +6965,7 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_setIncludeSRID(SWIGIUnknown * jarg1, VARIANT
 }
 
 
-HRESULT SWIGSTDCALL _wrap_WkbWriter_write(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, SWIGIUnknown **SWIG_result_ptr) {
-#if 0
+HRESULT SWIGSTDCALL _wrap_WkbWriter_write(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, VARIANT *SWIG_result_ptr) {
   SWIGIUnknown * jresult ;
   HRESULT hres ;
   GeosWkbWriter *arg1 = (GeosWkbWriter *) 0 ;
@@ -6883,32 +7022,36 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_write(SWIGIUnknown * jarg1, SWIGIUnknown * j
     try
     {
       result = (unsigned char *)GeosWkbWriter_write(arg1,(GeosGeometry const *)arg2,arg3);
+	  VARIANT vitem;
+	  ::VariantInit(&vitem);
+	  vitem.vt = VT_UI1;
+	  ::VariantInit(SWIG_result_ptr);
+	  SWIG_result_ptr->vt = VT_ARRAY | VT_VARIANT;
+	  SAFEARRAY *psa;
+	  SAFEARRAYBOUND bounds = {*arg3, 0};
+	  psa = ::SafeArrayCreate(VT_VARIANT, 1, &bounds);
+	  VARIANT *pvdata;
+	  ::SafeArrayAccessData(psa, (void**)&pvdata);
+	  for (int i = 0; i < *arg3; i++) {
+	    vitem.bVal = result[i];
+		pvdata[i] = vitem;
+	  }
+	  ::SafeArrayUnaccessData(psa);
+	  SWIG_result_ptr->parray = psa;
     }
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriter", &IID_IWkbWriter);
         return E_ABORT; 
       };
     }
   }
-  {
-    /* %typemap(out) unsigned char* */
-  }
-  {
-    /* %typemap(argout) size_t *size */
-    jresult = SWIG_FromCharPtrAndSize((const char*)result, *arg3);
-  }
-  {
-    /* %typemap(freearg) size_t *size */
-    std::free(result);
-  }
-#endif
   return S_OK;
 }
 
 
-HRESULT SWIGSTDCALL _wrap_WkbWriter_writeHEX(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, SWIGIUnknown **SWIG_result_ptr) {
-#if 0
+HRESULT SWIGSTDCALL _wrap_WkbWriter_writeHEX(SWIGIUnknown * jarg1, SWIGIUnknown * jarg2, BSTR *SWIG_result_ptr) {
   SWIGIUnknown * jresult ;
   HRESULT hres ;
   GeosWkbWriter *arg1 = (GeosWkbWriter *) 0 ;
@@ -6965,26 +7108,24 @@ HRESULT SWIGSTDCALL _wrap_WkbWriter_writeHEX(SWIGIUnknown * jarg1, SWIGIUnknown 
     try
     {
       result = (unsigned char *)GeosWkbWriter_writeHEX(arg1,(GeosGeometry const *)arg2,arg3);
+      unsigned char *strbuf = 0;
+      strbuf = (unsigned char *)malloc(*arg3 + 1);
+      if (strbuf) {
+        memcpy(strbuf, result, *arg3);
+        strbuf[*arg3] = 0;
+        _bstr_t bresult((const char*)strbuf);
+        *SWIG_result_ptr = bresult.copy();
+		free(strbuf);
+      }
     }
     catch (const std::exception& e)
     {
       {
+        SWIG_SetErrorInfo(e.what(), "WkbWriter", &IID_IWkbWriter);
         return E_ABORT; 
       };
     }
   }
-  {
-    /* %typemap(out) unsigned char* */
-  }
-  {
-    /* %typemap(argout) size_t *size */
-    jresult = SWIG_FromCharPtrAndSize((const char*)result, *arg3);
-  }
-  {
-    /* %typemap(freearg) size_t *size */
-    std::free(result);
-  }
-#endif
   return S_OK;
 }
 
@@ -7006,6 +7147,7 @@ GUID CLSID_geos = { 0x37091295, 0xe126, 0x5e8f, { 0xb2, 0x93, 0xea, 0xb4, 0x78, 
 extern SWIG_funcptr _wrapgeos_vtable[];
 
 void * SWIGSTDCALL _wrap_new_geos() {
+  initGEOS(noticeHandler, errorHandler);
   return _wrap_new_staticclass(_wrapgeos_vtable, &IID_Igeos);
 };
 

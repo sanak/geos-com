@@ -79,7 +79,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="$(OutDir)\geosd_c_i.lib"
+				AdditionalDependencies="$(OutDir)\geosd_c_i.lib comsuppw.lib"
 				OutputFile="$(OutDir)\geosd_com.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="Debug"
@@ -177,7 +177,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="$(OutDir)\geos_c_i.lib"
+				AdditionalDependencies="$(OutDir)\geos_c_i.lib  comsuppw.lib"
 				OutputFile="$(OutDir)\geos_com.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="Release"
