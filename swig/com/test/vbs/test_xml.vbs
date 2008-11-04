@@ -93,7 +93,7 @@ For Each arg In WScript.Arguments
 									Else
 										arg2 = CLng(arg2)
 									End If
-									Set result = geomA.buffer(arg3, arg2)
+									Set result = geomA.buffer(arg2, arg3)
 									Set expected = reader.read(expected)
 									report writer.write(expected), writer.write(result), arg, desc, op, arg1, arg2, arg3
 								Case "convexhull"
