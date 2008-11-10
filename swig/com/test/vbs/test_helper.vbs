@@ -110,15 +110,11 @@ MsgBox wkt
 			createSquarePolygon(0, 200, 300), _
 			createSquarePolygon(0, 250, 300), _
 			createSimpleCollection(Nothing), _
-			' These ones use a GeometricShapeFactory
 			createCircle(0, 0, 10), _
 			createEllipse(0, 0, 8, 12), _
-			' A square
 			createRectangle(-5, -5, 10, 10), _
-			' A rectangle
 			createRectangle(-5, -5, 10, 20), _
-			' The upper-right quarter of a vertical ellipse
-			createArc(0, 0, 10, 20, 0, Math.PI / 2), _
+			createArc(0, 0, 10, 20, 0, Math.PI / 2) _
 		)
 		
 		Set createGeoms = geoms

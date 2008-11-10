@@ -19,7 +19,8 @@ Sub report(expected, result, arg, desc, op, arg1, arg2, arg3)
 End Sub
 
 If WScript.Arguments.Count = 0 Then
-	WScript.Echo "Usage: TODO:"
+	WScript.Echo "Please drop test xml file on this script, or execute command line as follows" & vbCrLf _
+				& ">cscript test_xml.vbs [test xml file]"
 	WScript.Quit 1
 End If
 
