@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<package>
+<job>
+<script language="VBScript" src="test_helper.vbs"/>
+<script language="VBScript">
+Option Explicit
+'On Error Resume Next ' TODO:
+
+Dim X
+X = -9999 ' Invalid value
+Dim results
+results = ""
+
+Sub assert(result, message)
+	If result = False Then
+		WScript.Echo "assert: " + message
+		results = results + "x"
+	Else
+		results = results + "o"
+	End If
+End Sub
+
+Sub assertEqual(expected, result, message)
+	If expected = result Then
+'MsgBox "assertEqual: " + message + vbCrLf + "expected:" + vbTab + CStr(expected) + vbCrLf + "result:" + vbTab + CStr(result)
+		results = results + "o"
+	Else
+		WScript.Echo "assertEqual: " + message + vbCrLf + "expected:" + vbTab + CStr(expected) + vbCrLf + "result:" + vbTab + CStr(result)
+		results = results + "x"
+	End If
+End Sub
+
+Sub report()
+	If InStr(1, results, "x") > 0 Then
+		WScript.Echo "Failed! - " + results
+	Else
+		WScript.Echo "Succeeded! - " + results
+	End If
+	results = ""
+End Sub
+
+Class TestGeosCombinations
+	Private testHelper
+	Sub Class_Initialize()
+		Set testHelper = new GeosTestHelper
+	End Sub
+	
+	Sub testUnion()
+		WScript.Echo "testUnion"
+		
+		Dim geoms1, geoms2
+		geoms1 = testHelper.createGeoms()
+		geoms2 = testHelper.createGeoms()
+		
+		Dim i, j
+		For i = LBound(geoms1) To UBound(geoms1)
+			For j = LBound(geoms2) To UBound(geoms2)
+				Dim expected, result
+				Set result = geoms1(i).Union(geoms2(j))
+				' TODO:
+			Next
+		Next
+		report
+	End Sub
+	
+	Sub testIntersection()
+		WScript.Echo "testIntersection"
+		
+		Dim geoms1, geoms2
+		geoms1 = testHelper.createGeoms()
+		geoms2 = testHelper.createGeoms()
+		
+		Dim i, j
+		For i = LBound(geoms1) To UBound(geoms1)
+			For j = LBound(geoms2) To UBound(geoms2)
+				Dim expected, result
+				Set result = geoms1(i).intersection(geoms2(j))
+				' TODO:
+			Next
+		Next
+		report
+	End Sub
+	
+	Sub testDifference()
+		WScript.Echo "testDifference"
+		
+		Dim geoms1, geoms2
+		geoms1 = testHelper.createGeoms()
+		geoms2 = testHelper.createGeoms()
+		
+		Dim i, j
+		For i = LBound(geoms1) To UBound(geoms1)
+			For j = LBound(geoms2) To UBound(geoms2)
+				Dim expected, result
+				Set result = geoms1(i).difference(geoms2(j))
+				' TODO:
+			Next
+		Next
+		report
+	End Sub
+	
+	Sub testSymDifference()
+		WScript.Echo "testSymDifference"
+		
+		Dim geoms1, geoms2
+		geoms1 = testHelper.createGeoms()
+		geoms2 = testHelper.createGeoms()
+		
+		Dim i, j
+		For i = LBound(geoms1) To UBound(geoms1)
+			For j = LBound(geoms2) To UBound(geoms2)
+				Dim expected, result
+				Set result = geoms1(i).symDifference(geoms2(j))
+				' TODO:
+			Next
+		Next
+		report
+	End Sub
+End Class
+
+Dim test
+Set test = new TestGeosCombinations
+test.testUnion
+test.testIntersection
+test.testDifference
+test.testSymDifference
+</script>
+</job>
+</package>

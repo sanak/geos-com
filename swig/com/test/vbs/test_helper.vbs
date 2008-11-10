@@ -1,5 +1,8 @@
 Option Explicit
 
+Dim PI
+PI = 3.141592653589793
+
 Dim geos
 Set geos = WScript.CreateObject("geos.geos")
 
@@ -86,7 +89,6 @@ class GeosTestHelper
 	Function createRectangle(llX, llY, width, height)
 		Dim wkt
 		wkt = "POLYGON ((" & CStr(llX) & " " & CStr(llY) & ", " & CStr(llX) & " " & CStr(llY + height) & ", " & CStr(llX+width) & " " & CStr(llY + height) & ", " & CStr(llX+width) & " " & CStr(llY) & ", " & CStr(llX) & " " & CStr(llY) & "))"
-MsgBox wkt
 		Dim reader
 		Set reader = geos.WktReader.new_WktReader()
 		Set createRectangle = reader.read(wkt)
@@ -102,7 +104,7 @@ MsgBox wkt
 	
 	Function createGeoms()
 		Dim geoms
-		Set geoms = Array( _
+		geoms = Array( _
 			createPoint(150, 350), _
 			createSquareLinearRing(0, 0, 100), _
 			createUshapedLineString(60, 60, 100), _
@@ -114,10 +116,9 @@ MsgBox wkt
 			createEllipse(0, 0, 8, 12), _
 			createRectangle(-5, -5, 10, 10), _
 			createRectangle(-5, -5, 10, 20), _
-			createArc(0, 0, 10, 20, 0, Math.PI / 2) _
+			createArc(0, 0, 10, 20, 0, PI / 2) _
 		)
-		
-		Set createGeoms = geoms
+		createGeoms = geoms
 	End Function
 	
 	Function printGeoms(geoms)
