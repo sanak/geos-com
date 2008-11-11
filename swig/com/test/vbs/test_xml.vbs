@@ -33,7 +33,7 @@ For Each arg In WScript.Arguments
 	
 	Dim xmldom
 	Set xmldom = WScript.CreateObject("Microsoft.XMLDOM")
-	xmldom.Load arg
+	xmldom.load arg
 	
 	Dim nodeCases
 	Set nodeCases = xmldom.getElementsByTagName("case")

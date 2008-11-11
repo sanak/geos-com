@@ -1,4 +1,3 @@
-var geos = WScript.CreateObject("geos.geos");
 
 function GeosTestHelper() {
 };

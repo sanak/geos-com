@@ -1,37 +1,9 @@
+<?xml version="1.0"?>
+<package>
+<job>
+<script language="VBScript" src="common.vbs"/>
+<script language="VBScript">
 Option Explicit
-
-Dim geos
-Set geos = WScript.CreateObject("geos.geos")
-
-Dim results
-results = ""
-
-Sub assert(result, message)
-	If result = False Then
-		WScript.Echo "assert: " & message
-		results = results & "x"
-	Else
-		results = results & "o"
-	End If
-End Sub
-
-Sub assertEqual(expected, result, message)
-	If expected <> result Then
-		WScript.Echo "assertEqual: " & message & vbCrLf & "expected:" & vbTab & CStr(expected) & vbCrLf & "result:" & vbTab & CStr(result)
-		results = results & "x"
-	Else
-		results = results & "o"
-	End If
-End Sub
-
-Sub report()
-	If InStr(1, results, "x") > 0 Then
-		WScript.Echo "Failed! - " & results
-	Else
-		WScript.Echo "Succeeded! - " & results
-	End If
-	results = ""
-End Sub
 
 Class TestIo
 	Function check(wkt, ndrHexIn, xdrHexIn)
@@ -65,7 +37,7 @@ Class TestIo
 		Dim ndrIdx, ndrBinOutStr
 		ndrBinOutStr = ""
 		For ndrIdx = LBound(ndrBinOut) To UBound(ndrBinOut)
-			ndrBinOutStr = ndrBinOutStr & Hex(ndrBinOut(ndrIdx) \ 16) & Hex(ndrBinOut(ndrIdx) Mod 16)
+			ndrBinOutStr = ndrBinOutStr + Hex(ndrBinOut(ndrIdx) \ 16) + Hex(ndrBinOut(ndrIdx) Mod 16)
 		Next
 		assertEqual ndrHexIn, ndrBinOutStr, "ndrHexIn, ndrBinOutStr"
 		
@@ -79,7 +51,7 @@ Class TestIo
 		Dim xdrIdx, xdrBinOutStr
 		xdrBinOutStr = ""
 		For xdrIdx = LBound(xdrBinOut) To UBound(xdrBinOut)
-			xdrBinOutStr = xdrBinOutStr & Hex(xdrBinOut(xdrIdx) \ 16) & Hex(xdrBinOut(xdrIdx) Mod 16)
+			xdrBinOutStr = xdrBinOutStr + Hex(xdrBinOut(xdrIdx) \ 16) + Hex(xdrBinOut(xdrIdx) Mod 16)
 		Next
 		assertEqual xdrHexIn, xdrBinOutStr, "xdrHexIn, xdrBinOutStr"
 		
@@ -269,7 +241,7 @@ Class TestIo
 End Class
 
 Dim test
-Set test = new TestIo
+Set test = New TestIo
 test.testOutputDimension
 test.testByteOrder
 test.testPoint
@@ -282,3 +254,6 @@ test.testMultiPolygon
 'test.testWktInvalid
 'test.testWkbInvalid
 'test.testHexInvalid
+</script>
+</job>
+</package>

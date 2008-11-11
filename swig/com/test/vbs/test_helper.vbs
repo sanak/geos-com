@@ -1,10 +1,6 @@
 Option Explicit
 
-Dim PI
-PI = 3.141592653589793
-
-Dim geos
-Set geos = WScript.CreateObject("geos.geos")
+Const PI = 3.141592653589793
 
 class GeosTestHelper
 	Function createPoint(x, y)

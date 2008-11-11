@@ -1,47 +1,21 @@
-var geos = WScript.CreateObject("geos.geos");
-
-var results = ""
-
-function assert(result, message) {
-	if (result == false) {
-		WScript.Echo("assert: " + message);
-		results += "x";
-	} else {
-		results += "o";
-	}
-};
-
-function assertEqual(expected, result, message) {
-	if (expected != result) {
-		WScript.Echo("assertEqual: " + message + "\n" + "expected:" + "\t" + expected + "\n" + "result:" + "\t" + result);
-		results += "x";
-	} else {
-		results += "o";
-	}
-};
-
-function report() {
-	if (results.indexOf("x", 0) >= 0) {
-		WScript.Echo("Failed! - " + results);
-	} else {
-		WScript.Echo("Succeeded! - " + results);
-	}
-	results = "";
-};
+<?xml version="1.0"?>
+<package>
+<job>
+<script language="JScript" src="common.js"/>
+<script language="JScript">
 
 function TestIo() {
 };
 
 TestIo.prototype.dec2Hex = function(dec) {
 	dec = parseInt(dec, 10);
-	if (!isNaN(dec) && (dec <= 255)) {
-		var hexChars = "0123456789ABCDEF";
-		var i = dec % 16;
-		var j = (dec - i) / 16;
-		return hexChars.charAt(j) + hexChars.charAt(i);
-	} else {
+	if (isNaN(dec)) {
 		return NaN;
 	}
+	var hexChars = "0123456789ABCDEF";
+	var i = dec % 16;
+	var j = (dec - i) / 16;
+	return hexChars.charAt(j) + hexChars.charAt(i);
 };
 
 TestIo.prototype.check = function(wkt, ndrHexIn, xdrHexIn) {
@@ -64,7 +38,7 @@ TestIo.prototype.check = function(wkt, ndrHexIn, xdrHexIn) {
 	
 	var ndrBinOut = wkbWriter.write(geom1).toArray();
 	var ndrBinOutStr = "";
-	for (var ndrIdx = 0; ndrIdx < ndrBinOut.length; ndrIdx++) {
+	for (var ndrIdx = 0; ndrIdx != ndrBinOut.length; ndrIdx++) {
 		ndrBinOutStr += this.dec2Hex(ndrBinOut[ndrIdx]);
 	}
 	
@@ -76,7 +50,7 @@ TestIo.prototype.check = function(wkt, ndrHexIn, xdrHexIn) {
 	
 	var xdrBinOut = wkbWriter.write(geom1).toArray();
 	var xdrBinOutStr = "";
-	for (var xdrIdx = 0; xdrIdx < xdrBinOut.length; xdrIdx++) {
+	for (var xdrIdx = 0; xdrIdx != xdrBinOut.length; xdrIdx++) {
 		xdrBinOutStr += this.dec2Hex(xdrBinOut[xdrIdx]);
 	}
 	
@@ -257,3 +231,6 @@ test.testMultiPolygon();
 //test.testWktInvalid();
 //test.testWkbInvalid();
 //test.testHexInvalid();
+</script>
+</job>
+</package>
