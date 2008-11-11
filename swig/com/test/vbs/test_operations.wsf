@@ -100,7 +100,7 @@ Class TestGeosOperations
 			Set geom = geoms(i).buffer(10, 8)
 			Dim writer
 			Set writer = geos.WktWriter.new_WktWriter()
-			assertEqual writer.write(geom), results(i), "testCentroid(" + CStr(i) + ")"
+			assertEqual writer.write(geom), results(i), "testBuffer(" + CStr(i) + ")"
 		Next
 		report
 	End Sub
@@ -132,7 +132,7 @@ Class TestGeosOperations
 			Set geom = geoms(i).convexHull()
 			Dim writer
 			Set writer = geos.WktWriter.new_WktWriter()
-			assertEqual writer.write(geom), results(i), "testCentroid(" + CStr(i) + ")"
+			assertEqual writer.write(geom), results(i), "testConvexHull(" + CStr(i) + ")"
 		Next
 		report
 	End Sub
