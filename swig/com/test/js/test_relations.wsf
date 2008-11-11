@@ -1,0 +1,475 @@
+<?xml version="1.0"?>
+<package>
+<job>
+<script language="JScript" src="test_helper.js"/>
+<script language="JScript">
+var X = -9999; // Invalid value
+var results = "";
+
+function assert(result, message) {
+	if (result == false) {
+		WScript.Echo("assert: " + message);
+		results += "x";
+	} else {
+		results += "o";
+	}
+};
+
+function assertEqual(expected, result, message) {
+	if (expected != result) {
+		WScript.Echo("assertEqual: " + message + "\n" + "expected:" + "\t" + expected + "\n" + "result:" + "\t" + result);
+		results += "x";
+	} else {
+		results += "o";
+	}
+};
+
+function report() {
+	if (results.indexOf("x", 0) >= 0) {
+		WScript.Echo("Failed! - " + results);
+	} else {
+		WScript.Echo("Succeeded! - " + results);
+	}
+	results = "";
+};
+
+function TestGeosRelations() {
+	this.testHelper = new GeosTestHelper();
+};
+
+TestGeosRelations.prototype.getExpectedResult = function(value) {
+	// 0 is False and 1 is True
+	switch (value) {
+		case 0:
+			return false;
+			break;
+		case 1:
+			return true;
+			break;
+	}
+};
+
+TestGeosRelations.prototype.testContains = function() {
+	WScript.Echo("testContains");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+		[X, X, X, X, X, X, X, 0, 0, 0, 0, X],
+		[0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				var result = geoms1[i].contains(geoms2[j]);
+				assertEqual(expected, result, "testContains(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testCrosses = function() {
+	WScript.Echo("testCrosses");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 1, 0, 0, 0, X, 1, 1, 1, 1, 0],
+		[0, 1, 0, 1, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 1, 0, 0, 0, X, 1, 1, 1, 1, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[X, X, X, X, X, X, X, X, X, X, X, X],
+		[0, 1, 0, 1, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				var result = geoms1[i].crosses(geoms2[j]);
+				assertEqual(expected, result, "testCrosses(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testDisjoint = function() {
+	WScript.Echo("testDisjoint");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[0, 1, 1, 1, 1, 0, X, 1, 1, 1, 1, 1],
+		[1, 0, 0, 0, 1, 1, X, 0, 0, 0, 0, 1],
+		[1, 0, 0, 0, 1, 1, X, 1, 1, 1, 1, 1],
+		[1, 0, 0, 0, 1, 1, X, 0, 0, 0, 0, 1],
+		[1, 1, 1, 1, 0, 0, X, 1, 1, 1, 1, 1],
+		[0, 1, 1, 1, 0, 0, X, 1, 1, 1, 1, 1],
+		[X, X, X, X, X, X, X, X, X, X, X, X],
+		[1, 0, 1, 0, 1, 1, X, 0, 0, 0, 0, 1],
+		[1, 0, 1, 0, 1, 1, X, 0, 0, 0, 0, 1],
+		[1, 0, 1, 0, 1, 1, X, 0, 0, 0, 0, 1],
+		[1, 0, 1, 0, 1, 1, X, 0, 0, 0, 0, 1],
+		[1, 1, 1, 1, 1, 1, X, 1, 1, 1, 1, 0]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				var result = geoms1[i].disjoint(geoms2[j]);
+				assertEqual(expected, result, "testDisjoint(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testEquals = function() {
+	WScript.Echo("testEquals");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				var result = geoms1[i].equals(geoms2[j]);
+				assertEqual(expected, result, "testEquals(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testEqualsExact = function() {
+	WScript.Echo("testEqualsExact");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				var result = geoms1[i].equalsExact(geoms2[j], 0);
+				assertEqual(expected, result, "testEqualsExact(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testIntersects = function() {
+	WScript.Echo("testIntersects");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[1, 0, 0, 0, 0, 1, X, 0, 0, 0, 0, 0],
+		[0, 1, 1, 1, 0, 0, X, 1, 1, 1, 1, 0],
+		[0, 1, 1, 1, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 1, 1, 1, 0, 0, X, 1, 1, 1, 1, 0],
+		[0, 0, 0, 0, 1, 1, X, 0, 0, 0, 0, 0],
+		[1, 0, 0, 0, 1, 1, X, 0, 0, 0, 0, 0],
+		[X, X, X, X, X, X, X, X, X, 1, 1, X],
+		[0, 1, 0, 1, 0, 0, X, 1, 1, 1, 1, 0],
+		[0, 1, 0, 1, 0, 0, X, 1, 1, 1, 1, 0],
+		[0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0],
+		[0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 1]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				var result = geoms1[i].intersects(geoms2[j]);
+				assertEqual(expected, result, "testIntersects(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testIsWithinDistance = function() {
+	WScript.Echo("testIsWithinDistance");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+		[0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0],
+		[0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0],
+		[0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0],
+		[0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+		[1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+		[0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0],
+		[0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0],
+		[0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0],
+		[0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				result = geoms1[i].isWithinDistance(geoms2[j]);
+				assertEqual(expected, result, "testIsWithinDistance(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testOverlaps = function() {
+	WScript.Echo("testOverlaps");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 1, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 1, 0, X, 0, 0, 0, 0, 0],
+		[X, X, X, X, X, X, X, X, X, X, X, X],
+		[0, 0, 0, 0, 0, 0, X, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 1, 0, 1, 1, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				result = geoms1[i].overlaps(geoms2[j]);
+				assertEqual(expected, result, "testOverlaps(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testRelatePattern = function() {
+	WScript.Echo("testRelatePattern");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[X, X, X, X, X, X, X, X, X, X, X, X],
+		[0, 0, 0, 0, 0, 0, X, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 1, 0, 1, 1, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				result = geoms1[i].relatePattern(geoms2[j], "212101212");
+				assertEqual(expected, result, "testRelatePattern(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testRelate = function() {
+	WScript.Echo("testRelate");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		["0FFFFFFF2", "FF0FFF1F2", "FF0FFF102", "FF0FFF1F2", "FF0FFF212", "F0FFFF212", null, "FF0FFF212", "FF0FFF212", "FF0FFF212", "FF0FFF212", "FF0FFF102"],
+		["FF1FFF0F2", "1FFFFFFF2", "0F1FFF102", "1FFFFFFF2", "FF1FFF212", "FF1FFF212", null, "101FFF212", "101FFF212", "101FFF212", "101FFF212", "FF1FFF102"],
+		["FF1FF00F2", "0F1FF01F2", "1FFF0FFF2", "0F1FF01F2", "FF1FF0212", "FF1FF0212", null, "FF1FF0212", "FF1FF0212", "FF1FF0212", "FF1FF0212", "FF1FF0102"],
+		["FF1FFF0F2", "1FFFFFFF2", "0F1FFF102", "1FFFFFFF2", "FF1FFF212", "FF1FFF212", null, "101FFF212", "101FFF212", "101FFF212", "101FFF212", "FF1FFF102"],
+		["FF2FF10F2", "FF2FF11F2", "FF2FF1102", "FF2FF11F2", "2FFF1FFF2", "212111212", null, "FF2FF1212", "FF2FF1212", "FF2FF1212", "FF2FF1212", "FF2FF1102"],
+		["FF20F1FF2", "FF2FF11F2", "FF2FF1102", "FF2FF11F2", "212111212", "2FFF1FFF2", null, "FF2FF1212", "FF2FF1212", "FF2FF1212", "FF2FF1212", "FF2FF1102"],
+		[null, null, null, null, null, null, null, null, null, null, null, null],
+		["FF2FF10F2", "1F20F11F2", "FF2FF1102", "1F20F11F2", "FF2FF1212", "FF2FF1212", null, "2FFF1FFF2", "212101212", "2FF10F212", "2FF10F212", "FF2FF1102"],
+		["FF2FF10F2", "1F20F11F2", "FF2FF1102", "1F20F11F2", "FF2FF1212", "FF2FF1212", null, "212101212", "2FFF1FFF2", "212101212", "212101212", "FF2FF1102"],
+		["FF2FF10F2", "1F20F11F2", "FF2FF1102", "1F20F11F2", "FF2FF1212", "FF2FF1212", null, "212F01FF2", "212101212", "2FFF1FFF2", "2FF11F212", "FF2FF1102"],
+		["FF2FF10F2", "1F20F11F2", "FF2FF1102", "1F20F11F2", "FF2FF1212", "FF2FF1212", null, "212F01FF2", "212101212", "212F11FF2", "2FFF1FFF2", "FF2FF1102"],
+		["FF1FF00F2", "FF1FF01F2", "FF1FF0102", "FF1FF01F2", "FF1FF0212", "FF1FF0212", null, "FF1FF0212", "FF1FF0212", "FF1FF0212", "FF1FF0212", "1FFF0FFF2"]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = results[i][j];
+			if (expected == null) {
+				// TODO:
+			} else {
+				result = geoms1[i].relate(geoms2[j]);
+				assertEqual(expected, result, "testRelate(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testTouches = function() {
+	WScript.Echo("testTouches");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[0, 0, 0, 0, 0, 1, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[1, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[X, X, X, X, X, X, X, X, X, X, X, X],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				result = geoms1[i].touches(geoms2[j]);
+				assertEqual(expected, result, "testTouches(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+TestGeosRelations.prototype.testWithin = function() {
+	WScript.Echo("testWithin");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	var results = [
+		[1, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 1, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 1, 0, 1, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 1, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 1, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+		[0, 0, 0, 0, 0, 0, X, 0, 0, 0, 0, 1]
+	];
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var expected = this.getExpectedResult(results[i][j]);
+			if (typeof(expected) == 'undefined') {
+				// TODO:
+			} else {
+				result = geoms1[i].within(geoms2[j]);
+				assertEqual(expected, result, "testWithin(" + i + ")(" + j + ")");
+			}
+		}
+	}
+	report();
+};
+
+var test = new TestGeosRelations();
+test.testContains();
+test.testCrosses();
+test.testDisjoint();
+test.testEquals();
+test.testEqualsExact();
+test.testIntersects();
+//test.testIsWithinDistance(); // TODO:
+test.testOverlaps();
+test.testRelatePattern();
+test.testRelate();
+test.testTouches();
+test.testWithin();
+</script>
+</job>
+</package>

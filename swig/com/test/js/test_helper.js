@@ -45,10 +45,10 @@ GeosTestHelper.prototype.createSquareLinearRing = function(xoffset, yoffset, sid
 // and side and with a central hole 1/3 sided.
 GeosTestHelper.prototype.createSquarePolygon = function(xoffset, yoffset, side) {
 	// We need a LinearRing for the polygon shell 
-	var outer = createSquareLinearRing(xoffset, yoffset, side);
+	var outer = this.createSquareLinearRing(xoffset, yoffset, side);
 	
 	// And another for the hole 
-	var inner = createSquareLinearRing(xoffset + (side / 3), yoffset + (side / 3), (side / 3));
+	var inner = this.createSquareLinearRing(xoffset + (side / 3), yoffset + (side / 3), (side / 3));
 	
 	var inners = WScript.CreateObject("Scripting.Dictionary"); // for variant array
 	inners.add(0, inner);
@@ -74,7 +74,7 @@ GeosTestHelper.prototype.createEllipse = function(centerX, centerY, width, heigh
 };
 
 GeosTestHelper.prototype.createRectangle = function(llX, llY, width, height) {
-	var wkt = "POLYGON ((" & CStr(llX) & " " & CStr(llY) & ", " & CStr(llX) & " " & CStr(llY + height) & ", " & CStr(llX+width) & " " & CStr(llY + height) & ", " & CStr(llX+width) & " " & CStr(llY) & ", " & CStr(llX) & " " & CStr(llY) & "))"
+	var wkt = "POLYGON ((" + llX + " " + llY + ", " + llX + " " + (llY + height) + ", " + (llX+width) + " " + (llY + height) + ", " + (llX+width) + " " + llY + ", " + llX + " " + llY + "))";
 	var reader = geos.WktReader.new_WktReader();
 	return reader.read(wkt);
 };
@@ -87,19 +87,19 @@ GeosTestHelper.prototype.createArc = function(llX, llY, width, height, startang,
 
 GeosTestHelper.prototype.createGeoms = function() {
 	var geoms = [
-		createPoint(150, 350),
-		createSquareLinearRing(0, 0, 100),
-		createUshapedLineString(60, 60, 100),
-		createSquareLinearRing(0, 0, 100),
-		createSquarePolygon(0, 200, 300),
-		createSquarePolygon(0, 250, 300),
-		createSimpleCollection(Nothing),
-		createCircle(0, 0, 10),
-		createEllipse(0, 0, 8, 12),
-		createRectangle(-5, -5, 10, 10),
-		createRectangle(-5, -5, 10, 20),
-		createArc(0, 0, 10, 20, 0, PI / 2)
-	]
+		this.createPoint(150, 350),
+		this.createSquareLinearRing(0, 0, 100),
+		this.createUshapedLineString(60, 60, 100),
+		this.createSquareLinearRing(0, 0, 100),
+		this.createSquarePolygon(0, 200, 300),
+		this.createSquarePolygon(0, 250, 300),
+		this.createSimpleCollection(null),
+		this.createCircle(0, 0, 10),
+		this.createEllipse(0, 0, 8, 12),
+		this.createRectangle(-5, -5, 10, 10),
+		this.createRectangle(-5, -5, 10, 20),
+		this.createArc(0, 0, 10, 20, 0, Math.PI / 2)
+	];
 	return geoms;
 };
 

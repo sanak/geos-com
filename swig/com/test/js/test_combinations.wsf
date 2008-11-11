@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<package>
+<job>
+<script language="JScript" src="test_helper.js"/>
+<script language="JScript">
+var X = -9999; // Invalid value
+var results = "";
+
+function assert(result, message) {
+	if (result == false) {
+		WScript.Echo("assert: " + message);
+		results += "x";
+	} else {
+		results += "o";
+	}
+};
+
+function assertEqual(expected, result, message) {
+	if (expected != result) {
+		WScript.Echo("assertEqual: " + message + "\n" + "expected:" + "\t" + expected + "\n" + "result:" + "\t" + result);
+		results += "x";
+	} else {
+		results += "o";
+	}
+};
+
+function report() {
+	if (results.indexOf("x", 0) >= 0) {
+		WScript.Echo("Failed! - " + results);
+	} else {
+		WScript.Echo("Succeeded! - " + results);
+	}
+	results = "";
+};
+
+function TestGeosCombinations() {
+	this.testHelper = new GeosTestHelper();
+};
+
+TestGeosCombinations.prototype.testUnion = function() {
+	WScript.Echo("testUnion");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var result = geoms1[i].Union(geoms2[j]);
+			// var expected; // TODO:
+		}
+	}
+	report();
+};
+
+TestGeosCombinations.prototype.testIntersection = function() {
+	WScript.Echo("testIntersection");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var result = geoms1[i].intersection(geoms2[j]);
+			// var expected; // TODO:
+		}
+	}
+	report();
+};
+
+TestGeosCombinations.prototype.testDifference = function() {
+	WScript.Echo("testDifference");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var result = geoms1[i].difference(geoms2[j]);
+			// var expected; // TODO:
+		}
+	}
+	report();
+};
+
+TestGeosCombinations.prototype.testSymDifference = function() {
+	WScript.Echo("testSymDifference");
+	
+	var geoms1 = this.testHelper.createGeoms();
+	var geoms2 = this.testHelper.createGeoms();
+	
+	for (var i = 0; i != geoms1.length; i++) {
+		for (var j = 0; j != geoms2.length; j++) {
+			var result = geoms1[i].symDifference(geoms2[j]);
+			// var expected; // TODO:
+		}
+	}
+	report();
+};
+
+var test = new TestGeosCombinations();
+test.testUnion();
+test.testIntersection();
+test.testDifference();
+test.testSymDifference();
+</script>
+</job>
+</package>
