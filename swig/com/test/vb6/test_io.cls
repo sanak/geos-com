@@ -13,6 +13,22 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Sub Class_Initialize()
+    setup "testOutputDimension": testOutputDimension
+    setup "testByteOrder": testByteOrder
+    setup "testPoint": testPoint
+    setup "testLineString": testLineString
+    setup "testPolygon": testPolygon
+    setup "testMultiPoint": testMultiPoint
+    setup "testMultiLineString": testMultiLineString
+    setup "testMultiPolygon": testMultiPolygon
+    'setup "testCollection": testCollection ' TODO:
+    'setup "testWktInvalid": testWktInvalid
+    'setup "testWkbInvalid": testWkbInvalid
+    'setup "testHexInvalid": testHexInvalid
+    report
+End Sub
+
 Function check(wkt, ndrHexIn, xdrHexIn)
     Dim wktReader
     Set wktReader = geos.wktReader.new_WktReader()
@@ -64,21 +80,15 @@ Function check(wkt, ndrHexIn, xdrHexIn)
 End Function
 
 Sub testOutputDimension()
-    MsgBox "testOutputDimension"
-    
     Dim writer
     Set writer = geos.wkbWriter.new_WkbWriter()
     assertEqual 2, writer.getOutputDimension, "writer.getOutputDimension"
     
     writer.setOutputDimension 3
     assertEqual 3, writer.getOutputDimension, "writer.getOutputDimension"
-    
-    report
 End Sub
 
 Sub testByteOrder()
-    MsgBox "testByteOrder"
-    
     Dim writer
     Set writer = geos.wkbWriter.new_WkbWriter()
     assertEqual geos.GEOS_WKB_NDR, writer.getByteOrder, "writer.getByteOrder"
@@ -88,13 +98,9 @@ Sub testByteOrder()
     
     writer.setByteOrder geos.GEOS_WKB_NDR
     assertEqual geos.GEOS_WKB_NDR, writer.getByteOrder, "writer.getByteOrder"
-    
-    report
 End Sub
 
 Sub testPoint()
-    MsgBox "testPoint"
-    
     Dim wkt, ndr, xdr
     wkt = "POINT(0 0)"
     ndr = "010100000000000000000000000000000000000000"
@@ -105,13 +111,9 @@ Sub testPoint()
     assertEqual "IPoint", TypeName(geom), "TypeName(geom)"
     assertEqual "Point", geom.geomType, "geom.geomType"
     assertEqual geos.GEOS_POINT, geom.typeId, "geom.typeId"
-    
-    report
 End Sub
 
 Sub testLineString()
-    MsgBox "testLineString"
-    
     Dim wkt, ndr, xdr
     wkt = "LINESTRING(1 2, 3 4)"
     ndr = "010200000002000000000000000000F03F000000000000004000000000000008400000000000001040"
@@ -122,13 +124,9 @@ Sub testLineString()
     assertEqual "ILineString", TypeName(geom), "TypeName(geom)"
     assertEqual "LineString", geom.geomType, "geom.geomType"
     assertEqual geos.GEOS_LINESTRING, geom.typeId, "geom.typeId"
-    
-    report
 End Sub
 
 Sub testPolygon()
-    MsgBox "testPolygon"
-    
     Dim wkt, ndr, xdr
     wkt = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0),(2 2, 2 6, 6 4, 2 2))"
     ndr = "0103000000020000000500000000000000000000000000000000000000000000000000244000000000000000000000000000002440000000000000244000000000000000000000000000002440000000000000000000000000000000000400000000000000000000400000000000000040000000000000004000000000000018400000000000001840000000000000104000000000000000400000000000000040"
@@ -139,13 +137,9 @@ Sub testPolygon()
     assertEqual "IPolygon", TypeName(geom), "TypeName(geom)"
     assertEqual "Polygon", geom.geomType, "geom.geomType"
     assertEqual geos.GEOS_POLYGON, geom.typeId, "geom.typeId"
-    
-    report
 End Sub
 
 Sub testMultiPoint()
-    MsgBox "testMultiPoint"
-    
     Dim wkt, ndr, xdr
     wkt = "MULTIPOINT(0 0, 10 0, 10 10, 0 10, 0 0)"
     ndr = "010400000005000000010100000000000000000000000000000000000000010100000000000000000024400000000000000000010100000000000000000024400000000000002440010100000000000000000000000000000000002440010100000000000000000000000000000000000000"
@@ -156,13 +150,9 @@ Sub testMultiPoint()
     assertEqual "IMultiPoint", TypeName(geom), "TypeName(geom)"
     assertEqual "MultiPoint", geom.geomType, "geom.geomType"
     assertEqual geos.GEOS_MULTIPOINT, geom.typeId, "geom.typeId"
-    
-    report
 End Sub
 
 Sub testMultiLineString()
-    MsgBox "testMultiLineString"
-    
     Dim wkt, ndr, xdr
     wkt = "MULTILINESTRING((0 0, 10 0, 10 10, 0 10, 10 20),(2 2, 2 6, 6 4, 20 2))"
     ndr = "010500000002000000010200000005000000000000000000000000000000000000000000000000002440000000000000000000000000000024400000000000002440000000000000000000000000000024400000000000002440000000000000344001020000000400000000000000000000400000000000000040000000000000004000000000000018400000000000001840000000000000104000000000000034400000000000000040"
@@ -173,13 +163,9 @@ Sub testMultiLineString()
     assertEqual "IMultiLineString", TypeName(geom), "TypeName(geom)"
     assertEqual "MultiLineString", geom.geomType, "geom.geomType"
     assertEqual geos.GEOS_MULTILINESTRING, geom.typeId, "geom.typeId"
-    
-    report
 End Sub
 
 Sub testMultiPolygon()
-    MsgBox "testMultiPolygon"
-    
     Dim wkt, ndr, xdr
     wkt = "MULTIPOLYGON(((0 0, 10 0, 10 10, 0 10, 0 0),(2 2, 2 6, 6 4, 2 2)),((60 60, 60 50, 70 40, 60 60)))"
     ndr = "0106000000020000000103000000020000000500000000000000000000000000000000000000000000000000244000000000000000000000000000002440000000000000244000000000000000000000000000002440000000000000000000000000000000000400000000000000000000400000000000000040000000000000004000000000000018400000000000001840000000000000104000000000000000400000000000000040010300000001000000040000000000000000004E400000000000004E400000000000004E400000000000004940000000000080514000000000000044400000000000004E400000000000004E40"
@@ -190,13 +176,9 @@ Sub testMultiPolygon()
     assertEqual "IMultiPolygon", TypeName(geom), "TypeName(geom)"
     assertEqual "MultiPolygon", geom.geomType, "geom.geomType"
     assertEqual geos.GEOS_MULTIPOLYGON, geom.typeId, "geom.typeId"
-    
-    report
 End Sub
 
 Sub testCollection()
-    MsgBox "testCollection"
-    
     Dim wkt, ndr, xdr
     wkt = "GEOMETRYCOLLECTION(POINT(0 0),LINESTRING(1 2,3 4),POLYGON((0 0,10 0,10 10,0 10,0 0),(2 2,2 6,6 4,2 2)),MULTIPOINT(0 0,10 0,10 10,0 10,0 0),MULTILINESTRING((0 0,10 0,10 10,0 10,10 20),(2 2,2 6,6 4,20 2)),MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0),(2 2,2 6,6 4,2 2)),((60 60,60 50,70 40,60 60))))"
     ndr = "010700000006000000010100000000000000000000000000000000000000010200000002000000000000000000F03F00000000000000400000000000000840000000000000104001030000000200000005000000000000000000000000000000000000000000000000002440000000000000000000000000000024400000000000002440000000000000000000000000000024400000000000000000000000000000000004000000000000000000004000000000000000400000000000000040000000000000184000000000000018400000000000001040000000000000004000000000000000400104000000050000000101000000000000000000000000000000000000000101000000000000000000244000000000000000000101000000000000000000244000000000000024400101000000000000000000000000000000000024400101000000000000000000000000000000000000000105000000020000000102000000050000000000000000000000000000000000000000000000000024400000000000000000000000000000244000000000000024400000000000000000000000000000244000000000000024400000000000003440010200000004000000000000000000004000000000000000400000000000000040000000000000184000000000000018400000000000001040000" _
@@ -209,39 +191,26 @@ Sub testCollection()
     assertEqual "IGeometryCollection", TypeName(geom), "TypeName(geom)"
     assertEqual "GeometryCollection", geom.geomType, "geom.geomType"
     assertEqual geos.GEOS_GEOMETRYCOLLECTION, geom.typeId, "geom.typeId"
-    
-    report
 End Sub
 
 Sub testWktInvalid()
-    MsgBox "testWktInvalid"
-    
     Dim reader
     Set reader = geos.wktReader.new_WktReader()
     Dim geom
     Set geom = reader.read("invalid")
-    
-    report
 End Sub
 
 Sub testWkbInvalid()
-    MsgBox "testWkbInvalid"
-    
     Dim reader
     Set reader = geos.wkbReader.new_WkbReader()
     Dim geom
     Set geom = reader.read("invalid")
-    
-    report
 End Sub
 
 Sub testHexInvalid()
-    MsgBox "testHexInvalid"
-    
     Dim reader
     Set reader = geos.wkbReader.new_WkbReader()
     Dim geom
     Set geom = reader.readHEX("invalid")
-    
-    report
 End Sub
+

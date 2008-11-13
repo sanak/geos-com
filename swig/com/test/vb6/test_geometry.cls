@@ -13,9 +13,20 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Sub Class_Initialize()
+    setup "testCreatePoint": testCreatePoint
+    'setup "testCreatePointIllegal": testCreatePointIllegal
+    setup "testCreateLineString": testCreateLineString
+    'setup "testCreateLineStringIllegal": testCreateLineStringIllegal
+    setup "testCreateLinearRing": testCreateLinearRing
+    'setup "testCreateLinearRingIllegal": testCreateLinearRingIllegal
+    setup "testCreatePolygon": testCreatePolygon
+    'setup "testCreatePolygonWithHoles": testCreatePolygonWithHoles
+    setup "testDistance": testDistance
+    report
+End Sub
+
 Sub testCreatePoint()
-    MsgBox "testCreatePoint"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 3)
     cs.setX 0, 7
@@ -45,24 +56,16 @@ Sub testCreatePoint()
     
     assertEqual 0, geom.area, "geom.area"
     assertEqual 0, geom.length, "geom.length"
-    
-    report
 End Sub
 
 Sub testCreatePointIllegal()
-    MsgBox "testCreatePointIllegal"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(0, 0)
     Dim geom
     Set geom = geos.createPoint(cs)
-    
-    report
 End Sub
 
 Sub testCreateLineString()
-    MsgBox "testCreateLineString"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(2, 3)
     cs.setX 0, 7
@@ -98,24 +101,16 @@ Sub testCreateLineString()
     
     assertEqual 0, geom.area, "geom.area"
     assertEqual 6.40312423743285, geom.length, "geom.length"
-    
-    report
 End Sub
 
 Sub testCreateLineStringIllegal()
-    MsgBox "testCreateLineStringIllegal"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 0)
     Dim geom
     Set geom = geos.createLineString(cs)
-    
-    report
 End Sub
 
 Sub testCreateLinearRing()
-    MsgBox "testCreateLinearRing"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(4, 3)
     cs.setX 0, 7
@@ -163,24 +158,16 @@ Sub testCreateLinearRing()
     
     assertEqual 0, geom.area, "geom.area"
     assertEqual 29.228665330092, geom.length, "geom.length"
-    
-    report
 End Sub
 
 Sub testCreateLinearRingIllegal()
-    MsgBox "testCreateLinearRingIllegal"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 0)
     Dim geom
     Set geom = geos.createLinearRing(cs)
-    
-    report
 End Sub
 
 Sub testCreatePolygon()
-    MsgBox "testCreatePolygon"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(5, 2)
     cs.setX 0, 0
@@ -223,13 +210,9 @@ Sub testCreatePolygon()
     
     assertEqual 100, geom.area, "geom.area"
     assertEqual 40, geom.length, "geom.length"
-    
-    report
 End Sub
 
 Sub testCreatePolygonWithHoles()
-    MsgBox "testCreatePolygonWithHoles"
-    
     ' Polygon shell
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(5, 2)
@@ -314,13 +297,9 @@ Sub testCreatePolygonWithHoles()
     
     assertEqual 92, geom.area, "geom.area"
     assertEqual 56, geom.length, "geom.length"
-    
-    report
 End Sub
 
 Sub testDistance()
-    MsgBox "testDistance"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 2)
     cs.setX 0, 0
@@ -335,6 +314,5 @@ Sub testDistance()
     Set geom2 = geos.createPoint(cs)
     
     assertEqual 5, geom1.distance(geom2), "geom1.distance(geom2)"
-    
-    report
 End Sub
+

@@ -4,15 +4,18 @@
 <script language="JScript" src="common.js"/>
 <script language="JScript" src="test_helper.js"/>
 <script language="JScript">
-var X = -9999; // Invalid value
 
 function TestGeosCombinations() {
 	this.testHelper = new GeosTestHelper();
+
+	setup("testUnion"); this.testUnion();
+	setup("testIntersection"); this.testIntersection();
+	setup("testDifference"); this.testDifference();
+	setup("testSymDifference"); this.testSymDifference();
+	report();
 };
 
 TestGeosCombinations.prototype.testUnion = function() {
-	WScript.Echo("testUnion");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	
@@ -22,12 +25,9 @@ TestGeosCombinations.prototype.testUnion = function() {
 			// var expected; // TODO:
 		}
 	}
-	report();
 };
 
 TestGeosCombinations.prototype.testIntersection = function() {
-	WScript.Echo("testIntersection");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	
@@ -37,12 +37,9 @@ TestGeosCombinations.prototype.testIntersection = function() {
 			// var expected; // TODO:
 		}
 	}
-	report();
 };
 
 TestGeosCombinations.prototype.testDifference = function() {
-	WScript.Echo("testDifference");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	
@@ -52,12 +49,9 @@ TestGeosCombinations.prototype.testDifference = function() {
 			// var expected; // TODO:
 		}
 	}
-	report();
 };
 
 TestGeosCombinations.prototype.testSymDifference = function() {
-	WScript.Echo("testSymDifference");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	
@@ -67,14 +61,10 @@ TestGeosCombinations.prototype.testSymDifference = function() {
 			// var expected; // TODO:
 		}
 	}
-	report();
 };
 
 var test = new TestGeosCombinations();
-test.testUnion();
-test.testIntersection();
-test.testDifference();
-test.testSymDifference();
+
 </script>
 </job>
 </package>

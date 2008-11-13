@@ -19,6 +19,20 @@ Private testHelper
 
 Sub Class_Initialize()
     Set testHelper = New GeosTestHelper
+    
+    setup "testContains": testContains
+    setup "testCrosses": testCrosses
+    setup "testDisjoint": testDisjoint
+    setup "testEquals": testEquals
+    setup "testEqualsExact": testEqualsExact
+    setup "testIntersects": testIntersects
+    'setup "testIsWithinDistance": testIsWithinDistance ' TODO:
+    setup "testOverlaps": testOverlaps
+    setup "testRelatePattern": testRelatePattern
+    setup "testRelate": testRelate
+    setup "testTouches": testTouches
+    setup "testWithin": testWithin
+    report
 End Sub
 
 Function getExpectedResult(value)
@@ -32,8 +46,6 @@ Function getExpectedResult(value)
 End Function
 
 Sub testContains()
-    MsgBox "testContains"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -66,12 +78,9 @@ Sub testContains()
             End If
         Next
     Next
-    report
 End Sub
 
 Sub testCrosses()
-    MsgBox "testCrosses"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -104,12 +113,9 @@ Sub testCrosses()
             End If
         Next
     Next
-    report
 End Sub
 
 Sub testDisjoint()
-    MsgBox "testDisjoint"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -142,12 +148,9 @@ Sub testDisjoint()
             End If
         Next
     Next
-    report
 End Sub
 
 Sub testEquals()
-    MsgBox "testEquals"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -180,12 +183,9 @@ Sub testEquals()
             End If
         Next
     Next
-    report
 End Sub
 
 Sub testEqualsExact()
-    MsgBox "testEqualsExact"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -218,12 +218,9 @@ Sub testEqualsExact()
             End If
         Next
     Next
-    report
 End Sub
 
 Sub testIntersects()
-    MsgBox "testIntersects"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -256,50 +253,44 @@ Sub testIntersects()
             End If
         Next
     Next
-    report
 End Sub
 
-'   Sub testIsWithinDistance()
-'       MsgBox "testIsWithinDistance"
+'Sub testIsWithinDistance()
+'    Dim geoms1, geoms2
+'    geoms1 = testHelper.createGeoms()
+'    geoms2 = testHelper.createGeoms()
+'    Dim results
+'    results = Array( _
+'        Array(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0), _
+'        Array(0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
+'        Array(0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0), _
+'        Array(0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
+'        Array(0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0), _
+'        Array(1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0), _
+'        Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0), _
+'        Array(0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
+'        Array(0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
+'        Array(0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
+'        Array(0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
+'        Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1) _
+'    )
 '
-'       Dim geoms1, geoms2
-'       geoms1 = testHelper.createGeoms()
-'       geoms2 = testHelper.createGeoms()
-'       Dim results
-'       results = Array( _
-'           Array(1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0), _
-'           Array(0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
-'           Array(0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0), _
-'           Array(0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
-'           Array(0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0), _
-'           Array(1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0), _
-'           Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0), _
-'           Array(0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
-'           Array(0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
-'           Array(0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
-'           Array(0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0), _
-'           Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1) _
-'       )
-'
-'       Dim i, j
-'       For i = LBound(geoms1) To UBound(geoms1)
-'           For j = LBound(geoms2) To UBound(geoms2)
-'               Dim expected, result
-'               expected = getExpectedResult(results(i)(j))
-'               If IsEmpty(expected) Then
-'                   'TODO:
-'               Else
-'                   result = geoms1(i).isWithinDistance(geoms2(j))
-'                   assertEqual expected, result, "testIsWithinDistance(" + CStr(i) + ")(" + CStr(j) + ")"
-'               End If
-'           Next
-'       Next
-'       report
-'   End Sub
+'    Dim i, j
+'    For i = LBound(geoms1) To UBound(geoms1)
+'        For j = LBound(geoms2) To UBound(geoms2)
+'            Dim expected, result
+'            expected = getExpectedResult(results(i)(j))
+'            If IsEmpty(expected) Then
+'                'TODO:
+'            Else
+'                result = geoms1(i).isWithinDistance(geoms2(j))
+'                assertEqual expected, result, "testIsWithinDistance(" + CStr(i) + ")(" + CStr(j) + ")"
+'            End If
+'        Next
+'    Next
+'End Sub
 
 Sub testOverlaps()
-    MsgBox "testOverlaps"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -332,12 +323,9 @@ Sub testOverlaps()
             End If
         Next
     Next
-    report
 End Sub
 
 Sub testRelatePattern()
-    MsgBox "testRelatePattern"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -370,12 +358,9 @@ Sub testRelatePattern()
             End If
         Next
     Next
-    report
 End Sub
 
 Sub testRelate()
-    MsgBox "testRelate"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -408,12 +393,9 @@ Sub testRelate()
             End If
         Next
     Next
-    report
 End Sub
 
 Sub testTouches()
-    MsgBox "testTouches"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -446,12 +428,9 @@ Sub testTouches()
             End If
         Next
     Next
-    report
 End Sub
 
 Sub testWithin()
-    MsgBox "testWithin"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -484,5 +463,4 @@ Sub testWithin()
             End If
         Next
     Next
-    report
 End Sub

@@ -6,9 +6,12 @@
 Option Explicit
 
 Class TestVersion
+	Sub Class_Initialize()
+		setup("testVersions"): testVersions
+		report
+	End Sub
+	
 	Sub testVersions()
-		WScript.Echo "testVersions"
-		
 		assertEqual "3.0.0rc4-CAPI-1.3.3", geos.version, "geos.version"
 		assertEqual 3, geos.GEOS_VERSION_MAJOR, "geos.GEOS_VERSION_MAJOR"
 		assertEqual 0, geos.GEOS_VERSION_MINOR, "geos.GEOS_VERSION_MINOR"
@@ -18,14 +21,12 @@ Class TestVersion
 		assertEqual 1, geos.GEOS_CAPI_VERSION_MAJOR, "geos.GEOS_CAPI_VERSION_MAJOR"
 		assertEqual 4, geos.GEOS_CAPI_VERSION_MINOR, "geos.GEOS_CAPI_VERSION_MINOR"
 		assertEqual 1, geos.GEOS_CAPI_VERSION_PATCH, "geos.GEOS_CAPI_VERSION_PATCH"
-		
-		report
 	End Sub
 End Class
 
 Dim test
 Set test = New TestVersion
-test.testVersions
+
 </script>
 </job>
 </package>

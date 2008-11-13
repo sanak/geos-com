@@ -11,11 +11,15 @@ Class TestGeosCombinations
 	Private testHelper
 	Sub Class_Initialize()
 		Set testHelper = New GeosTestHelper
+		
+		setup "testUnion": testUnion
+		setup "testIntersection": testIntersection
+		setup "testDifference": testDifference
+		setup "testSymDifference": testSymDifference
+		report
 	End Sub
 	
 	Sub testUnion()
-		WScript.Echo "testUnion"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -28,12 +32,9 @@ Class TestGeosCombinations
 				' TODO:
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testIntersection()
-		WScript.Echo "testIntersection"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -46,12 +47,9 @@ Class TestGeosCombinations
 				' TODO:
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testDifference()
-		WScript.Echo "testDifference"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -64,12 +62,9 @@ Class TestGeosCombinations
 				' TODO:
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testSymDifference()
-		WScript.Echo "testSymDifference"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -82,16 +77,12 @@ Class TestGeosCombinations
 				' TODO:
 			Next
 		Next
-		report
 	End Sub
 End Class
 
 Dim test
 Set test = New TestGeosCombinations
-test.testUnion
-test.testIntersection
-test.testDifference
-test.testSymDifference
+
 </script>
 </job>
 </package>

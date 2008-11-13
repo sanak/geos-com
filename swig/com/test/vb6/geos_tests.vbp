@@ -1,6 +1,7 @@
 Type=Exe
 Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\system32\Stdole2.tlb#OLE Automation
 Reference=*\G{28D0D0E2-75E0-5B3F-9621-BC0CCD3DAD79}#1.0#0#..\..\..\..\build\msvc80\debug\geosd_com.dll#geosTLB
+Reference=*\G{420B2830-E718-11CF-893D-00A0C9054228}#1.0#0#C:\WINDOWS\system32\scrrun.dll#Microsoft Scripting Runtime
 Form=geos_tests.frm
 Class=TestGeosCombinations; test_combinations.cls
 Class=TestCoordinateSequence; test_coordinate_sequence.cls

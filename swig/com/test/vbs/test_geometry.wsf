@@ -6,9 +6,20 @@
 Option Explicit
 
 Class TestGeometry
+	Sub Class_Initialize()
+		setup "testCreatePoint": testCreatePoint
+		'setup "testCreatePointIllegal": testCreatePointIllegal
+		setup "testCreateLineString": testCreateLineString
+		'setup "testCreateLineStringIllegal": testCreateLineStringIllegal
+		setup "testCreateLinearRing": testCreateLinearRing
+		'setup "testCreateLinearRingIllegal": testCreateLinearRingIllegal
+		setup "testCreatePolygon": testCreatePolygon
+		'setup "testCreatePolygonWithHoles": testCreatePolygonWithHoles
+		setup "testDistance": testDistance
+		report
+	End Sub
+	
 	Sub testCreatePoint()
-		WScript.Echo "testCreatePoint"
-		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 3)
 		cs.setX 0, 7
@@ -38,24 +49,16 @@ Class TestGeometry
 		
 		assertEqual 0, geom.area, "geom.area"
 		assertEqual 0, geom.length, "geom.length"
-		
-		report
 	End Sub
 
 	Sub testCreatePointIllegal()
-		WScript.Echo "testCreatePointIllegal"
-		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(0, 0)
 		Dim geom
 		Set geom = geos.createPoint(cs)
-		
-		report
 	End Sub
 
 	Sub testCreateLineString()
-		WScript.Echo "testCreateLineString"
-		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(2, 3)
 		cs.setX 0, 7
@@ -91,24 +94,16 @@ Class TestGeometry
 		
 		assertEqual 0, geom.area, "geom.area"
 		assertEqual 6.4031242374328485, geom.length, "geom.length"
-		
-		report
 	End Sub
 
 	Sub testCreateLineStringIllegal()
-		WScript.Echo "testCreateLineStringIllegal"
-		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 0)
 		Dim geom
 		Set geom = geos.createLineString(cs)
-		
-		report
 	End Sub
 
 	Sub testCreateLinearRing()
-		WScript.Echo "testCreateLinearRing"
-		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(4, 3)
 		cs.setX 0, 7
@@ -156,24 +151,16 @@ Class TestGeometry
 		
 		assertEqual 0, geom.area, "geom.area"
 		assertEqual 29.228665330091953, geom.length, "geom.length"
-		
-		report
 	End Sub
 
 	Sub testCreateLinearRingIllegal()
-		WScript.Echo "testCreateLinearRingIllegal"
-		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 0)
 		Dim geom
 		Set geom = geos.createLinearRing(cs)
-		
-		report
 	End Sub
 
 	Sub testCreatePolygon()
-		WScript.Echo "testCreatePolygon"
-		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(5, 2)
 		cs.setX 0, 0
@@ -216,13 +203,9 @@ Class TestGeometry
 		
 		assertEqual 100, geom.area, "geom.area"
 		assertEqual 40, geom.length, "geom.length"
-		
-		report
 	End Sub
-
+	
 	Sub testCreatePolygonWithHoles()
-		WScript.Echo "testCreatePolygonWithHoles"
-		
 		' Polygon shell
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(5, 2)
@@ -307,13 +290,9 @@ Class TestGeometry
 		
 		assertEqual 92, geom.area, "geom.area"
 		assertEqual 56, geom.length, "geom.length"
-		
-		report
 	End Sub
-
+	
 	Sub testDistance()
-		WScript.Echo "testDistance"
-		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 2)
 		cs.setX 0, 0
@@ -328,22 +307,12 @@ Class TestGeometry
 		Set geom2 = geos.createPoint(cs)
 		
 		assertEqual 5, geom1.distance(geom2), "geom1.distance(geom2)"
-		
-		report
 	End Sub
 End Class
 
 Dim test
 Set test = New TestGeometry
-test.testCreatePoint
-'test.testCreatePointIllegal
-test.testCreateLineString
-'test.testCreateLineStringIllegal
-test.testCreateLinearRing
-'test.testCreateLinearRingIllegal
-test.testCreatePolygon
-'test.testCreatePolygonWithHoles
-test.testDistance
+
 </script>
 </job>
 </package>

@@ -14,13 +14,17 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private testHelper
+
 Sub Class_Initialize()
     Set testHelper = New GeosTestHelper
+    
+    setup "testCentroid": testCentroid
+    setup "testBuffer": testBuffer
+    setup "testConvexHull": testConvexHull
+    report
 End Sub
 
 Sub testCentroid()
-    MsgBox "testCentroid"
-    
     Dim geoms
     geoms = testHelper.createGeoms()
     Dim results
@@ -47,12 +51,9 @@ Sub testCentroid()
         Set writer = geos.WktWriter.new_WktWriter()
         assertEqual writer.write(geom), results(i), "testCentroid(" + CStr(i) + ")"
     Next
-    report
 End Sub
 
 Sub testBuffer()
-    MsgBox "testBuffer"
-    
     Dim geoms
     geoms = testHelper.createGeoms()
     Dim results
@@ -134,12 +135,9 @@ Sub testBuffer()
         Set writer = geos.WktWriter.new_WktWriter()
         assertEqual writer.write(geom), results(i), "testBuffer(" + CStr(i) + ")"
     Next
-    report
 End Sub
 
 Sub testConvexHull()
-    MsgBox "testConvexHull"
-    
     Dim geoms
     geoms = testHelper.createGeoms()
     Dim results
@@ -173,5 +171,4 @@ Sub testConvexHull()
         Set writer = geos.WktWriter.new_WktWriter()
         assertEqual writer.write(geom), results(i), "testConvexHull(" + CStr(i) + ")"
     Next
-    report
 End Sub

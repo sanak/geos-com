@@ -1,31 +1,44 @@
 
 var geos = WScript.CreateObject("geos.geos");
 
-var results = "";
+var tests = WScript.CreateObject("Scripting.Dictionary");
+var current = "";
+
+function setup(name) {
+	tests.Add(name, "");
+	current = name;
+};
 
 function assert(result, message) {
 	if (result == false) {
-		WScript.Echo("assert: " + message);
-		results += "x";
-	} else {
-		results += "o";
+		tests(current) += "assert: " + message + "\n";
 	}
 };
 
 function assertEqual(expected, result, message) {
 	if (expected != result) {
-		WScript.Echo("assertEqual: " + message + "\n" + "expected:" + "\t" + expected + "\n" + "result:" + "\t" + result);
-		results += "x";
-	} else {
-		results += "o";
+		tests(current) += "assertEqual: " + message + "\n" + "expected:" + "\t" + expected + "\n" + "result:" + "\t" + result + "\n";
 	}
 };
 
 function report() {
-	if (results.indexOf("x", 0) >= 0) {
-		WScript.Echo("Failed! - " + results);
-	} else {
-		WScript.Echo("Succeeded! - " + results);
+	var sum = 0;
+	var failures = 0;
+	var result = "";
+	var message = "";
+	var keys = tests.Keys().toArray();
+	for (var i = 0; i < keys.length; i++) {
+		var name = keys[i];
+		sum += 1;
+		if (tests(name).length > 0) {
+			failures += 1;
+			message += "\n" + tests(name);
+			result += "F";
+		} else {
+			result += ".";
+		}
 	}
-	results = "";
+	result += message + "\n" + sum + " tests, " + failures + " failures";
+	WScript.Echo(result);
+	tests.RemoveAll();
 };

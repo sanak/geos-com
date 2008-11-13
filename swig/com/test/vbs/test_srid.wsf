@@ -6,9 +6,15 @@
 Option Explicit
 
 Class SridTest
+	Sub Class_Initialize()
+		setup "testSrid": testSrid
+		setup "testWriteSrid": testWriteSrid
+		setup "testRoundtripSrid": testRoundtripSrid
+		setup "testReadSRID": testReadSRID
+		report
+	End Sub
+	
 	Sub testSrid()
-		WScript.Echo "testSrid"
-		
 		Dim cs
 		Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 2)
 		cs.setX 0, 7
@@ -19,13 +25,9 @@ Class SridTest
 		geom1.setSRID 4326
 		
 		assertEqual 4326, geom1.getSRID, "geom1.getSRID"
-		
-		report
 	End Sub
 
 	Sub testWriteSrid()
-		WScript.Echo "testWriteSrid"
-		
 		Dim reader
 		Set reader = geos.WktReader.new_WktReader()
 		Dim geom
@@ -44,13 +46,9 @@ Class SridTest
 		writer.setIncludeSRID True
 		hex = writer.writeHex(geom)
 		assertEqual "0101000020E61000000000000000001C400000000000002040", hex, "hex"
-		
-		report
 	End Sub
 
 	Sub testRoundtripSrid()
-		WScript.Echo "testRoundtripSrid"
-		
 		Dim reader
 		Set reader = geos.WktReader.new_WktReader()
 		Dim geom1
@@ -69,13 +67,9 @@ Class SridTest
 		Dim geom2
 		Set geom2 = reader.readHex(hex)
 		assertEqual 4326, geom2.getSRID, "geom2.getSRID"
-		
-		report
 	End Sub
 
 	Sub testReadSRID()
-		WScript.Echo "testReadSRID"
-		
 		' srid=4326;POINT(7 8)
 		Dim xdr
 		xdr = "0101000020E61000000000000000001C400000000000002040"
@@ -88,17 +82,12 @@ Class SridTest
 		assertEqual 7, geom.getCoordSeq.getX(0), "geom.getCoordSeq.getX(0)"
 		assertEqual 8, geom.getCoordSeq.getY(0), "geom.getCoordSeq.getY(0)"
 		assertEqual 4326, geom.getSRID, "geom.getSRID"
-		
-		report
 	End Sub
 End Class
 
 Dim test
 Set test = New SridTest
-test.testSrid
-test.testWriteSrid
-test.testRoundtripSrid
-test.testReadSRID
+
 </script>
 </job>
 </package>

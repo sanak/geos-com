@@ -17,11 +17,15 @@ Private testHelper
 
 Sub Class_Initialize()
     Set testHelper = New GeosTestHelper
+
+    setup "testUnion": testUnion
+    setup "testIntersection": testIntersection
+    setup "testDifference": testDifference
+    setup "testSymDifference": testSymDifference
+    report
 End Sub
 
 Sub testUnion()
-    MsgBox "testUnion"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -34,12 +38,9 @@ Sub testUnion()
             ' TODO:
         Next
     Next
-    report
 End Sub
 
 Sub testIntersection()
-    MsgBox "testIntersection"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -52,12 +53,9 @@ Sub testIntersection()
             ' TODO:
         Next
     Next
-    report
 End Sub
 
 Sub testDifference()
-    MsgBox "testDifference"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -70,12 +68,9 @@ Sub testDifference()
             ' TODO:
         Next
     Next
-    report
 End Sub
 
 Sub testSymDifference()
-    MsgBox "testSymDifference"
-    
     Dim geoms1, geoms2
     geoms1 = testHelper.createGeoms()
     geoms2 = testHelper.createGeoms()
@@ -88,5 +83,4 @@ Sub testSymDifference()
             ' TODO:
         Next
     Next
-    report
 End Sub

@@ -13,29 +13,30 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Sub Class_Initialize()
+    setup "testCreate": testCreate
+    setup "testSize": testSize
+    setup "testGetterSetter": testGetterSetter
+    'setup "testIndexOutOfBounds": testIndexOutOfBounds
+    setup "testOrdinate": testOrdinate
+    setup "testClone": testClone
+    setup "testDimensions": testDimensions
+    report
+End Sub
+
 Sub testCreate()
-    MsgBox "testCreate"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 3)
     assertEqual "ICoordinateSequence", TypeName(cs), "TypeName(cs)"
-    
-    report
 End Sub
 
 Sub testSize()
-    MsgBox "testSize"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(7, 2)
     assertEqual 7, cs.getSize, "cs.getSize"
-    
-    report
 End Sub
 
 Sub testGetterSetter()
-    MsgBox "testGetterSetter"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(2, 3)
     cs.setX 0, 3
@@ -50,25 +51,17 @@ Sub testGetterSetter()
     assertEqual 6, cs.getX(1), "cs.getX(1)"
     assertEqual 7, cs.getY(1), "cs.getY(1)"
     assertEqual 8, cs.getZ(1), "cs.getZ(1)"
-    
-    report
 End Sub
 
 Sub testIndexOutOfBounds()
-    MsgBox "testIndexOutOfBounds"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(2, 3)
     cs.setX 2, 6
     cs.setY 2, 6
     cs.setZ 2, 6
-    
-    report
 End Sub
 
 Sub testOrdinate()
-    MsgBox "testOrdinate"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 3)
     cs.setOrdinate 0, 0, 2
@@ -78,13 +71,9 @@ Sub testOrdinate()
     assertEqual 2, cs.getOrdinate(0, 0), "cs.getOrdinate(0, 0)"
     assertEqual 3, cs.getOrdinate(0, 1), "cs.getOrdinate(0, 1)"
     assertEqual 4, cs.getOrdinate(0, 2), "cs.getOrdinate(0, 2)"
-    
-    report
 End Sub
 
 Sub testClone()
-    MsgBox "testClone"
-    
     Dim cs1
     Set cs1 = geos.CoordinateSequence.new_CoordinateSequence(1, 3)
     cs1.setX 0, 2
@@ -110,16 +99,10 @@ Sub testClone()
     assertEqual 5, cs2.getX(0), "cs2.getX(0)"
     assertEqual 6, cs2.getY(0), "cs2.getY(0)"
     assertEqual 7, cs2.getZ(0), "cs2.getZ(0)"
-    
-    report
 End Sub
 
 Sub testDimensions()
-    MsgBox "testDimensions"
-    
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 3)
     assertEqual 3, cs.getDimensions, "cs.getDimensions"
-    
-    report
 End Sub

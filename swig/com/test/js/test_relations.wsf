@@ -9,6 +9,20 @@ var X = -9999; // Invalid value
 
 function TestGeosRelations() {
 	this.testHelper = new GeosTestHelper();
+	
+	setup("testContains"); this.testContains();
+	setup("testCrosses"); this.testCrosses();
+	setup("testDisjoint"); this.testDisjoint();
+	setup("testEquals"); this.testEquals();
+	setup("testEqualsExact"); this.testEqualsExact();
+	setup("testIntersects"); this.testIntersects();
+//	setup("testIsWithinDistance"); this.testIsWithinDistance(); // TODO:
+	setup("testOverlaps"); this.testOverlaps();
+	setup("testRelatePattern"); this.testRelatePattern();
+	setup("testRelate"); this.testRelate();
+	setup("testTouches"); this.testTouches();
+	setup("testWithin"); this.testWithin();
+	report();
 };
 
 TestGeosRelations.prototype.getExpectedResult = function(value) {
@@ -24,8 +38,6 @@ TestGeosRelations.prototype.getExpectedResult = function(value) {
 };
 
 TestGeosRelations.prototype.testContains = function() {
-	WScript.Echo("testContains");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -54,12 +66,9 @@ TestGeosRelations.prototype.testContains = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testCrosses = function() {
-	WScript.Echo("testCrosses");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -88,12 +97,9 @@ TestGeosRelations.prototype.testCrosses = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testDisjoint = function() {
-	WScript.Echo("testDisjoint");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -122,12 +128,9 @@ TestGeosRelations.prototype.testDisjoint = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testEquals = function() {
-	WScript.Echo("testEquals");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -156,12 +159,9 @@ TestGeosRelations.prototype.testEquals = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testEqualsExact = function() {
-	WScript.Echo("testEqualsExact");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -194,8 +194,6 @@ TestGeosRelations.prototype.testEqualsExact = function() {
 };
 
 TestGeosRelations.prototype.testIntersects = function() {
-	WScript.Echo("testIntersects");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -224,12 +222,9 @@ TestGeosRelations.prototype.testIntersects = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testIsWithinDistance = function() {
-	WScript.Echo("testIsWithinDistance");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -258,12 +253,9 @@ TestGeosRelations.prototype.testIsWithinDistance = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testOverlaps = function() {
-	WScript.Echo("testOverlaps");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -292,12 +284,9 @@ TestGeosRelations.prototype.testOverlaps = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testRelatePattern = function() {
-	WScript.Echo("testRelatePattern");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -326,12 +315,9 @@ TestGeosRelations.prototype.testRelatePattern = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testRelate = function() {
-	WScript.Echo("testRelate");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -360,12 +346,9 @@ TestGeosRelations.prototype.testRelate = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testTouches = function() {
-	WScript.Echo("testTouches");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -394,12 +377,9 @@ TestGeosRelations.prototype.testTouches = function() {
 			}
 		}
 	}
-	report();
 };
 
 TestGeosRelations.prototype.testWithin = function() {
-	WScript.Echo("testWithin");
-	
 	var geoms1 = this.testHelper.createGeoms();
 	var geoms2 = this.testHelper.createGeoms();
 	var results = [
@@ -428,22 +408,10 @@ TestGeosRelations.prototype.testWithin = function() {
 			}
 		}
 	}
-	report();
 };
 
 var test = new TestGeosRelations();
-test.testContains();
-test.testCrosses();
-test.testDisjoint();
-test.testEquals();
-test.testEqualsExact();
-test.testIntersects();
-//test.testIsWithinDistance(); // TODO:
-test.testOverlaps();
-test.testRelatePattern();
-test.testRelate();
-test.testTouches();
-test.testWithin();
+
 </script>
 </job>
 </package>

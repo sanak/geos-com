@@ -13,6 +13,20 @@ Class TestGeosRelations
 	Private testHelper
 	Sub Class_Initialize()
 		Set testHelper = New GeosTestHelper
+		
+		setup "testContains": testContains
+		setup "testCrosses": testCrosses
+		setup "testDisjoint": testDisjoint
+		setup "testEquals": testEquals
+		setup "testEqualsExact": testEqualsExact
+		setup "testIntersects": testIntersects
+		'setup "testIsWithinDistance": testIsWithinDistance ' TODO:
+		setup "testOverlaps": testOverlaps
+		setup "testRelatePattern": testRelatePattern
+		setup "testRelate": testRelate
+		setup "testTouches": testTouches
+		setup "testWithin": testWithin
+		report
 	End Sub
 	
 	Function getExpectedResult(value)
@@ -26,8 +40,6 @@ Class TestGeosRelations
 	End Function
 	
 	Sub testContains()
-		WScript.Echo "testContains"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -60,12 +72,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testCrosses()
-		WScript.Echo "testCrosses"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -98,12 +107,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testDisjoint()
-		WScript.Echo "testDisjoint"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -136,12 +142,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testEquals()
-		WScript.Echo "testEquals"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -174,12 +177,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testEqualsExact()
-		WScript.Echo "testEqualsExact"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -212,12 +212,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testIntersects()
-		WScript.Echo "testIntersects"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -250,12 +247,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 '	Sub testIsWithinDistance()
-'		WScript.Echo "testIsWithinDistance"
-'		
 '		Dim geoms1, geoms2
 '		geoms1 = testHelper.createGeoms()
 '		geoms2 = testHelper.createGeoms()
@@ -288,12 +282,9 @@ Class TestGeosRelations
 '				End If
 '			Next
 '		Next
-'		report
 '	End Sub
 
 	Sub testOverlaps()
-		WScript.Echo "testOverlaps"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -326,12 +317,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testRelatePattern()
-		WScript.Echo "testRelatePattern"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -364,12 +352,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testRelate()
-		WScript.Echo "testRelate"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -402,12 +387,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testTouches()
-		WScript.Echo "testTouches"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -440,12 +422,9 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 	
 	Sub testWithin()
-		WScript.Echo "testWithin"
-		
 		Dim geoms1, geoms2
 		geoms1 = testHelper.createGeoms()
 		geoms2 = testHelper.createGeoms()
@@ -478,24 +457,12 @@ Class TestGeosRelations
 				End If
 			Next
 		Next
-		report
 	End Sub
 End Class
 
 Dim test
 Set test = New TestGeosRelations
-test.testContains
-test.testCrosses
-test.testDisjoint
-test.testEquals
-test.testEqualsExact
-test.testIntersects
-'test.testIsWithinDistance ' TODO:
-test.testOverlaps
-test.testRelatePattern
-test.testRelate
-test.testTouches
-test.testWithin
+
 </script>
 </job>
 </package>

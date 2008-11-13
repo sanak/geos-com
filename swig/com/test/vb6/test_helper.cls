@@ -15,10 +15,10 @@ Option Explicit
 
 Private Const PI = 3.14159265358979
 
-Function createPoint(x, y)
+Function createPoint(X, y)
     Dim cs
     Set cs = geos.CoordinateSequence.new_CoordinateSequence(1, 2)
-    cs.setX 0, x
+    cs.setX 0, X
     cs.setY 0, y
     Set createPoint = geos.createPoint(cs)
 End Function

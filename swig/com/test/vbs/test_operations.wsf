@@ -10,11 +10,14 @@ Class TestGeosOperations
 	Private testHelper
 	Sub Class_Initialize()
 		Set testHelper = New GeosTestHelper
+		
+		setup "testCentroid": testCentroid
+		setup "testBuffer": testBuffer
+		setup "testConvexHull": testConvexHull
+		report
 	End Sub
 	
 	Sub testCentroid()
-		WScript.Echo "testCentroid"
-		
 		Dim geoms
 		geoms = testHelper.createGeoms()
 		Dim results
@@ -41,12 +44,9 @@ Class TestGeosOperations
 			Set writer = geos.WktWriter.new_WktWriter()
 			assertEqual writer.write(geom), results(i), "testCentroid(" + CStr(i) + ")"
 		Next
-		report
 	End Sub
-
+	
 	Sub testBuffer()
-		WScript.Echo "testBuffer"
-		
 		Dim geoms
 		geoms = testHelper.createGeoms()
 		Dim results
@@ -73,12 +73,9 @@ Class TestGeosOperations
 			Set writer = geos.WktWriter.new_WktWriter()
 			assertEqual writer.write(geom), results(i), "testBuffer(" + CStr(i) + ")"
 		Next
-		report
 	End Sub
-
+	
 	Sub testConvexHull()
-		WScript.Echo "testConvexHull"
-		
 		Dim geoms
 		geoms = testHelper.createGeoms()
 		Dim results
@@ -105,15 +102,12 @@ Class TestGeosOperations
 			Set writer = geos.WktWriter.new_WktWriter()
 			assertEqual writer.write(geom), results(i), "testConvexHull(" + CStr(i) + ")"
 		Next
-		report
 	End Sub
 End Class
 
 Dim test
 Set test = New TestGeosOperations
-test.testCentroid
-test.testBuffer
-test.testConvexHull
+
 </script>
 </job>
 </package>

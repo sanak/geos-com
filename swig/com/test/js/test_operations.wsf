@@ -7,11 +7,14 @@
 
 function TestGeosOperations() {
 	this.testHelper = new GeosTestHelper();
+
+	setup("testCentroid"); this.testCentroid();
+	setup("testBuffer"); this.testBuffer();
+	setup("testConvexHull"); this.testConvexHull();
+	report();
 };
 
 TestGeosOperations.prototype.testCentroid = function() {
-	WScript.Echo("testCentroid");
-	
 	var geoms = this.testHelper.createGeoms();
 	var results = [
 		"POINT (150.0000000000000000 350.0000000000000000)",
@@ -33,12 +36,9 @@ TestGeosOperations.prototype.testCentroid = function() {
 		var writer = geos.WktWriter.new_WktWriter();
 		assertEqual(writer.write(geom), results[i], "testCentroid(" + i + ")");
 	}
-	report();
 };
 
 TestGeosOperations.prototype.testBuffer = function() {
-	WScript.Echo("testBuffer");
-	
 	var geoms = this.testHelper.createGeoms();
 	var results = [
 		"POLYGON ((140.0000000000000000 349.9999999999999400, 140.1921471959676900 351.9509032201612500, 140.7612046748871300 353.8268343236508700, 141.6853038769745300 355.5557023301959700, 142.9289321881345000 357.0710678118654200, 144.4442976698039400 358.3146961230254400, 146.1731656763490700 359.2387953251128500, 148.0490967798386900 359.8078528040322800, 149.9999999999999700 360.0000000000000000, 151.9509032201612500 359.8078528040323400, 153.8268343236508700 359.2387953251129000, 155.5557023301960000 358.3146961230254400, 157.0710678118654500 357.0710678118654800, 158.3146961230254400 355.5557023301960300, 159.2387953251128500 353.8268343236509300, 159.8078528040323100 351.9509032201613100, 160.0000000000000000 350.0000000000000000, 159.8078528040323100 348.0490967798386900, 159.2387953251128700 346.1731656763491300, 158.3146961230254400 344.4442976698039700, 157.0710678118654800 342.9289321881345200, 155.5557023301960300 341.6853038769745600, 153.8268343236509000 340.7612046748871500, 151.9509032201613100 340.1921471959677200, 150.0000000000000300 340.0000000000000000, 148.0490967798387500 340.1921471959676600, 146.1731656763491300 340.7612046748871500, 144.4442976698040000 341.6853038769745600, 142.9289321881345500 342.9289321881345200, 141.6853038769745600 344.4442976698039700, 140.7612046748871500 346.1731656763490700, 140.1921471959676900 348.0490967798386900, 140.0000000000000000 349.9999999999999400))",
@@ -60,12 +60,9 @@ TestGeosOperations.prototype.testBuffer = function() {
 		var writer = geos.WktWriter.new_WktWriter();
 		assertEqual(writer.write(geom), results[i], "testBuffer(" + i + ")");
 	}
-	report();
 };
 
 TestGeosOperations.prototype.testConvexHull = function() {
-	WScript.Echo("testConvexHull");
-	
 	var geoms = this.testHelper.createGeoms();
 	var results = [
 		"POINT (150.0000000000000000 350.0000000000000000)",
@@ -87,13 +84,10 @@ TestGeosOperations.prototype.testConvexHull = function() {
 		var writer = geos.WktWriter.new_WktWriter();
 		assertEqual(writer.write(geom), results[i], "testConvexHull(" + i + ")");
 	}
-	report();
 };
 
 var test = new TestGeosOperations();
-test.testCentroid();
-test.testBuffer();
-test.testConvexHull();
+
 </script>
 </job>
 </package>

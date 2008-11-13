@@ -2,21 +2,29 @@ VERSION 5.00
 Begin VB.Form GeosTestsForm 
    BorderStyle     =   1  'å≈íË(é¿ê¸)
    Caption         =   "geos_tests"
-   ClientHeight    =   5010
+   ClientHeight    =   4920
    ClientLeft      =   45
    ClientTop       =   330
-   ClientWidth     =   2070
+   ClientWidth     =   6240
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
-   ScaleHeight     =   5010
-   ScaleWidth      =   2070
+   ScaleHeight     =   4920
+   ScaleWidth      =   6240
    StartUpPosition =   3  'Windows ÇÃä˘íËíl
+   Begin VB.TextBox txtReport 
+      Height          =   4215
+      Left            =   2040
+      MultiLine       =   -1  'True
+      TabIndex        =   10
+      Top             =   120
+      Width           =   4095
+   End
    Begin VB.CommandButton cmdExit 
       Caption         =   "exit"
       Height          =   375
-      Left            =   120
+      Left            =   4320
       TabIndex        =   9
-      Top             =   4560
+      Top             =   4440
       Width           =   1815
    End
    Begin VB.CommandButton cmdVersion 
@@ -92,12 +100,6 @@ Begin VB.Form GeosTestsForm
       Top             =   120
       Width           =   1815
    End
-   Begin VB.Line Line1 
-      X1              =   120
-      X2              =   1920
-      Y1              =   4440
-      Y2              =   4440
-   End
 End
 Attribute VB_Name = "GeosTestsForm"
 Attribute VB_GlobalNameSpace = False
@@ -106,25 +108,21 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Sub clearReport()
+    GeosTestsForm.txtReport.Text = ""
+    GeosTestsForm.txtReport.Refresh
+End Sub
+
 Private Sub cmdCombinations_Click()
+    clearReport
     Dim test
     Set test = New TestGeosCombinations
-    test.testUnion
-    test.testIntersection
-    test.testDifference
-    test.testSymDifference
 End Sub
 
 Private Sub cmdCoordinateSequence_Click()
+    clearReport
     Dim test
     Set test = New TestCoordinateSequence
-    test.testCreate
-    test.testSize
-    test.testGetterSetter
-    'test.testIndexOutOfBounds
-    test.testOrdinate
-    test.testClone
-    test.testDimensions
 End Sub
 
 Private Sub cmdExit_Click()
@@ -132,72 +130,37 @@ Private Sub cmdExit_Click()
 End Sub
 
 Private Sub cmdGeometry_Click()
+    clearReport
     Dim test
     Set test = New TestGeometry
-    test.testCreatePoint
-    'test.testCreatePointIllegal
-    test.testCreateLineString
-    'test.testCreateLineStringIllegal
-    test.testCreateLinearRing
-    'test.testCreateLinearRingIllegal
-    test.testCreatePolygon
-    'test.testCreatePolygonWithHoles
-    test.testDistance
 End Sub
 
 Private Sub cmdIo_Click()
+    clearReport
     Dim test
     Set test = New TestIo
-    test.testOutputDimension
-    test.testByteOrder
-    test.testPoint
-    test.testLineString
-    test.testPolygon
-    test.testMultiPoint
-    test.testMultiLineString
-    test.testMultiPolygon
-    'test.testCollection ' TODO:
-    'test.testWktInvalid
-    'test.testWkbInvalid
-    'test.testHexInvalid
 End Sub
 
 Private Sub cmdOperations_Click()
+    clearReport
     Dim test
     Set test = New TestGeosOperations
-    test.testCentroid
-    test.testBuffer
-    test.testConvexHull
 End Sub
 
 Private Sub cmdRelations_Click()
+    clearReport
     Dim test
     Set test = New TestGeosRelations
-    test.testContains
-    test.testCrosses
-    test.testDisjoint
-    test.testEquals
-    test.testEqualsExact
-    test.testIntersects
-    'test.testIsWithinDistance ' TODO:
-    test.testOverlaps
-    test.testRelatePattern
-    test.testRelate
-    test.testTouches
-    test.testWithin
 End Sub
 
 Private Sub cmdSrid_Click()
+    clearReport
     Dim test
     Set test = New SridTest
-    test.testSrid
-    test.testWriteSrid
-    test.testRoundtripSrid
-    test.testReadSRID
 End Sub
 
 Private Sub cmdVersion_Click()
+    clearReport
     Dim test
     Set test = New TestVersion
-    test.testVersions
 End Sub

@@ -18,7 +18,7 @@ function report(expected, result, arg, desc, op, arg1, arg2, arg3) {
 
 if (WScript.Arguments.length == 0) {
 	WScript.Echo("Please drop test xml file on this script, or execute command line as follows" + "\n"
-				+ ">cscript test_xml.vbs [test xml file]");
+				+ ">cscript test_xml.js [test xml file]");
 	WScript.Quit(1);
 }
 
