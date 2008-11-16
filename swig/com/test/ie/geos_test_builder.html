@@ -84,7 +84,12 @@
         var map, layerInput, layerResult;
         var featureA, featureB, featureResult;
         var wktfmt = new OpenLayers.Format.WKT({'externalProjection': new OpenLayers.Projection("EPSG:4326")});
-        var geos = new ActiveXObject("geos.geos");
+        var geos = null;
+        try {
+            geos = new ActiveXObject("geos.geos");
+        } catch (ex) {
+            geos = null;
+        }
         
         function init(){
             var options = {
@@ -95,32 +100,25 @@
             options = {numZoomLevels: 16};
             var graphic = new OpenLayers.Layer.Image( "OpenLayers Image",
                 "./img/blank.gif",
-                new OpenLayers.Bounds(0, 0, 300000, 300000), // TODO: initial scale ?
+                new OpenLayers.Bounds(-150000, -150000, 150000, 150000), // TODO: initial scale ?
                 new OpenLayers.Size(426, 426),
                 options
                 );
-
+            
             layerInput = new OpenLayers.Layer.Vector("Vector Layer");
             layerResult = new OpenLayers.Layer.Vector("Vector Layer");
-
+            
             map.addLayers([graphic, layerInput, layerResult]);
             map.addControl(new OpenLayers.Control.MousePosition());
             map.addControl(new OpenLayers.Control.EditingToolbarExt(layerInput));
-
-            map.zoomToExtent(new OpenLayers.Bounds(-10, -10, 416, 416));
             
-            /*
-            // Debug
-            featureResult = wktfmt.read("POLYGON((0 0, 100 0, 100 100, 0 100, 0 0))");
-            setFeatureStyle(featureResult, "result");
-            layerResult.addFeatures([featureResult]);
-            */
+            map.zoomToExtent(new OpenLayers.Bounds(-10, -10, 416, 416));
             
             // init controls
             document.getElementById("radA").click();
             updateOperation("intersection");
         }
-
+        
         function writeInput(feature) {
             var str = "";
             if (!isEmpty(feature)) {
@@ -130,7 +128,7 @@
             }
             document.getElementById("txtInput").value = str;
         }
-
+        
         function loadInput() {
             var feature = wktfmt.read(document.getElementById("txtInput").value);
             var bounds = map.getExtent();
@@ -178,10 +176,20 @@
         }
         
         function isEmpty(value) {
-            if ((typeof(value) == 'undefined')
-                || (value == null)
-                || (value == "")) {
+            switch (typeof(value)) {
+            case "undefined":
                 return true;
+                break;
+            case "object":
+                if (value == null) {
+                    return true;
+                }
+                break;
+            case "string":
+                if (value == "") {
+                    return true;
+                }
+                break;
             }
             return false;
         }
@@ -212,7 +220,7 @@
                 OpenLayers.Feature.Vector.style['default'].fillColor = '#ffdfdf';
             }
         }
-
+        
         function setFeatureStyle(feature, strtype) {
             feature.style = {
                 fillColor: "#ee9900",
@@ -301,8 +309,6 @@
             case "centroid":
             case "envelope":
             case "linemerge":
-            case "simplify":
-            case "topologypreservesimplify":
             case "isempty":
             case "isvalid":
             case "issimple":
@@ -335,6 +341,11 @@
                 setArgument(2, "Distance", "10", false);
                 setArgument(3, "Quadrant Segs", "8", false);
                 break;
+            case "simplify":
+            case "topologypreservesimplify":
+                setArgument(2, "Tolerance", "10", false);
+                setArgument(3, "", "", true);
+                break;
             case "equalsexact":
                 setArgument(2, "Geometry", "B", true);
                 setArgument(3, "Tolerance", "0.00001", false); // TODO: reasonable initial value
@@ -356,6 +367,10 @@
         }
         
         function compute() {
+            if (isEmpty(geos)) {
+                alert("Compute function needs IE6/7 and geos_com.dll registered environment!");
+                return;
+            }
             var opts = document.getElementById("selOperation").options;
             var opname = opts[opts.selectedIndex].value;
             var fncname = opts[opts.selectedIndex].text;
@@ -367,9 +382,11 @@
             
             clearResult();
             
-            if (!isEmpty(featureA)) {
-                geomA = reader.read(wktfmt.write(featureA));
+            if (isEmpty(featureA)) {
+                alert("all operation needs Geometry A.");
+                return;
             }
+            geomA = reader.read(wktfmt.write(featureA));
             
             switch (opname.toLowerCase()) {
             // simple unary (return geometry)
@@ -379,8 +396,6 @@
             case "centroid":
             case "envelope":
             case "linemerge":
-            case "simplify":
-            case "topologypreservesimplify":
                 result = geomA[fncname]();
                 var wkt = writer.write(result);
                 writeResult(wkt);
@@ -402,10 +417,11 @@
             case "difference":
             case "symdifference":
             case "union":
-                geomB = null;
-                if (!isEmpty(featureB)) {
-                    geomB = reader.read(wktfmt.write(featureB));
+                if (isEmpty(featureB)) {
+                    alert('"' + fncname + '" operation needs Geometry B.');
+                    return;
                 }
+                geomB = reader.read(wktfmt.write(featureB));
                 result = geomA[fncname](geomB);
                 var wkt = writer.write(result);
                 writeResult(wkt);
@@ -420,34 +436,70 @@
             case "contains":
             case "overlaps":
             case "equals":
-            case "equalsexact":
             case "distance":
-                geomB = null;
-                if (!isEmpty(featureB)) {
-                    geomB = reader.read(wktfmt.write(featureB));
+                if (isEmpty(featureB)) {
+                    alert('"' + fncname + '" operation needs Geometry B.');
+                    return;
                 }
+                geomB = reader.read(wktfmt.write(featureB));
                 result = geomA[fncname](geomB);
                 writeResult(result);
                 break;
             case "buffer":
-                /*
-                lblArg[1].textContent = "Distance";
-                txtArg[1].value = "10";
-                txtArg[1].disabled = false;
-                lblArg[2].textContent = "Quadrant Segs";
-                txtArg[2].value = "8";
-                txtArg[2].disabled = false;
-                */
+                var distance = document.getElementById("txtArg2").value;
+                if (isNaN(distance)) {
+                    alert("Distance value must be number.");
+                    return;
+                }
+                distance = parseFloat(distance);
+                var quadsegs = document.getElementById("txtArg3").value;
+                if (isNaN(quadsegs)) {
+                    alert("Quadrant Segs value must be number.");
+                    return;
+                }
+                quadsegs = parseInt(quadsegs);
+                result = geomA[fncname](distance, quadsegs);
+                var wkt = writer.write(result);
+                writeResult(wkt);
+                drawResult(wkt);
+                break;
+            case "simplify":
+            case "topologypreservesimplify":
+                var tolerance = document.getElementById("txtArg2").value;
+                if (isNaN(tolerance)) {
+                    alert("Tolerance value must be number.");
+                    return;
+                }
+                tolerance = parseFloat(tolerance);
+                result = geomA[fncname](tolerance);
+                var wkt = writer.write(result);
+                writeResult(wkt);
+                drawResult(wkt);
+                break;
+            case "equalsexact":
+                var tolerance = document.getElementById("txtArg3").value;
+                if (isNaN(tolerance)) {
+                    alert("Tolerance value must be number.");
+                    return;
+                }
+                tolerance = parseFloat(tolerance);
+                if (isEmpty(featureB)) {
+                    alert('"' + fncname + '" operation needs Geometry B.');
+                    return;
+                }
+                geomB = reader.read(wktfmt.write(featureB));
+                result = geomA[fncname](geomB, tolerance);
+                writeResult(result);
                 break;
             case "relatepattern":
-                /*
-                lblArg[1].textContent = "Geometry";
-                txtArg[1].value = "B";
-                txtArg[1].disabled = true;
-                lblArg[2].textContent = "Pattern";
-                txtArg[2].value = "FFFFFFFFF";
-                txtArg[2].disabled = false;
-                */
+                var pattern = document.getElementById("txtArg3").value;
+                if (isEmpty(featureB)) {
+                    alert('"' + fncname + '" operation needs Geometry B.');
+                    return;
+                }
+                geomB = reader.read(wktfmt.write(featureB));
+                result = geomA[fncname](geomB, pattern);
+                writeResult(result);
                 break;
             }
         }
