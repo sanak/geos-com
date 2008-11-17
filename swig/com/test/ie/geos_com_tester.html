@@ -12,7 +12,7 @@
             width: 300px;
         }
         #selTestCase {
-            width: 100%;
+            width: 500px;
         }
         #controlpanel {
             top: 0;
@@ -598,8 +598,8 @@
                     if (!isEmpty(expected)) {
                         expected = writer.write(reader.read(expected));
                     }
-                    updateOutput();
                 }
+                updateOutput();
                 loadOutput();
                 break;
             // simple unary (return scalar)
@@ -742,7 +742,7 @@
                 xmldom = null;
                 return;
             }
-            var filename = selTestXml[optsTestXml.selectedIndex].text;
+            var filename = optsTestXml[optsTestXml.selectedIndex].text;
             
             if (!isEmpty(xmlhttp)) {
                 xmlhttp.open("get", filename, false);
@@ -775,12 +775,12 @@
             
             var nodeCase = xmldom.getElementsByTagName("case")[caseIdx - 1];
             var a = nodeCase.getElementsByTagName("a")[0].firstChild.data;
-            a = a.replace(/\n/g, "");
+            a = a.replace(/^\s+|\n|\s+$/g, "");
             var b = null;
             var nodeBs = nodeCase.getElementsByTagName("b");
             if (nodeBs.length > 0) {
                 b = nodeBs[0].firstChild.data;
-                b = b.replace(/\n/g, "");
+                b = b.replace(/^\s+|\n|\s+$/g, "");
             }
             var nodeTest = nodeCase.getElementsByTagName("test")[0];
             var nodeOp = nodeTest.getElementsByTagName("op")[0];
@@ -788,8 +788,8 @@
             var arg1 = nodeOp.getAttribute("arg1");
             var arg2 = nodeOp.getAttribute("arg2");
             var arg3 = nodeOp.getAttribute("arg3");
-            var exp = nodeOp.text;
-            exp = exp.replace(/\n/g, "");
+            var exp = nodeOp.firstChild.data;
+            exp = exp.replace(/^\s+|\n|\s+$/g, "");
             switch (opname) {
             case "relate":
                 opname = "relatepattern";
