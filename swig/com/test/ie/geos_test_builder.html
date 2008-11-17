@@ -6,13 +6,22 @@
     <style type="text/css">
         td {
             padding: 2px;
-            vertical-align: top;
+            vertical-align: center;
+        }
+        #selTestXml {
+            width: 300px;
+        }
+        #selTestCase {
+            width: 100%;
         }
         #controlpanel {
             top: 0;
             padding: 0;
             width: 226px;
             height: 426px;
+        }
+        #selOperation {
+            width: 100%;
         }
         #map {
             width: 426px;
@@ -24,7 +33,7 @@
             width: 100%;
             height: 100%;
         }
-        #txtResult {
+        #txtOutput {
             font-size: 0.85em;
             width: 100%;
             height: 100%;
@@ -38,13 +47,28 @@
         #lblB {
             color: red;
         }
+        #lblResult {
+            color: #acd62b;
+        }
+        #lblExpected {
+            color: #2bd656;
+        }
         p {
             margin: 0;
             padding: 0.75em 0 0.75em 0;
         }
+        td.testlabel {
+            width: 90px;
+        }
+        table.tests {
+            width: 100%;
+        }
         table.controls {
             width: 100%;
             height: 100%;
+        }
+        td.controlpanel {
+            vertical-align: center;
         }
         td.arglabel {
             width: 120px;
@@ -57,15 +81,16 @@
             text-align: right;
         }
         td.iolabel {
-            width: 80px;
+            width: 90px;
             height: 75px;
             list-style: none;
+            vertical-align: top;
+        }
+        td.iobutton {
+            vertical-align: top;
         }
         td.iotext {
-            width: 510px;
-        }
-        select {
-            width: 100%;
+            width: 500px;
         }
         option.unary {
             background-image: url("./img/unary-geom-function.png");
@@ -81,15 +106,10 @@
     <script src="./OpenLayers.js"></script>
     <script src="./EditingToolbarExt.js"></script>
     <script type="text/javascript">
-        var map, layerInput, layerResult;
-        var featureA, featureB, featureResult;
-        var wktfmt = new OpenLayers.Format.WKT({'externalProjection': new OpenLayers.Projection("EPSG:4326")});
-        var geos = null;
-        try {
-            geos = new ActiveXObject("geos.geos");
-        } catch (ex) {
-            geos = null;
-        }
+        var map, wktfmt, layerInput, layerOutput;
+        var featureA, featureB, featureResult, featureExpected;
+        var result, expected;
+        var geos, xmlhttp, xmldom;
         
         function init(){
             var options = {
@@ -97,6 +117,7 @@
                 maxExtent: new OpenLayers.Bounds(Number.MIN_VALUE, Number.MIN_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)
             };
             map = new OpenLayers.Map('map', options);
+            wktfmt = new OpenLayers.Format.WKT({'externalProjection': new OpenLayers.Projection("EPSG:4326")});
             options = {numZoomLevels: 16};
             var graphic = new OpenLayers.Layer.Image( "OpenLayers Image",
                 "./img/blank.gif",
@@ -106,9 +127,9 @@
                 );
             
             layerInput = new OpenLayers.Layer.Vector("Vector Layer");
-            layerResult = new OpenLayers.Layer.Vector("Vector Layer");
+            layerOutput = new OpenLayers.Layer.Vector("Vector Layer");
             
-            map.addLayers([graphic, layerInput, layerResult]);
+            map.addLayers([graphic, layerInput, layerOutput]);
             map.addControl(new OpenLayers.Control.MousePosition());
             map.addControl(new OpenLayers.Control.EditingToolbarExt(layerInput));
             
@@ -117,61 +138,143 @@
             // init controls
             document.getElementById("radA").click();
             updateOperation("intersection");
+            
+            // load embedded objects
+            var url = location.toString();
+            if (url.indexOf("http://") == 0) {
+                try {
+                    xmlhttp = new XMLHttpRequest();
+                } catch (ex) {
+                    try {
+                        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                    } catch (ex) {
+                    }
+                }
+            } else if (url.indexOf("file://") == 0) {
+                try {
+                    xmldom = new ActiveXObject("Microsoft.XMLDOM");
+                } catch (ex) {
+                }
+            }
+            if (isEmpty(xmlhttp) && isEmpty(xmldom)) {
+                document.getElementById("selTestXml").disabled = true;
+                document.getElementById("btnLoad").disabled = true;
+                document.getElementById("selTestCase").disabled = true;
+            }
+            
+            try {
+                geos = new ActiveXObject("geos.geos");
+            } catch (ex) {
+                geos = null;
+            }
         }
         
-        function writeInput(feature) {
+        function toWkt(feature) {
             var str = "";
-            if (!isEmpty(feature)) {
+            if (isEmpty(feature)) {
+                return str;
+            }
+            
+            if (feature.constructor != Array) {
                 str = wktfmt.write(feature);
                 // not a good idea in general, just for this demo
                 str = str.replace(/,/g, ', ');
+            } else {
+                str = "GEOMETRYCOLLECTION(";
+                for (var i = 0; i < feature.length; i++) {
+                    str += wktfmt.write(feature[i]);
+                    if (i != feature.length - 1) {
+                       str += ", ";
+                    }
+                }
+                str += ")";
             }
-            document.getElementById("txtInput").value = str;
+            return str;
         }
         
-        function loadInput() {
-            var feature = wktfmt.read(document.getElementById("txtInput").value);
+        function fromWkt(wkt) {
+            if (isEmpty(wkt)) {
+                return null;
+            }
+            //// remove "GEOMETRYCOLLECTION("+")" for OpenLayers
+            //var regexp = /GEOMETRYCOLLECTION\s*\(([\w,\s\(\)]+)\)/g
+            //wkt = wkt.replace(regexp, "$1");
+            var feature = wktfmt.read(wkt);
+            return feature;
+        }
+        
+        function addFeatures(layer, feature) {
+            if (isEmpty(feature)) {
+                return;
+            }
+            
             var bounds = map.getExtent();
-            if (feature) {
+            if (feature.constructor != Array) {
                 bounds.extend(feature.geometry.getBounds());
-                var strtype = getInputType();
-                feature.attributes['type'] = strtype;
+                layer.addFeatures([feature]);
+            } else {
+                for (var i = 0; i < feature.length; i++) {
+                    bounds.extend(feature[i].geometry.getBounds());
+                }
+                layer.addFeatures(feature);
+            }
+            map.zoomToExtent(bounds);
+        }
+        
+        function destroyFeatures(layer, feature) {
+            if (isEmpty(feature)) {
+                return;
+            }
+            
+            if (feature.constructor != Array) {
+                layer.destroyFeatures([feature]);
+            } else {
+                layer.destroyFeatures(feature);
+            }
+            feature = null;
+        }
+        
+        function loadInput(wkt, strtype) {
+            if (isEmpty(wkt)) {
+                wkt = document.getElementById("txtInput").value;
+            }
+            var feature = fromWkt(wkt);
+            
+            if (isEmpty(strtype)) {
+                strtype = getInputType();
+            }
+            if (feature) {
+                setFeatureType(feature, strtype);
                 setFeatureStyle(feature, strtype);
-                layerInput.addFeatures([feature]);
+                addFeatures(layerInput, feature);
                 if (strtype == "a") {
-                    if (!isEmpty(featureA)) {
-                        layerInput.destroyFeatures([featureA]);
-                        featureA = null;
-                    }
+                    destroyFeatures(layerInput, featureA);
                     featureA = feature;
                 } else if (strtype == "b") {
-                    if (!isEmpty(featureB)) {
-                        layerInput.destroyFeatures([featureB]);
-                        featureB = null;
-                    }
+                    destroyFeatures(layerInput, featureB);
                     featureB = feature;
                 }
-                map.zoomToExtent(bounds);
             }
         }
         
-        function writeResult(str) {
-            document.getElementById("txtResult").value = str;
-        }
-        
-        function drawResult(wkt) {
-            var feature = wktfmt.read(wkt);
-            var bounds = map.getExtent();
-            if (feature) {
-                bounds.extend(feature.geometry.getBounds());
-                setFeatureStyle(feature, "result");
-                layerResult.addFeatures([feature]);
-                if (!isEmpty(featureResult)) {
-                    layerResult.destroyFeatures([featureResult]);
-                    featureResult = null;
+        function loadOutput() {
+            if (!isEmpty(result)) {
+                var feature = fromWkt(result);
+                if (feature) {
+                    setFeatureStyle(feature, "result");
+                    addFeatures(layerOutput, feature);
+                    destroyFeatures(layerOutput, featureResult);
+                    featureResult = feature;
                 }
-                featureResult = feature;
-                map.zoomToExtent(bounds);
+            }
+            if (!isEmpty(expected)) {
+                var feature = fromWkt(expected);
+                if (feature) {
+                    setFeatureStyle(feature, "expected");
+                    addFeatures(layerOutput, feature);
+                    destroyFeatures(layerOutput, featureExpected);
+                    featureExpected = feature;
+                }
             }
         }
         
@@ -211,18 +314,39 @@
             }
         }
         
+        function getOutputType() {
+            if (document.getElementById("radResult").checked) {
+                return "result";
+            } else if (document.getElementById("radExpected").checked) {
+                return "expected";
+            }
+            return "result";
+        }
+        
+        function setOutputType(strtype) {
+            if (strtype == "result") {
+                document.getElementById("radResult").checked = true;
+            } else if (strtype == "expected") {
+                document.getElementById("radExpected").checked = true;
+            }
+        }
+        
         function setDefaultStyle(strtype) {
             if (strtype == "a") {
-                OpenLayers.Feature.Vector.style['default'].strokeColor = '#2929fd';
-                OpenLayers.Feature.Vector.style['default'].fillColor = '#dfdfff';
+                OpenLayers.Feature.Vector.style['default'].strokeColor = "#2929fd";
+                OpenLayers.Feature.Vector.style['default'].fillColor = "#dfdfff";
             } else if (strtype == "b") {
-                OpenLayers.Feature.Vector.style['default'].strokeColor = '#a52929';
-                OpenLayers.Feature.Vector.style['default'].fillColor = '#ffdfdf';
+                OpenLayers.Feature.Vector.style['default'].strokeColor = "#a52929";
+                OpenLayers.Feature.Vector.style['default'].fillColor = "#ffdfdf";
             }
         }
         
         function setFeatureStyle(feature, strtype) {
-            feature.style = {
+            if (isEmpty(feature)) {
+                return;
+            }
+            
+            var style = {
                 fillColor: "#ee9900",
                 fillOpacity: 0.4, 
                 hoverFillColor: "white",
@@ -242,14 +366,39 @@
                 cursor: "inherit"
             };
             if (strtype == "a") {
-                feature.style.strokeColor = "#2929fd";
-                feature.style.fillColor = "#dfdfff";
+                style.strokeColor = "#2929fd";
+                style.fillColor = "#dfdfff";
             } else if (strtype == "b") {
-                feature.style.strokeColor = "#a52929";
-                feature.style.fillColor = "#ffdfdf";
+                style.strokeColor = "#a52929";
+                style.fillColor = "#ffdfdf";
             } else if (strtype == "result") {
-                feature.style.strokeColor = "#acd62b";
-                feature.style.fillColor = "#ffffc2";
+                style.strokeColor = "#acd62b";
+                style.fillColor = "#ffffc2";
+            } else if (strtype == "expected") {
+                style.strokeColor = "#2bd656";
+                style.fillColor = "#c2ffc2";
+            }
+            
+            if (feature.constructor != Array) {
+                feature.style = style;
+            } else {
+                for (var i = 0; i < feature.length; i++) {
+                    feature[i].style = style;
+                }
+            }
+        }
+        
+        function setFeatureType(feature, strtype) {
+            if (isEmpty(feature)) {
+                return;
+            }
+            
+            if (feature.constructor != Array) {
+                feature.attributes["type"] = strtype;
+            } else {
+                for (var i = 0; i < feature.length; i++) {
+                    feature[i].attributes["type"] = strtype;
+                }
             }
         }
         
@@ -257,37 +406,55 @@
             layerInput.setVisibility(visibility);
         }
         
-        function toggleInputType(strtype) {
+        function updateInput() {
+            var strtype = getInputType();
+            var wkt = "";
             if (strtype == "a") {
-                writeInput(featureA);
+                wkt = toWkt(featureA);
             } else if (strtype == "b") {
-                writeInput(featureB);
+                wkt = toWkt(featureB);
             }
+            document.getElementById("txtInput").value = wkt;
             setDefaultStyle(strtype);
         }
         
-        function clearInput() {
-            if (getInputType() == "a") {
-                if (!isEmpty(featureA)) {
-                    layerInput.destroyFeatures([featureA]);
-                    featureA = null;
-                }
+        function updateOutput() {
+            var strtype = getOutputType();
+            var txtOutput = document.getElementById("txtOutput");
+            if (strtype == "result") {
+                txtOutput.value = result;
+            } else if (strtype == "expected") {
+                txtOutput.value = expected;
             }
-            if (getInputType() == "b") {
-                if (!isEmpty(featureB)) {
-                    layerInput.destroyFeatures([featureB]);
-                    featureB = null;
+            if (!isEmpty(result) && !isEmpty(expected)) {
+                if (result != expected) {
+                    txtOutput.style.backgroundColor = "#ffcccc";
+                } else {
+                    txtOutput.style.backgroundColor = "#ccffcc";
                 }
+            } else {
+                txtOutput.style.backgroundColor = "#ffffff";
+            }
+        }
+        
+        function clearInput(all) {
+            if (getInputType() == "a" || all) {
+                destroyFeatures(layerInput, featureA);
+            }
+            if (getInputType() == "b" || all) {
+                destroyFeatures(layerInput, featureB);
             }
             document.getElementById("txtInput").value = "";
         }
         
-        function clearResult() {
-            if (!isEmpty(featureResult)) {
-                layerResult.destroyFeatures([featureResult]);
-                featureResult = null;
-            }
-            document.getElementById("txtResult").value = "";
+        function clearOutput() {
+            result = "";
+            expected = "";
+            destroyFeatures(layerOutput, featureResult);
+            destroyFeatures(layerOutput, featureExpected);
+            var txtOutput = document.getElementById("txtOutput");
+            txtOutput.value = "";
+            txtOutput.style.backgroundColor = "#ffffff";
         }
         
         function setArgument(idx, label, value, disabled) {
@@ -300,13 +467,23 @@
         }
         
         function updateOperation(opname, arg1, arg2, arg3) {
+            var selOperation = document.getElementById("selOperation");
+            if (selOperation.value != opname.toLowerCase()) {
+                var optsOperation = selOperation.options;
+                for (var i = 0; i < optsOperation.length; i++) {
+                    if (optsOperation[i].value == opname.toLowerCase()) {
+                        optsOperation[i].selected = true;
+                        break;
+                    }
+                }
+            }
             setArgument(1, "Geometry", "A", true);
             switch (opname.toLowerCase()) {
             // simple unary
             case "convexhull":
-            case "boundary":
+            case "getboundary":
             case "pointonsurface":
-            case "centroid":
+            case "getcentroid":
             case "envelope":
             case "linemerge":
             case "isempty":
@@ -354,52 +531,76 @@
                 setArgument(2, "Geometry", "B", true);
                 setArgument(3, "Pattern", "FFFFFFFFF", false); // TODO: reasonable initial value
                 break;
+            default:
+                alert('"' + opname + '" operation not supported.');
+                return false;
+                break;
             }
-            if (typeof(arg1) != 'undefined') {
+            if (!isEmpty(arg1)) {
                 document.getElementById("txtArg1").value = arg1;
             }
-            if (typeof(arg2) != 'undefined') {
+            if (!isEmpty(arg2)) {
                 document.getElementById("txtArg2").value = arg2;
             }
-            if (typeof(arg3) != 'undefined') {
+            if (!isEmpty(arg3)) {
                 document.getElementById("txtArg3").value = arg3;
             }
+            return true;
         }
         
-        function compute() {
-            if (isEmpty(geos)) {
+        function compute(exp) {
+            if (isEmpty(exp) && isEmpty(geos)) {
                 alert("Compute function needs IE6/7 and geos_com.dll registered environment!");
                 return;
             }
+            
+            clearOutput();
+            
+            if (!isEmpty(exp)) {
+                expected = exp;
+                document.getElementById("radExpected").disabled = false;
+                if (isEmpty(geos)) {
+                    setOutputType("expected");
+                }
+            } else {
+                document.getElementById("radExpected").disabled = true;
+            }
+            
             var opts = document.getElementById("selOperation").options;
             var opname = opts[opts.selectedIndex].value;
             var fncname = opts[opts.selectedIndex].text;
             fncname = fncname.replace(/\W+/g, "");
             
-            var reader = geos.WktReader.new_WktReader();
-            var writer = geos.WktWriter.new_WktWriter();
-            var geomA, geomB, result;
-            
-            clearResult();
-            
             if (isEmpty(featureA)) {
                 alert("all operation needs Geometry A.");
                 return;
             }
-            geomA = reader.read(wktfmt.write(featureA));
+            var reader, writer;
+            var geomA, geomB, geomResult;
+            
+            if (!isEmpty(geos)) {
+                reader = geos.WktReader.new_WktReader();
+                writer = geos.WktWriter.new_WktWriter();
+                geomA = reader.read(toWkt(featureA));
+            }
             
             switch (opname.toLowerCase()) {
             // simple unary (return geometry)
             case "convexhull":
-            case "boundary":
+            case "getboundary":
             case "pointonsurface":
-            case "centroid":
+            case "getcentroid":
             case "envelope":
             case "linemerge":
-                result = geomA[fncname]();
-                var wkt = writer.write(result);
-                writeResult(wkt);
-                drawResult(wkt);
+                if (!isEmpty(geos)) {
+                    geomResult = geomA[fncname]();
+                    result = writer.write(geomResult);
+                    if (!isEmpty(expected)) {
+                        expected = writer.write(reader.read(expected));
+                    }
+                    updateOutput();
+                }
+                loadOutput();
                 break;
             // simple unary (return scalar)
             case "isempty":
@@ -409,23 +610,31 @@
             case "hasz":
             case "area":
             case "length":
-                result = geomA[fncname]();
-                writeResult(result);
+                if (!isEmpty(geos)) {
+                    result = geomA[fncname]();
+                    result = result.toString();
+                }
+                updateOutput();
                 break;
             // simple binary (return geometry)
             case "intersection":
             case "difference":
             case "symdifference":
             case "union":
-                if (isEmpty(featureB)) {
-                    alert('"' + fncname + '" operation needs Geometry B.');
-                    return;
+                if (!isEmpty(geos)) {
+                    if (isEmpty(featureB)) {
+                        alert('"' + fncname + '" operation needs Geometry B.');
+                        return;
+                    }
+                    geomB = reader.read(toWkt(featureB));
+                    geomResult = geomA[fncname](geomB);
+                    result = writer.write(geomResult);
+                    if (!isEmpty(expected)) {
+                        expected = writer.write(reader.read(expected));
+                    }
                 }
-                geomB = reader.read(wktfmt.write(featureB));
-                result = geomA[fncname](geomB);
-                var wkt = writer.write(result);
-                writeResult(wkt);
-                drawResult(wkt);
+                updateOutput();
+                loadOutput();
                 break;
             case "relate":
             case "disjoint":
@@ -437,70 +646,164 @@
             case "overlaps":
             case "equals":
             case "distance":
-                if (isEmpty(featureB)) {
-                    alert('"' + fncname + '" operation needs Geometry B.');
-                    return;
+                if (!isEmpty(geos)) {
+                    if (isEmpty(featureB)) {
+                        alert('"' + fncname + '" operation needs Geometry B.');
+                        return;
+                    }
+                    geomB = reader.read(toWkt(featureB));
+                    result = geomA[fncname](geomB);
+                    result = result.toString();
                 }
-                geomB = reader.read(wktfmt.write(featureB));
-                result = geomA[fncname](geomB);
-                writeResult(result);
+                updateOutput();
                 break;
             case "buffer":
-                var distance = document.getElementById("txtArg2").value;
-                if (isNaN(distance)) {
-                    alert("Distance value must be number.");
-                    return;
+                if (!isEmpty(geos)) {
+                    var distance = document.getElementById("txtArg2").value;
+                    if (isNaN(distance)) {
+                        alert("Distance value must be number.");
+                        return;
+                    }
+                    distance = parseFloat(distance);
+                    var quadsegs = document.getElementById("txtArg3").value;
+                    if (isNaN(quadsegs)) {
+                        alert("Quadrant Segs value must be number.");
+                        return;
+                    }
+                    quadsegs = parseInt(quadsegs);
+                    geomResult = geomA[fncname](distance, quadsegs);
+                    result = writer.write(geomResult);
+                    if (!isEmpty(expected)) {
+                        expected = writer.write(reader.read(expected));
+                    }
                 }
-                distance = parseFloat(distance);
-                var quadsegs = document.getElementById("txtArg3").value;
-                if (isNaN(quadsegs)) {
-                    alert("Quadrant Segs value must be number.");
-                    return;
-                }
-                quadsegs = parseInt(quadsegs);
-                result = geomA[fncname](distance, quadsegs);
-                var wkt = writer.write(result);
-                writeResult(wkt);
-                drawResult(wkt);
+                updateOutput();
+                loadOutput();
                 break;
             case "simplify":
             case "topologypreservesimplify":
-                var tolerance = document.getElementById("txtArg2").value;
-                if (isNaN(tolerance)) {
-                    alert("Tolerance value must be number.");
-                    return;
+                if (!isEmpty(geos)) {
+                    var tolerance = document.getElementById("txtArg2").value;
+                    if (isNaN(tolerance)) {
+                        alert("Tolerance value must be number.");
+                        return;
+                    }
+                    tolerance = parseFloat(tolerance);
+                    geomResult = geomA[fncname](tolerance);
+                    result = writer.write(geomResult);
+                    if (!isEmpty(expected)) {
+                        expected = writer.write(reader.read(expected));
+                    }
                 }
-                tolerance = parseFloat(tolerance);
-                result = geomA[fncname](tolerance);
-                var wkt = writer.write(result);
-                writeResult(wkt);
-                drawResult(wkt);
+                updateOutput();
+                loadOutput();
                 break;
             case "equalsexact":
-                var tolerance = document.getElementById("txtArg3").value;
-                if (isNaN(tolerance)) {
-                    alert("Tolerance value must be number.");
-                    return;
+                if (!isEmpty(geos)) {
+                    var tolerance = document.getElementById("txtArg3").value;
+                    if (isNaN(tolerance)) {
+                        alert("Tolerance value must be number.");
+                        return;
+                    }
+                    tolerance = parseFloat(tolerance);
+                    if (isEmpty(featureB)) {
+                        alert('"' + fncname + '" operation needs Geometry B.');
+                        return;
+                    }
+                    geomB = reader.read(toWkt(featureB));
+                    result = geomA[fncname](geomB, tolerance);
+                    result = result.toString();
                 }
-                tolerance = parseFloat(tolerance);
-                if (isEmpty(featureB)) {
-                    alert('"' + fncname + '" operation needs Geometry B.');
-                    return;
-                }
-                geomB = reader.read(wktfmt.write(featureB));
-                result = geomA[fncname](geomB, tolerance);
-                writeResult(result);
+                updateOutput();
                 break;
             case "relatepattern":
-                var pattern = document.getElementById("txtArg3").value;
-                if (isEmpty(featureB)) {
-                    alert('"' + fncname + '" operation needs Geometry B.');
-                    return;
+                if (!isEmpty(geos)) {
+                    var pattern = document.getElementById("txtArg3").value;
+                    if (isEmpty(featureB)) {
+                        alert('"' + fncname + '" operation needs Geometry B.');
+                        return;
+                    }
+                    geomB = reader.read(toWkt(featureB));
+                    result = geomA[fncname](geomB, pattern);
+                    result= result.toString();
                 }
-                geomB = reader.read(wktfmt.write(featureB));
-                result = geomA[fncname](geomB, pattern);
-                writeResult(result);
+                updateOutput();
                 break;
+            }
+        }
+        
+        function loadTestXml() {
+            var optsTestXml = document.getElementById("selTestXml").options;
+            var optsTestCase = document.getElementById("selTestCase").options;
+            
+            optsTestCase.length = 1;
+            
+            if (optsTestXml.selectedIndex == 0) {
+                xmldom = null;
+                return;
+            }
+            var filename = selTestXml[optsTestXml.selectedIndex].text;
+            
+            if (!isEmpty(xmlhttp)) {
+                xmlhttp.open("get", filename, false);
+                xmlhttp.send(null);
+                xmldom = xmlhttp.responseXML;
+            } else if (!isEmpty(xmldom)) {
+                xmldom.load(filename);
+            }
+            
+            if (!isEmpty(xmldom)) {
+                var nodeCases = xmldom.getElementsByTagName("case");
+                optsTestCase.length = nodeCases.length + 1;
+                for (var i = 0; i < nodeCases.length; i++) {
+                    optsTestCase[i + 1].text = nodeCases[i].getElementsByTagName("desc")[0].firstChild.data;
+                }
+            }
+        }
+        
+        function loadTestCase() {
+            clearInput(true);
+            clearOutput();
+            
+            if (isEmpty(xmldom)) {
+                return;
+            }
+            var caseIdx = document.getElementById("selTestCase").options.selectedIndex;
+            if (caseIdx == 0) {
+                return;
+            }
+            
+            var nodeCase = xmldom.getElementsByTagName("case")[caseIdx - 1];
+            var a = nodeCase.getElementsByTagName("a")[0].firstChild.data;
+            a = a.replace(/\n/g, "");
+            var b = null;
+            var nodeBs = nodeCase.getElementsByTagName("b");
+            if (nodeBs.length > 0) {
+                b = nodeBs[0].firstChild.data;
+                b = b.replace(/\n/g, "");
+            }
+            var nodeTest = nodeCase.getElementsByTagName("test")[0];
+            var nodeOp = nodeTest.getElementsByTagName("op")[0];
+            var opname = nodeOp.getAttribute("name");
+            var arg1 = nodeOp.getAttribute("arg1");
+            var arg2 = nodeOp.getAttribute("arg2");
+            var arg3 = nodeOp.getAttribute("arg3");
+            var exp = nodeOp.text;
+            exp = exp.replace(/\n/g, "");
+            switch (opname) {
+            case "relate":
+                opname = "relatepattern";
+                break;
+            }
+            //alert("a:\t" + a + "\nb:\t" + b + "\nopname:\t" + opname + "\narg1:\t" + arg1 + "\narg2:\t" + arg2 + "\narg3:\t" + arg3);
+            loadInput(a, "a");
+            updateInput();
+            if (!isEmpty(b)) {
+                loadInput(b, "b");
+                updateInput();
+            }
+            if (updateOperation(opname, arg1, arg2, arg3)) {
+                compute(exp);
             }
         }
         
@@ -520,7 +823,7 @@
     </script>
   </head>
   <body onload="init()">
-    <h1 id="title">GEOS Test Builder</h1>
+    <h1 id="title">GEOS COM Wrapper Tester</h1>
 
     <div id="tags">
     </div>
@@ -532,33 +835,95 @@
     <table id="panels">
       <tbody>
         <tr>
+          <td id="testpanel" colspan="2">
+            <table class="tests">
+              <tbody>
+                <tr>
+                  <td class="testlabel">
+                    <label for="selTestXml">TestXml</label>
+                  </td>
+                  <td>
+                    <select name="selTestXml" id="selTestXml">
+                      <option selected="selected">&nbsp;---&nbsp;Select Below&nbsp;---&nbsp;</option>
+                      <option>../testxml/general/TestBoundary.xml</option>
+                      <option>../testxml/general/TestCentroid.xml</option>
+                      <option>../testxml/general/TestConvexHull-big.xml</option>
+                      <option>../testxml/general/TestConvexHull.xml</option>
+                      <option>../testxml/general/TestFunctionAA.xml</option>
+                      <option>../testxml/general/TestFunctionAAPrec.xml</option>
+                      <option>../testxml/general/TestFunctionLA.xml</option>
+                      <option>../testxml/general/TestFunctionLAPrec.xml</option>
+                      <option>../testxml/general/TestFunctionLL.xml</option>
+                      <option>../testxml/general/TestFunctionLLPrec.xml</option>
+                      <option>../testxml/general/TestFunctionPA.xml</option>
+                      <option>../testxml/general/TestFunctionPL.xml</option>
+                      <option>../testxml/general/TestFunctionPLPrec.xml</option>
+                      <option>../testxml/general/TestFunctionPP.xml</option>
+                      <option>../testxml/general/TestInteriorPoint.xml</option> <!-- getInteriorPoint function not supported in GEOS CAPI -->
+                      <!-- <option>../testxml/general/TestRectanglePredicate.xml</option> --> <!-- multiple tests per one case not supported -->
+                      <option>../testxml/general/TestRelateAA.xml</option>
+                      <option>../testxml/general/TestRelateAC.xml</option>
+                      <option>../testxml/general/TestRelateLA.xml</option>
+                      <option>../testxml/general/TestRelateLC.xml</option>
+                      <option>../testxml/general/TestRelateLL.xml</option>
+                      <option>../testxml/general/TestRelatePA.xml</option>
+                      <option>../testxml/general/TestRelatePL.xml</option>
+                      <option>../testxml/general/TestRelatePP.xml</option>
+                      <option>../testxml/general/TestSimple.xml</option>
+                      <option>../testxml/general/TestValid.xml</option>
+                      <option>../testxml/general/TestValid2-big.xml</option>
+                      <option>../testxml/general/TestValid2.xml</option>
+                      <option>../testxml/general/TestWithinDistance.xml</option> <!-- isWithinDistance function not supported in GEOS CAPI -->
+                      <option>../testxml/robust/TestRobustOverlayFixed.xml</option>
+                      <option>../testxml/robust/TestRobustOverlayFloat.xml</option>
+                      <option>../testxml/robust/TestRobustRelate.xml</option>
+                      <option>../testxml/validate/TestRelateAA-big.xml</option>
+                      <option>../testxml/validate/TestRelateAA.xml</option>
+                      <option>../testxml/validate/TestRelateAC.xml</option>
+                      <option>../testxml/validate/TestRelateLA.xml</option>
+                      <option>../testxml/validate/TestRelateLC.xml</option>
+                      <option>../testxml/validate/TestRelateLL.xml</option>
+                      <option>../testxml/validate/TestRelatePA.xml</option>
+                      <option>../testxml/validate/TestRelatePL.xml</option>
+                      <option>../testxml/validate/TestRelatePP.xml</option>
+                    </select>
+                    <input type="button" id="btnLoad" value="Load" onclick="loadTestXml();"/><br/>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="testlabel">
+                    <label for="selTestCase">TestCase</label>
+                  </td>
+                  <td>
+                    <select name="selTestCase" id="selTestCase" onchange="loadTestCase();">
+                      <option selected="selected">&nbsp;---&nbsp;Select Below&nbsp;---&nbsp;</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
           <td id="controlpanel">
             <table class="controls">
               <tbody>
                 <tr>
                   <td colspan="2">
-                    <!-- TODO: local or server ? (xml file location) -->
-                    <label for="selTestCase">TestCase</label>
-                    <select name="selTestCase" id="selTestCase" style="width:100%;" disabled="true"/>
-                    <input type="button" id="btnLoadTestCase" value="Load" disabled="true"/>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="2">
                     <label for="selOperation">Operation(<img src="./img/unary-geom-function.png"/><font color="blue">:unary</font>/<img src="./img/binary-geom-function.png"><font color="red">:binary</font>)</label>
-                    <select size="13" name="selOperation" id="selOperation" style="width:100%;" onchange="updateOperation(this.value)">
+                    <select size="17" name="selOperation" id="selOperation" onchange="updateOperation(this.value)">
                       <option value="intersection" class="binary" selected="selected">&nbsp;&nbsp;&nbsp;intersection</option>
                       <option value="buffer" class="unary">&nbsp;&nbsp;&nbsp;buffer</option>
                       <option value="convexhull" class="unary">&nbsp;&nbsp;&nbsp;convexHull</option>
                       <option value="difference" class="binary">&nbsp;&nbsp;&nbsp;difference</option>
                       <option value="symdifference" class="binary">&nbsp;&nbsp;&nbsp;symDifference</option>
-                      <option value="boundary" class="unary">&nbsp;&nbsp;&nbsp;boundary</option>
+                      <option value="getboundary" class="unary">&nbsp;&nbsp;&nbsp;boundary</option>
                       <option value="union" class="binary">&nbsp;&nbsp;&nbsp;Union</option>
                       <option value="pointonsurface" class="unary">&nbsp;&nbsp;&nbsp;pointOnSurface</option>
-                      <option value="centroid" class="unary">&nbsp;&nbsp;&nbsp;getCentroid</option>
+                      <option value="getcentroid" class="unary">&nbsp;&nbsp;&nbsp;getCentroid</option>
                       <option value="envelope" class="unary">&nbsp;&nbsp;&nbsp;getEnvelope</option>
                       <option value="relate" class="binary">&nbsp;&nbsp;&nbsp;relate</option>
-                      <!-- <option value="polygonize" class="unary">&nbsp;&nbsp;&nbsp;polygonize</option> -->
+                      <!-- <option value="polygonize" class="unary">&nbsp;&nbsp;&nbsp;polygonize</option> --> <!-- SWIG interface not supported -->
                       <option value="linemerge" class="unary">&nbsp;&nbsp;&nbsp;lineMerge</option>
                       <option value="simplify" class="unary">&nbsp;&nbsp;&nbsp;simplify</option>
                       <option value="topologypreservesimplify" class="unary">&nbsp;&nbsp;&nbsp;topologyPreserveSimplify</option>
@@ -630,28 +995,31 @@
               <tbody>
                 <tr class="io">
                   <td class="iolabel">
-                        <input type="radio" name="inputtype" id="radA" value="a" checked="checked" onclick="toggleInputType(this.value);"/>
-                        <label for="radA" id="lblA">A</label><br/>
-                        <input type="radio" name="inputtype" id="radB" value="b" onclick="toggleInputType(this.value);"/>
-                        <label for="radB" id="lblB">B</label><br/>
+                    <input type="radio" name="inputtype" id="radA" value="a" checked="checked" onclick="updateInput();"/>
+                    <label for="radA" id="lblA">A</label><br/>
+                    <input type="radio" name="inputtype" id="radB" value="b" onclick="updateInput();"/>
+                    <label for="radB" id="lblB">B</label><br/>
                   </td>
                   <td class="iotext">
                     <textarea id="txtInput"></textarea>
                   </td>
-                  <td>
+                  <td class="iobutton">
                       <input type="button" id="btnClearInput" value="Clear" onclick="clearInput();"/><br/>
                       <input type="button" id="btnApply" value="Apply" onclick="loadInput();"/>
                   </td>
                 </tr>
                 <tr class="io">
                   <td class="iolabel">
-                      Result
+                    <input type="radio" name="outputtype" id="radResult" value="result" checked="checked" onclick="updateOutput();"/>
+                    <label for="radResult" id="lblResult">Result</label><br/>
+                    <input type="radio" name="outputtype" id="radExpected" value="expected" onclick="updateOutput();"/>
+                    <label for="radExpected" id="lblExpected">Expected</label><br/>
                   </td>
                   <td class="iotext">
-                    <textarea id="txtResult"></textarea>
+                    <textarea id="txtOutput"></textarea>
                   </td>
-                  <td>
-                      <input type="button" id="btnClearResult" value="Clear" onclick="clearResult();"/><br/>
+                  <td class="iobutton">
+                      <input type="button" id="btnClearOutput" value="Clear" onclick="clearOutput();"/><br/>
                   </td>
                 </tr>
               </tbody>

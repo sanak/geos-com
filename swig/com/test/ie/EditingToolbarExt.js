@@ -44,36 +44,29 @@ OpenLayers.Control.EditingToolbarExt = OpenLayers.Class(
             controls[i].featureAdded = function(feature) {
                 feature.state = OpenLayers.State.INSERT;
                 var strtype = getInputType();
-                feature.attributes['type'] = strtype;
+                setFeatureType(feature, strtype);
                 setFeatureStyle(feature, strtype);
                 if (strtype == "a") {
-                    if (!isEmpty(featureA)) {
-                        layer.destroyFeatures([featureA]);
-                        featureA = null;
-                    }
+                    destroyFeatures(layer, featureA);
                     featureA = feature;
                 } else if (strtype == "b") {
-                    if (!isEmpty(featureB)) {
-                        layer.destroyFeatures([featureB]);
-                        featureB = null;
-                    }
+                    destroyFeatures(layer, featureB);
                     featureB = feature;
                 }
-                writeInput(feature);
+                updateInput();
             };
         }
         controls[controls.length-1].onModificationStart = function(feature) {
-            var strtype = feature.attributes['type'];
+            var strtype = getFeatureType(feature);
             setInputType(strtype);
-            setDefaultStyle(strtype);
+            updateInput();
             layer.redraw(); // for vertex marker
-            writeInput(feature);
         };
         controls[controls.length-1].onModification = function(feature) {
-            writeInput(feature);
+            updateInput();
         };
         controls[controls.length-1].onModificationEnd = function(feature) {
-            writeInput(feature);
+            updateInput();
         };
         this.addControls(controls);
     },
