@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin VB.Form GeosTestsForm 
-   BorderStyle     =   1  'å≈íË(é¿ê¸)
+   BorderStyle     =   1
    Caption         =   "geos_tests"
    ClientHeight    =   4920
    ClientLeft      =   45
@@ -10,7 +10,7 @@ Begin VB.Form GeosTestsForm
    MaxButton       =   0   'False
    ScaleHeight     =   4920
    ScaleWidth      =   6240
-   StartUpPosition =   3  'Windows ÇÃä˘íËíl
+   StartUpPosition =   3
    Begin VB.TextBox txtReport 
       Height          =   4215
       Left            =   2040

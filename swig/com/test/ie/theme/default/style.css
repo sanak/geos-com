@@ -179,7 +179,7 @@ div.olControlMousePosition {
     float:right;
     right: 0px;
     height: 30px; 
-    width: 200px;
+    width: 240px;
 }
 .olControlEditingToolbar div { 
   background-image: url("img/editing_tool_bar.png");
@@ -188,6 +188,12 @@ div.olControlMousePosition {
   width:  24px;
   height: 24px;
   margin: 5px;
+}
+.olControlEditingToolbar .olControlZoomBoxItemActive { 
+  background-position: -129px -23px; 
+}
+.olControlEditingToolbar .olControlZoomBoxItemInactive { 
+  background-position: -129px -0px; 
 }
 .olControlEditingToolbar .olControlNavigationItemActive { 
   background-position: -103px -23px; 

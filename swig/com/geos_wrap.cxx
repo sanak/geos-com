@@ -562,7 +562,6 @@ void * SWIGSTDCALL SWIG_wrap_opaque(void *arg, int cMemOwn, GUID *iid) {
 #define  SWIG_MemoryError    	   -12 
 #define  SWIG_NullReferenceError   -13
 
-// <-- add #geosanak 2008.10.29
 #define SWIG_as_voidptr(a) const_cast< void * >(static_cast< const void * >(a)) 
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),reinterpret_cast< void** >(a)) 
 
@@ -579,7 +578,10 @@ void * SWIGSTDCALL SWIG_wrap_opaque(void *arg, int cMemOwn, GUID *iid) {
 #define SWIGTYPE_p_GeosPolygon SWIG_wrapPolygon
 
 #define SWIG_NewPointerObj(ptr, fnc, flags) ((!ptr) ? NULL : (SWIGIUnknown *) fnc(ptr, flags))
-// add #geosanak 2008.10.29 -->
+
+#ifndef vsnprintf
+#define vsnprintf _vsnprintf
+#endif
 
 #include <stdio.h>
 
@@ -1288,7 +1290,7 @@ HRESULT SWIGSTDCALL _wrap_GEOS_VERSION_PATCH_get(void *SWIG_ignored, int*SWIG_re
   HRESULT hres ;
   int result;
   
-  result = (int) 1;
+  result = (int) 3;
   *SWIG_result_ptr = result; 
   return S_OK;
 }
@@ -1299,7 +1301,7 @@ HRESULT SWIGSTDCALL _wrap_GEOS_VERSION_get(void *SWIG_ignored, WCHAR **SWIG_resu
   HRESULT hres ;
   char *result = 0 ;
   
-  result = (char *) "3.0.1";
+  result = (char *) "3.0.3";
   
   if (result) {
     int SWIG_len = MultiByteToWideChar(CP_ACP, 0, (char *) result, -1, 0, 0);
@@ -1361,7 +1363,7 @@ HRESULT SWIGSTDCALL _wrap_GEOS_CAPI_VERSION_PATCH_get(void *SWIG_ignored, int*SW
   HRESULT hres ;
   int result;
   
-  result = (int) 1;
+  result = (int) 2;
   *SWIG_result_ptr = result; 
   return S_OK;
 }
@@ -1394,7 +1396,7 @@ HRESULT SWIGSTDCALL _wrap_GEOS_CAPI_VERSION_get(void *SWIG_ignored, WCHAR **SWIG
   HRESULT hres ;
   char *result = 0 ;
   
-  result = (char *) "3.0.1-CAPI-1.4.1";
+  result = (char *) "3.0.3-CAPI-1.4.2";
   
   if (result) {
     int SWIG_len = MultiByteToWideChar(CP_ACP, 0, (char *) result, -1, 0, 0);

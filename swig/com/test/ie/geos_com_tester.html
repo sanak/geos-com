@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title>GEOS Test Builder</title>
+    <title>GEOS COM Wrapper Tester</title>
     <link rel="stylesheet" href="./theme/default/style.css" type="text/css" />
     <link rel="stylesheet" href="style.css" type="text/css" />
     <style type="text/css">
@@ -88,6 +88,7 @@
         }
         td.iobutton {
             vertical-align: top;
+            text-align: center;
         }
         td.iotext {
             width: 500px;
@@ -114,28 +115,32 @@
         function init(){
             var options = {
                 units: 'm',
-                maxExtent: new OpenLayers.Bounds(Number.MIN_VALUE, Number.MIN_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)
+                maxExtent: new OpenLayers.Bounds(-100000000000000000000, -100000000000000000000, 100000000000000000000, 100000000000000000000), // limit of number "e" format
+                controls: [
+                    new OpenLayers.Control.PanZoomBar(),
+                    new OpenLayers.Control.MousePosition()
+                ],
+                numZoomLevels: 16
             };
             map = new OpenLayers.Map('map', options);
             wktfmt = new OpenLayers.Format.WKT({'externalProjection': new OpenLayers.Projection("EPSG:4326")});
-            options = {numZoomLevels: 16};
             var graphic = new OpenLayers.Layer.Image( "OpenLayers Image",
                 "./img/blank.gif",
-                new OpenLayers.Bounds(-150000, -150000, 150000, 150000), // TODO: initial scale ?
-                new OpenLayers.Size(426, 426),
-                options
+                new OpenLayers.Bounds(-100000, -100000, 100000, 100000), // TODO: initial scale ?
+                new OpenLayers.Size(426, 426)
                 );
             
             layerInput = new OpenLayers.Layer.Vector("Vector Layer");
             layerOutput = new OpenLayers.Layer.Vector("Vector Layer");
             
             map.addLayers([graphic, layerInput, layerOutput]);
-            map.addControl(new OpenLayers.Control.MousePosition());
             map.addControl(new OpenLayers.Control.EditingToolbarExt(layerInput));
             
             map.zoomToExtent(new OpenLayers.Bounds(-10, -10, 416, 416));
             
-            // init controls
+            // init controls and variables
+            result = "";
+            expected = "";
             document.getElementById("radA").click();
             updateOperation("intersection");
             
@@ -1005,7 +1010,7 @@
                   </td>
                   <td class="iobutton">
                       <input type="button" id="btnClearInput" value="Clear" onclick="clearInput();"/><br/>
-                      <input type="button" id="btnApply" value="Apply" onclick="loadInput();"/>
+                      <input type="button" id="btnLoadInput" value="Load" onclick="loadInput();"/>
                   </td>
                 </tr>
                 <tr class="io">

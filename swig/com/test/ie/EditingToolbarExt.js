@@ -32,7 +32,7 @@ OpenLayers.Control.EditingToolbarExt = OpenLayers.Class(
         OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
         
         this.addControls(
-          [ new OpenLayers.Control.Navigation() ]
+          [ new OpenLayers.Control.ZoomBox({'displayClass': 'olControlZoomBox'}), new OpenLayers.Control.Navigation() ]
         );  
         var controls = [
           new OpenLayers.Control.DrawFeature(layer, OpenLayers.Handler.Point, {'displayClass': 'olControlDrawFeaturePoint'}),
@@ -80,7 +80,7 @@ OpenLayers.Control.EditingToolbarExt = OpenLayers.Class(
      */
     draw: function() {
         var div = OpenLayers.Control.Panel.prototype.draw.apply(this, arguments);
-        this.activateControl(this.controls[0]);
+        this.activateControl(this.controls[1]);
         return div;
     },
 
