@@ -42,7 +42,7 @@
 				OutputFile="$(OutDir)\geosd_com.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="Debug"
-				ModuleDefinitionFile="..\..\..\com\geos_com.def"
+				ModuleDefinitionFile="..\..\..\swig\com\geos.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="$(OutDir)/geos_com.lib"
@@ -54,7 +54,7 @@
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
-				TypeLibraryName="$(IntDir)/geos_com.tlb"
+				TypeLibraryName="../../../swig/com/geos.tlb"
 				HeaderFileName="geos_com.h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="geos_com_i.c"
@@ -102,7 +102,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				DebugInformationFormat="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -112,8 +112,8 @@
 				OutputFile="$(OutDir)\geos_com.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="Release"
-				ModuleDefinitionFile="..\..\..\com\geos_com.def"
-				GenerateDebugInformation="TRUE"
+				ModuleDefinitionFile="..\..\..\swig\com\geos.def"
+				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -125,7 +125,7 @@
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
-				TypeLibraryName="$(IntDir)/geos_com.tlb"
+				TypeLibraryName="../../../swig/com/geos.tlb"
 				HeaderFileName="geos_com.h"
 				DLLDataFileName=""
 				InterfaceIdentifierFileName="geos_com_i.c"
@@ -163,33 +163,25 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\..\com\API.cpp">
+				RelativePath="..\..\..\swig\com\geos.def">
 			</File>
 			<File
-				RelativePath="..\..\..\com\geos_com.cpp">
+				RelativePath="..\..\..\swig\com\geos.idl">
 			</File>
 			<File
-				RelativePath="..\..\..\com\geos_com.def">
-			</File>
-			<File
-				RelativePath="..\..\..\com\geos_com.idl">
-			</File>
-			<File
-				RelativePath="..\..\..\com\geos_com.rc">
-			</File>
-			<File
-				RelativePath="..\..\..\com\stdafx.cpp">
+				RelativePath="..\..\..\swig\com\geos_wrap.cxx">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="">
 			<File
-				RelativePath="..\..\..\com\API.h">
-			</File>
-			<File
-				RelativePath="..\..\..\com\stdafx.h">
+				RelativePath="..\..\..\swig\com\geos.rc">
 			</File>
 		</Filter>
 	</Files>

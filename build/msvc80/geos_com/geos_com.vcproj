@@ -254,19 +254,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\..\..\swig\com\geos.i"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					CommandLine=""
-					Outputs=""
-				/>
-			</FileConfiguration>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

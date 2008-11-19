@@ -537,6 +537,9 @@
 					RelativePath="..\..\..\source\io\ByteOrderValues.cpp">
 				</File>
 				<File
+					RelativePath="..\..\..\source\io\CLocalizer.cpp">
+				</File>
+				<File
 					RelativePath="..\..\..\source\io\ParseException.cpp">
 				</File>
 				<File
@@ -1748,6 +1751,9 @@
 						</File>
 						<File
 							RelativePath="..\..\..\source\headers\geos\io\ByteOrderValues.h">
+						</File>
+						<File
+							RelativePath="..\..\..\source\headers\geos\io\CLocalizer.h">
 						</File>
 						<File
 							RelativePath="..\..\..\source\headers\geos\io\ParseException.h">
