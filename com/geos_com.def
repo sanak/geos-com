@@ -1,9 +1,0 @@
-; geos_com.def : Declares the module parameters.
-
-LIBRARY      "geos_com.dll"
-
-EXPORTS
-	DllCanUnloadNow		PRIVATE
-	DllGetClassObject	PRIVATE
-	DllRegisterServer	PRIVATE
-	DllUnregisterServer	PRIVATE
