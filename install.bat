@@ -1,1 +1,1 @@
-regsvr32 .\bin\geos_com.dll
+regsvr32 "%~DP0bin\geos_com.dll"
