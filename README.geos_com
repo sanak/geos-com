@@ -1,0 +1,28 @@
+GEOS COM Wrapper - Geometry Engine Open Source COM Wrapper
+-------------------------------------------------------------------------------
+                                                          2008.11.20 ver3.0.3.0
+
+GEOS COM Wrapper is GEOS(Geometry Engine Open Source - http://trac.osgeo.org/geos/) 
+COM Wrapper. It enables OLE Automation (VBScript .etc) access to GEOS CAPI.
+
+SUPPORTED PLATFORMS
+  - Windows 2000/XP/Vista
+
+LICENSE
+  GEOS COM Wrapper is free software and is released under LGPL (GNU Lesser 
+  General Public License). See the COPYING.geos_com file for more information.
+
+INSTALLATION
+  1. Double click on the "install.bat" file in Explorer.
+     (In Vista, right click on the "install.bat" file, then select "Run as administrator")
+  2. A message should pop up saying "DllRegisterServer in [install-path]\geos_com.dll succeeded.",
+     click OK.
+
+BUILD
+  1. Download geos-3.0.3.tar.bz2 from http://download.osgeo.org/geos/geos-3.0.3.tar.bz2
+  2. Extract geos-3.0.3.tar.bz2, then copy subfolders on this folder.
+  3. Open build/msvcXX/geos_com.sln with Visual Studio, then build solution.
+
+SUPPORT
+  HomePage: http://geos-com.sourceforge.jp/
+  E-mail:   geosanak at gmail.com
