@@ -799,6 +799,9 @@
             case "relate":
                 opname = "relatepattern";
                 break;
+            case "getInteriorPoint":
+            	opname = "pointonsurface";
+                break;
             }
             //alert("a:\t" + a + "\nb:\t" + b + "\nopname:\t" + opname + "\narg1:\t" + arg1 + "\narg2:\t" + arg2 + "\narg3:\t" + arg3);
             loadInput(a, "a");
@@ -864,7 +867,7 @@
                       <option>../testxml/general/TestFunctionPL.xml</option>
                       <option>../testxml/general/TestFunctionPLPrec.xml</option>
                       <option>../testxml/general/TestFunctionPP.xml</option>
-                      <option>../testxml/general/TestInteriorPoint.xml</option> <!-- getInteriorPoint function not supported in GEOS CAPI -->
+                      <option>../testxml/general/TestInteriorPoint.xml</option>
                       <!-- <option>../testxml/general/TestRectanglePredicate.xml</option> --> <!-- multiple tests per one case not supported -->
                       <option>../testxml/general/TestRelateAA.xml</option>
                       <option>../testxml/general/TestRelateAC.xml</option>
